@@ -1,0 +1,124 @@
+.navbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  column-gap: 2rem;
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+}
+
+.navbar__logo {
+  display: flex;
+  align-items: center;
+  justify-self: start;
+}
+
+.navbar__logo a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.navbar__logo img {
+  height: 80px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.navbar__center {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+}
+
+.navbar__search {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.navbar__search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0.9rem 1.2rem;
+  font-size: 0.98rem;
+  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+  color: #374151;
+}
+
+.navbar__search input::placeholder {
+  color: #6b7280;
+}
+
+.navbar__search button {
+  border: none;
+  background-color: #4FB343;
+  padding: 0 1.1rem;
+  height: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar__search button svg {
+  width: 17px;
+  height: 17px;
+}
+.navbar__links {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+  justify-self: center;
+}
+
+.navbar__links a {
+  text-decoration: none;
+  color: #374151;
+  font-weight: 500;
+  font-size: 1rem;
+  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.navbar__links a:hover {
+  color: #2e7d32;
+}
+
+.navbar__links a.active {
+  color: #2e7d32;
+}
+
+.navbar__right {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+}
+
+.navbar__profile {
+  text-decoration: none;
+  color: #374151;
+  font-weight: 600;
+  font-size: 1rem;
+  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.navbar__profile:hover,
+.navbar__profile.active {
+  color: #2e7d32;
+}
