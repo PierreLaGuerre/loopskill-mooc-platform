@@ -11,7 +11,8 @@ export const routes: Routes = [
   { path: 'explore', component: ExploreComponent },
   { path: 'login', component: LoginComponent },
   { path: 'plans', component: PlansComponent },
-  { path: 'user', component: UserPageComponent },
+  { path: 'my-learnings', component: UserPageComponent },
+  { path: 'profile', component: UserPageComponent },
   { path: 'courses/:id', component: CourseDetailComponent },
   { path: '**', redirectTo: '' }
 ];
