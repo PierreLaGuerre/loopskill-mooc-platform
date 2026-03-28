@@ -1,1 +1,12 @@
-<p>home works!</p>
+<section class="home-section">
+  <div class="home-section__container">
+    <h2 class="home-section__title">Most Popular Courses</h2>
+
+    <div class="courses-grid">
+      <app-course-card
+        *ngFor="let course of popularCourses"
+        [course]="course">
+      </app-course-card>
+    </div>
+  </div>
+</section>

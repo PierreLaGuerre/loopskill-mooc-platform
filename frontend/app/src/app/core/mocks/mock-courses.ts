@@ -8,7 +8,7 @@ export const MOCK_COURSES: Course[] = [
     category: 'Programming',
     level: 'Beginner',
     requiredPlan: 'Free',
-    image: 'assets/images/courses/python.jpg',
+    image: 'assets/images/courses/python.png',
     tags: ['python', 'beginner', 'programming'],
     isPopular: true
   },
@@ -30,7 +30,7 @@ export const MOCK_COURSES: Course[] = [
     category: 'Databases',
     level: 'Beginner',
     requiredPlan: 'Free',
-    image: 'assets/images/courses/sql.jpg',
+    image: 'assets/images/courses/sql.png',
     tags: ['sql', 'databases', 'queries'],
     isPopular: true
   },
@@ -41,7 +41,7 @@ export const MOCK_COURSES: Course[] = [
     category: 'Data Analysis',
     level: 'Intermediate',
     requiredPlan: 'Pro',
-    image: 'assets/images/courses/powerbi.jpg',
+    image: 'assets/images/courses/powerBI.png',
     tags: ['power-bi', 'dashboards', 'data-visualization'],
     isPopular: true
   },
