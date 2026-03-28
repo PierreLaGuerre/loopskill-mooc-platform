@@ -1,10 +1,10 @@
 export interface Course {
   id: number;
   title: string;
-  subtitle: string;
+  description: string;
   category: string;
   level: 'Beginner' | 'Intermediate' | 'Advanced';
-  duration: string;
+  requiredPlan: 'Free' | 'Pro' | 'Premium';
   image: string;
   tags: string[];
   isPopular: boolean;

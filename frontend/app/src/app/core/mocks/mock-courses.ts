@@ -4,21 +4,21 @@ export const MOCK_COURSES: Course[] = [
   {
     id: 1,
     title: 'Python for Beginners',
-    subtitle: 'Start coding with Python from scratch',
+    description: 'Start coding with Python from scratch and build a strong foundation in programming.',
     category: 'Programming',
     level: 'Beginner',
-    duration: '12 hours',
+    requiredPlan: 'Free',
     image: 'assets/images/courses/python.jpg',
-    tags: ['python', 'programming', 'beginner'],
+    tags: ['python', 'beginner', 'programming'],
     isPopular: true
   },
   {
     id: 2,
     title: 'Advanced Python',
-    subtitle: 'Improve your Python skills with real projects',
+    description: 'Improve your Python skills with automation, APIs and more advanced development patterns.',
     category: 'Programming',
     level: 'Advanced',
-    duration: '18 hours',
+    requiredPlan: 'Pro',
     image: 'assets/images/courses/advanced-python.jpg',
     tags: ['python', 'automation', 'advanced'],
     isPopular: true
@@ -26,10 +26,10 @@ export const MOCK_COURSES: Course[] = [
   {
     id: 3,
     title: 'SQL Fundamentals',
-    subtitle: 'Learn databases and SQL queries',
+    description: 'Learn how to query databases, filter data and build a solid SQL foundation.',
     category: 'Databases',
     level: 'Beginner',
-    duration: '10 hours',
+    requiredPlan: 'Free',
     image: 'assets/images/courses/sql.jpg',
     tags: ['sql', 'databases', 'queries'],
     isPopular: true
@@ -37,10 +37,10 @@ export const MOCK_COURSES: Course[] = [
   {
     id: 4,
     title: 'Power BI Essentials',
-    subtitle: 'Build dashboards and visual reports',
+    description: 'Create dashboards and transform data into useful business insights with Power BI.',
     category: 'Data Analysis',
     level: 'Intermediate',
-    duration: '9 hours',
+    requiredPlan: 'Pro',
     image: 'assets/images/courses/powerbi.jpg',
     tags: ['power-bi', 'dashboards', 'data-visualization'],
     isPopular: true
@@ -48,21 +48,21 @@ export const MOCK_COURSES: Course[] = [
   {
     id: 5,
     title: 'Frontend Development Basics',
-    subtitle: 'HTML, CSS and JavaScript foundations',
+    description: 'Learn the foundations of HTML, CSS and JavaScript to build modern web pages.',
     category: 'Web Development',
     level: 'Beginner',
-    duration: '14 hours',
+    requiredPlan: 'Free',
     image: 'assets/images/courses/frontend.jpg',
-    tags: ['html', 'css', 'javascript', 'frontend'],
+    tags: ['html', 'css', 'javascript'],
     isPopular: false
   },
   {
     id: 6,
     title: 'Angular from Zero',
-    subtitle: 'Create modern web applications with Angular',
+    description: 'Build scalable frontend applications using Angular and TypeScript step by step.',
     category: 'Web Development',
     level: 'Intermediate',
-    duration: '16 hours',
+    requiredPlan: 'Premium',
     image: 'assets/images/courses/angular.jpg',
     tags: ['angular', 'typescript', 'frontend'],
     isPopular: false
@@ -70,10 +70,10 @@ export const MOCK_COURSES: Course[] = [
   {
     id: 7,
     title: 'Excel for Data Analysis',
-    subtitle: 'Use Excel to clean and analyze data',
+    description: 'Use Excel tools and formulas to clean, organize and analyze data efficiently.',
     category: 'Data Analysis',
     level: 'Beginner',
-    duration: '8 hours',
+    requiredPlan: 'Free',
     image: 'assets/images/courses/excel.jpg',
     tags: ['excel', 'data-analysis', 'spreadsheets'],
     isPopular: false
@@ -81,12 +81,12 @@ export const MOCK_COURSES: Course[] = [
   {
     id: 8,
     title: 'Introduction to UX/UI Design',
-    subtitle: 'Learn the basics of digital product design',
+    description: 'Discover the basics of user experience and interface design for digital products.',
     category: 'Design',
     level: 'Beginner',
-    duration: '11 hours',
+    requiredPlan: 'Pro',
     image: 'assets/images/courses/ux-ui.jpg',
-    tags: ['ux', 'ui', 'design', 'figma'],
+    tags: ['ux', 'ui', 'design'],
     isPopular: false
   }
 ];
