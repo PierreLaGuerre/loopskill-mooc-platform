@@ -1,15 +1,11 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CourseCardComponent } from '../../shared/components/course-card/course-card.component';
-import { MOCK_COURSES } from '../../core/mocks/mock-courses';
+import { PopularCoursesSectionComponent } from './components/popular-courses-section/popular-courses-section.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, CourseCardComponent],
+  imports: [PopularCoursesSectionComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
-export class HomeComponent {
-  popularCourses = MOCK_COURSES.filter(course => course.isPopular).slice(0, 4);
-}
+export class HomeComponent {}

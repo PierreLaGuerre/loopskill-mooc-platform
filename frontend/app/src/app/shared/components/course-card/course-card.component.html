@@ -8,33 +8,20 @@
   </div>
 
   <div class="course-card__content">
-    <div class="course-card__meta">
-      <span class="course-card__category">{{ course.category }}</span>
-      <span class="course-card__level">{{ course.level }}</span>
-    </div>
-
     <h3 class="course-card__title">{{ course.title }}</h3>
 
     <p class="course-card__description">
       {{ course.description }}
     </p>
 
-    <div class="course-card__bottom">
-      <div class="course-card__tags">
-        <span class="course-card__tag" *ngFor="let tag of course.tags.slice(0, 3)">
-          {{ tag }}
-        </span>
-      </div>
+    <div class="course-card__footer">
+      <span class="course-card__plan">
+        {{ course.requiredPlan }}
+      </span>
 
-      <div class="course-card__footer">
-        <span class="course-card__plan">
-          {{ course.requiredPlan }}
-        </span>
-
-        <button class="course-card__button" type="button">
-          View course
-        </button>
-      </div>
+      <button class="course-card__button" type="button">
+        View course
+      </button>
     </div>
   </div>
 </article>
