@@ -45,28 +45,28 @@ export const MOCK_COURSES: Course[] = [
     tags: ['nodejs', 'javascript', 'backend'],
     isPopular: true
   },
-  {
-    id: 5,
-    title: 'Frontend Development Basics',
-    description: 'Learn the foundations of HTML, CSS and JavaScript to build modern web pages.',
-    category: 'Web Development',
-    level: 'Beginner',
-    requiredPlan: 'Free',
-    image: 'assets/images/courses/frontend.jpg',
-    tags: ['html', 'css', 'javascript'],
-    isPopular: false
-  },
-  {
-    id: 6,
-    title: 'Angular from Zero',
-    description: 'Build scalable frontend applications using Angular and TypeScript step by step.',
-    category: 'Web Development',
-    level: 'Intermediate',
-    requiredPlan: 'Premium',
-    image: 'assets/images/courses/angular.jpg',
-    tags: ['angular', 'typescript', 'frontend'],
-    isPopular: false
-  },
+{
+  id: 5,
+  title: 'GitHub Fundamentals',
+  description: 'Learn how to manage repositories and control versions with GitHub.',
+  category: 'Development Tools',
+  level: 'Beginner',
+  requiredPlan: 'Free',
+  image: 'assets/images/courses/github.png',
+  tags: ['github', 'git', 'version-control'],
+  isPopular: false
+},
+{
+  id: 6,
+  title: 'Java Fundamentals',
+  description: 'Learn the core concepts of Java in object-oriented programming.',
+  category: 'Programming',
+  level: 'Intermediate',
+  requiredPlan: 'Premium',
+  image: 'assets/images/courses/java2.png',
+  tags: ['java', 'oop', 'backend'],
+  isPopular: false
+},
   {
     id: 7,
     title: 'Excel for Data Analysis',
