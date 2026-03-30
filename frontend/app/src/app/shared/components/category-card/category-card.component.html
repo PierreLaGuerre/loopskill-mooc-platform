@@ -1,1 +1,14 @@
-<p>category-card works!</p>
+<div class="category-card">
+  <div class="category-card__icon-wrapper">
+    <img
+      class="category-card__icon"
+      [src]="category.icon"
+      [alt]="category.name + ' icon'" />
+  </div>
+
+  <h3 class="category-card__title">{{ category.name }}</h3>
+
+  <p class="category-card__description">
+    {{ category.description }}
+  </p>
+</div>

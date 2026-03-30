@@ -1,1 +1,15 @@
-<p>categories-section works!</p>
+<section class="home-section">
+  <div class="home-section__container">
+    <h2 class="home-section__title">Categories</h2>
+    <p class="home-section__subtitle">
+      Explore the main learning areas available on LoopSkill.
+    </p>
+
+    <div class="categories-grid">
+      <app-category-card
+        *ngFor="let category of categories"
+        [category]="category">
+      </app-category-card>
+    </div>
+  </div>
+</section>
