@@ -1,12 +1,18 @@
 .navbar {
+  width: 100%;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+}
+
+.navbar__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
   display: grid;
   grid-template-columns: auto 1fr auto auto;
   align-items: center;
   column-gap: 2rem;
-  padding: 1rem 2rem;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
 }
 
 .navbar__logo {
@@ -45,23 +51,6 @@
   background-color: #ffffff;
 }
 
-
-
-.navbar__search input::placeholder {
-  color: #6b7280;
-}
-
-.navbar__search {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 420px;
-  border: 1px solid #d1d5db;
-  border-radius: 999px;
-  overflow: hidden;
-  background-color: #ffffff;
-}
-
 .navbar__search input {
   flex: 1;
   border: none;
@@ -70,6 +59,10 @@
   font-size: 0.92rem;
   font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
   color: #374151;
+}
+
+.navbar__search input::placeholder {
+  color: #6b7280;
 }
 
 .navbar__search button {
@@ -84,15 +77,11 @@
 }
 
 .navbar__search button svg {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   display: block;
 }
 
-.navbar__search button svg {
-  width: 17px;
-  height: 17px;
-}
 .navbar__links {
   list-style: none;
   display: flex;
@@ -100,7 +89,8 @@
   gap: 2rem;
   margin: 0;
   padding: 0;
-  justify-self: center;
+  justify-self: end;
+  margin-right: 2.5rem;
 }
 
 .navbar__links a {
@@ -113,10 +103,7 @@
   transition: color 0.2s ease;
 }
 
-.navbar__links a:hover {
-  color: #2e7d32;
-}
-
+.navbar__links a:hover,
 .navbar__links a.active {
   color: #2e7d32;
 }
@@ -135,6 +122,35 @@
   font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
   white-space: nowrap;
   transition: color 0.2s ease;
+}
+
+.navbar__right {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+}
+
+.navbar__profile-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: #4FB343;
+  color: #ffffff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+  line-height: 1;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.navbar__profile-avatar:hover,
+.navbar__profile-avatar.active {
+  background-color: #3f9636;
+  transform: translateY(-1px);
 }
 
 .navbar__profile:hover,
