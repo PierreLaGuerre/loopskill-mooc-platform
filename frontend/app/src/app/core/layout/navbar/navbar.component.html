@@ -1,39 +1,64 @@
 <header class="navbar">
-    <div class="navbar__container">
-        <div class="navbar__logo">
-            <a routerLink="/">
-                <img src="assets/images/loopskill-logo-cropped.png" alt="LoopSkill logo" />
-            </a>
-        </div>
-
-        <div class="navbar__center">
-            <div class="navbar__search">
-                <input type="text" placeholder="What do you want to learn?" />
-                <button type="button" aria-label="Search">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="11" cy="11" r="6" stroke="white" stroke-width="2"></circle>
-                        <path d="M16 16L21 21" stroke="white" stroke-width="2" stroke-linecap="round"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <ul class="navbar__links">
-            <li>
-                <a routerLink="/explore" routerLinkActive="active">Explore</a>
-            </li>
-            <li>
-                <a routerLink="/my-learnings" routerLinkActive="active">My Learning</a>
-            </li>
-            <li>
-                <a routerLink="/plans" routerLinkActive="active">Plans</a>
-            </li>
-        </ul>
-
-        <div class="navbar__right">
-            <a class="navbar__profile-avatar" routerLink="/profile" routerLinkActive="active" aria-label="Profile">
-                {{ userInitial }}
-            </a>
-        </div>
+  <div class="navbar__container">
+    <div class="navbar__logo">
+      <a routerLink="/" (click)="closeMobileMenu()">
+        <img src="assets/images/loopskill-logo-cropped.png" alt="LoopSkill logo" />
+      </a>
     </div>
+
+    <div class="navbar__center">
+      <div class="navbar__search">
+        <input type="text" placeholder="What do you want to learn?" />
+        <button type="button" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="11" cy="11" r="6" stroke="white" stroke-width="2"></circle>
+            <path d="M16 16L21 21" stroke="white" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <ul class="navbar__links">
+      <li>
+        <a routerLink="/explore" routerLinkActive="active">Explore</a>
+      </li>
+      <li>
+        <a routerLink="/my-learnings" routerLinkActive="active">My Learnings</a>
+      </li>
+      <li>
+        <a routerLink="/plans" routerLinkActive="active">Plans</a>
+      </li>
+    </ul>
+
+    <div class="navbar__right">
+      <a class="navbar__profile-avatar" routerLink="/profile" routerLinkActive="active" aria-label="Profile">
+        {{ userInitial }}
+      </a>
+    </div>
+
+    <button
+      class="navbar__mobile-toggle"
+      type="button"
+      aria-label="Toggle menu"
+      (click)="toggleMobileMenu()">
+      <span *ngIf="!isMobileMenuOpen" class="navbar__mobile-icon">☰</span>
+      <span *ngIf="isMobileMenuOpen" class="navbar__mobile-icon">✕</span>
+    </button>
+  </div>
+
+  <div class="navbar__mobile-menu" *ngIf="isMobileMenuOpen">
+    <div class="navbar__mobile-divider"></div>
+
+    <div class="navbar__mobile-user">
+      <div class="navbar__mobile-avatar">{{ userInitial }}</div>
+      <span class="navbar__mobile-name">{{ user.name }}</span>
+    </div>
+
+    <nav class="navbar__mobile-nav">
+      <a routerLink="/my-learnings" (click)="closeMobileMenu()">My Learning</a>
+      <a routerLink="/explore" (click)="closeMobileMenu()">Explore courses</a>
+      <a routerLink="/" fragment="categories" (click)="closeMobileMenu()">Explore categories</a>
+      <a routerLink="/plans" (click)="closeMobileMenu()">Plans</a>
+    </nav>
+  </div>
 </header>

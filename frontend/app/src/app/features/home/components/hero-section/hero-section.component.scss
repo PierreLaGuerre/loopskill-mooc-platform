@@ -258,6 +258,10 @@
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
+.hero-section__button--mobile {
+  display: none;
+}
+
 @media (max-width: 1100px) {
   .hero-section__content--learning {
     grid-template-columns: 1fr;
@@ -280,17 +284,32 @@
   .hero-section__content--learning,
   .hero-section__content--onboarding {
     min-height: auto;
-    padding: 1.75rem 1.25rem;
+    padding: 1.5rem 1rem;
+  }
+
+  .hero-section__content--learning {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .hero-section__main {
+    display: flex;
+    flex-direction: column;
+    max-width: 100%;
   }
 
   .hero-section__title {
-    margin: 0 0 0.8rem 0;
-    font-size: 2rem;
+    margin: 0 0 1rem 0;
+    font-size: 1.8rem;
   }
 
   .hero-section__text {
     font-size: 1rem;
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 1.25rem 0;
+  }
+
+  .hero-section__course-info {
+    display: none;
   }
 
   .hero-section__course-title {
@@ -303,18 +322,80 @@
   }
 
   .hero-section__button {
-    width: 100%;
+    min-width: 170px;
+    min-height: 38px;
+    padding: 0.62rem 1.15rem;
+    font-size: 0.92rem;
+  }
+
+  .hero-section__button--desktop {
+    display: none;
+  }
+
+  .hero-section__button--mobile {
+    display: inline-flex;
+    justify-self: center;
+    order: 4;
   }
 
   .hero-section__side-card {
+    order: 3;
+    align-self: stretch;
     padding: 1rem;
+    min-height: auto;
+    border-radius: 18px;
+    gap: 0.9rem;
   }
 
   .hero-section__course-cover {
-    height: 150px;
+    display: none;
   }
 
   .hero-section__progress-block {
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  .hero-section__progress-info {
+    min-width: 0;
+  }
+
+  .hero-section__side-label {
+    display: none;
+  }
+
+  .hero-section__side-title {
+    margin: 0;
+    font-size: 1.15rem;
+    line-height: 1.3;
+  }
+
+  .hero-section__side-meta {
+    display: none;
+  }
+
+  .hero-section__progress-circle {
+    --size: 72px;
+  }
+
+  .hero-section__progress-circle::before {
+    width: 56px;
+    height: 56px;
+  }
+
+  .hero-section__content--onboarding .hero-section__actions {
+    align-items: center;
+  }
+
+  .hero-section__content--onboarding .hero-section__button--secondary,
+  .hero-section__content--onboarding .hero-section__button--tertiary {
+    display: none;
+  }
+
+  .hero-section__content--onboarding .hero-section__button--primary {
+    display: inline-flex;
+    justify-content: center;
   }
 }

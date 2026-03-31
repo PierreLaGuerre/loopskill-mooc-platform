@@ -1,77 +1,96 @@
 <section class="hero-section">
-    <div class="hero-section__container">
+  <div class="hero-section__container">
 
-        <ng-container *ngIf="currentEnrollment; else onboardingHero">
-            <div class="hero-section__content hero-section__content--learning">
-                <div class="hero-section__main">
-                    <h1 class="hero-section__title">
-                        Welcome back, <span class="hero-section__brand">{{ user.name }}</span>.
-                    </h1>
-                    <p class="hero-section__text">
-                        Continue where you left off and keep building momentum.
-                    </p>
+    <ng-container *ngIf="currentEnrollment; else onboardingHero">
+      <div class="hero-section__content hero-section__content--learning">
+        <div class="hero-section__main">
+          <h1 class="hero-section__title">
+            Welcome back, <span class="hero-section__brand">{{ user.name }}</span>
+          </h1>
 
-                    <div class="hero-section__course-info">
-                        <span class="hero-section__label">Current course</span>
-                        <h2 class="hero-section__course-title">{{ currentCourse?.title }}</h2>
-                        <p class="hero-section__course-meta">
-                            {{ currentEnrollment.progress }}% completed
-                        </p>
-                    </div>
+          <p class="hero-section__text">
+            Continue where you left off and keep building momentum.
+          </p>
 
-                    <a class="hero-section__button hero-section__button--primary" routerLink="/my-learnings">
-                        Resume learning
-                    </a>
-                </div>
+          <div class="hero-section__course-info">
+            <span class="hero-section__label">Current course</span>
+            <h2 class="hero-section__course-title">{{ currentCourse?.title }}</h2>
+            <p class="hero-section__course-meta">
+              {{ currentEnrollment.progress }}% completed
+            </p>
+          </div>
 
-                <div class="hero-section__side-card">
-                    <div class="hero-section__course-cover">
-                        <img [src]="currentCourse?.image" [alt]="currentCourse?.title" />
-                    </div>
+          <a
+            class="hero-section__button hero-section__button--primary hero-section__button--desktop"
+            routerLink="/my-learnings">
+            Resume learning
+          </a>
+        </div>
 
-                    <div class="hero-section__progress-block">
-                        <div class="hero-section__progress-circle" [style.--progress]="currentEnrollment?.progress">
-                            <span>{{ currentEnrollment?.progress }}%</span>
-                        </div>
+        <div class="hero-section__side-card">
+          <div class="hero-section__course-cover">
+            <img [src]="currentCourse?.image" [alt]="currentCourse?.title" />
+          </div>
 
-                        <div class="hero-section__progress-info">
-                            <p class="hero-section__side-label">Current progress</p>
-                            <h3 class="hero-section__side-title">{{ currentCourse?.title }}</h3>
-                        </div>
-                    </div>
-                </div>
+          <div class="hero-section__progress-block">
+            <div
+              class="hero-section__progress-circle"
+              [style.--progress]="currentEnrollment?.progress">
+              <span>{{ currentEnrollment?.progress }}%</span>
             </div>
-        </ng-container>
 
-        <ng-template #onboardingHero>
-            <div class="hero-section__content hero-section__content--onboarding">
-                <div class="hero-section__main">
-                    <h1 class="hero-section__title">
-                        Hi, <span class="hero-section__brand">{{ user.name }}</span>.
-                    </h1>
-                    <p class="hero-section__text">
-                        The best version of you is one skill away. LoopSkill helps you build momentum
-                        through a simple principle:
-                        <strong class="hero-section__principle">
-                            Learn. <span class="hero-section__principle-highlight">Improve.</span> Repeat.
-                        </strong>
-                    </p>
-
-                    <div class="hero-section__actions">
-                        <a class="hero-section__button hero-section__button--primary" routerLink="/explore">
-                            Explore courses
-                        </a>
-                        <a class="hero-section__button hero-section__button--secondary" routerLink="/plans">
-                            View plans
-                        </a>
-                        <a class="hero-section__button hero-section__button--tertiary" routerLink="/"
-                            fragment="categories">
-                            Explore categories
-                        </a>
-                    </div>
-                </div>
+            <div class="hero-section__progress-info">
+              <p class="hero-section__side-label">Current progress</p>
+              <h3 class="hero-section__side-title">{{ currentCourse?.title }}</h3>
+              <p class="hero-section__side-meta">
+                Progress: {{ currentEnrollment?.progress }}%
+              </p>
             </div>
-        </ng-template>
+          </div>
+        </div>
 
-    </div>
+        <a
+          class="hero-section__button hero-section__button--primary hero-section__button--mobile"
+          routerLink="/my-learnings">
+          Resume learning
+        </a>
+      </div>
+    </ng-container>
+
+    <ng-template #onboardingHero>
+      <div class="hero-section__content hero-section__content--onboarding">
+        <div class="hero-section__main">
+          <h1 class="hero-section__title">
+            Hi, <span class="hero-section__brand">{{ user.name }}</span>.
+          </h1>
+
+          <p class="hero-section__text">
+            The best version of you is one skill away. LoopSkill helps you build momentum
+            through a simple principle:<br>
+            <strong class="hero-section__principle">
+              Learn. <span class="hero-section__principle-highlight">Improve.</span> Repeat.
+            </strong>
+          </p>
+
+          <div class="hero-section__actions">
+            <a class="hero-section__button hero-section__button--primary" routerLink="/explore">
+              Explore courses
+            </a>
+
+            <a class="hero-section__button hero-section__button--secondary" routerLink="/plans">
+              View plans
+            </a>
+
+            <a
+              class="hero-section__button hero-section__button--tertiary"
+              routerLink="/"
+              fragment="categories">
+              Explore categories
+            </a>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+  </div>
 </section>
