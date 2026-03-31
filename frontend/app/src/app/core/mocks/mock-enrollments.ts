@@ -84,19 +84,19 @@ export const MOCK_ENROLLMENTS: Enrollment[] = [
     progress: 25,
     enrolledAt: '2026-03-08T17:21:07'
   }
-//   ,
-//   {
-//   id: 1,
-//   userId: 1,
-//   courseId: 1,
-//   progress: 35,
-//   enrolledAt: '2026-03-08T17:21:07'
-// },
-// {
-//   id: 2,
-//   userId: 1,
-//   courseId: 4,
-//   progress: 60,
-//   enrolledAt: '2026-03-08T17:21:07'
-// }
+  ,
+  {
+  id: 1,
+  userId: 1,
+  courseId: 1,
+  progress: 35,
+  enrolledAt: '2026-03-08T17:21:07'
+},
+{
+  id: 2,
+  userId: 1,
+  courseId: 4,
+  progress: 60,
+  enrolledAt: '2026-03-08T17:21:07'
+}
 ];

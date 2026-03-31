@@ -1,4 +1,10 @@
 <article class="course-card">
+  <a
+    class="course-card__mobile-link"
+    [routerLink]="['/courses', course.id]"
+    [attr.aria-label]="'Open ' + course.title">
+  </a>
+
   <div class="course-card__image-wrapper">
     <img
       class="course-card__image"

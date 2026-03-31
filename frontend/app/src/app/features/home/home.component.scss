@@ -1,3 +1,9 @@
 .home-page {
   width: 100%;
 }
+
+@media (max-width: 700px) {
+  .home-page__desktop-only {
+    display: none;
+  }
+}
