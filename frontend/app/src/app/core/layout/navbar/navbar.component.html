@@ -8,7 +8,7 @@
 
     <div class="navbar__center">
       <div class="navbar__search">
-        <input type="text" placeholder="What do you want to learn?" />
+        <input type="text" placeholder="What do you want to learn?" [(ngModel)]="searchTerm" (focus)="openSearch()" />
         <button type="button" aria-label="Search">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="11" cy="11" r="6" stroke="white" stroke-width="2"></circle>
@@ -36,14 +36,50 @@
       </a>
     </div>
 
-    <button
-      class="navbar__mobile-toggle"
-      type="button"
-      aria-label="Toggle menu"
-      (click)="toggleMobileMenu()">
+    <button class="navbar__mobile-toggle" type="button" aria-label="Toggle menu" (click)="toggleMobileMenu()">
       <span *ngIf="!isMobileMenuOpen" class="navbar__mobile-icon">☰</span>
       <span *ngIf="isMobileMenuOpen" class="navbar__mobile-icon">✕</span>
     </button>
+  </div>
+
+  <div class="search-overlay" *ngIf="isSearchOpen" (click)="closeSearch()">
+  </div>
+
+  <div class="search-modal" *ngIf="isSearchOpen" (click)="$event.stopPropagation()">
+    <div class="search-modal__header">
+      <h3 class="search-modal__title">Search courses</h3>
+
+      <button type="button" class="search-modal__close" aria-label="Close search" (click)="clearSearch()">
+        ✕
+      </button>
+    </div>
+
+    <div *ngIf="searchTerm.trim() === ''; else searchResults">
+      <p class="search-modal__placeholder">
+        Start typing to find courses.
+      </p>
+    </div>
+
+    <ng-template #searchResults>
+      <div *ngIf="filteredCourses.length > 0; else noResults" class="search-results">
+        <a class="search-result" *ngFor="let course of filteredCourses" [routerLink]="['/courses', course.id]"
+          (click)="closeSearch()">
+          <span class="search-result__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2"></circle>
+              <path d="M16 16L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
+          </span>
+          <h4 class="search-result__title">{{ course.title }}</h4>
+        </a>
+      </div>
+    </ng-template>
+
+    <ng-template #noResults>
+      <p class="search-modal__placeholder">
+        No courses match your search.
+      </p>
+    </ng-template>
   </div>
 
   <div class="navbar__mobile-menu" *ngIf="isMobileMenuOpen">

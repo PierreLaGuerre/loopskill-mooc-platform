@@ -4,6 +4,7 @@
   border-bottom: 1px solid #e5e7eb;
   font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
   position: relative;
+  z-index: 110;
 }
 
 .navbar__container {
@@ -159,7 +160,116 @@
   display: none;
 }
 
+.search-overlay {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.35);
+  z-index: 90;
+}
+
+.search-modal {
+  position: fixed;
+  top: 90px;
+  left: calc(50% - 360px);
+  transform: none;
+  width: min(440px, calc(100% - 2rem));
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+  border: 1px solid #e5e7eb;
+  padding: 1.25rem;
+  z-index: 100;
+}
+
+.search-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.search-modal__title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+}
+
+.search-modal__close {
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #374151;
+}
+
+.search-modal__placeholder {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+}
+
+.search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.search-result {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 14px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.search-result:hover {
+  background-color: #f8fafc;
+}
+
+.search-result__icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #111827;
+}
+
+.search-result__icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.search-result__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+}
+
 @media (max-width: 768px) {
+  .search-modal {
+    top: 76px;
+    width: calc(100% - 1.5rem);
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .search-overlay {
+    top: 69px;
+  }
+
   .navbar__container {
     padding: 1rem;
     grid-template-columns: auto 1fr auto;
@@ -174,6 +284,7 @@
 
   .navbar__mobile-toggle {
     display: inline-flex;
+    margin-bottom: 8px;
   }
 
   .navbar__logo img {
