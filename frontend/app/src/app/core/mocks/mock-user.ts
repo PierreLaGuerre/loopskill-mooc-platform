@@ -4,6 +4,7 @@ export const MOCK_USER: User = {
   id: 1,
   name: 'Pierre',
   email: 'pierre.guerre@loopskill.com',
+  password: '1234',
   role: 'student',
   clientType: 'profesional',
   planId: 2,

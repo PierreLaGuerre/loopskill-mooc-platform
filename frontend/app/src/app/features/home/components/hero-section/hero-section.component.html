@@ -5,7 +5,7 @@
       <div class="hero-section__content hero-section__content--learning">
         <div class="hero-section__main">
           <h1 class="hero-section__title">
-            Welcome back, <span class="hero-section__brand">{{ user.name }}</span>.
+            Welcome back, <span class="hero-section__brand">{{ user?.name }}</span>.
           </h1>
 
           <p class="hero-section__text">
@@ -35,15 +35,15 @@
           <div class="hero-section__progress-block">
             <div
               class="hero-section__progress-circle"
-              [style.--progress]="currentEnrollment?.progress">
-              <span>{{ currentEnrollment?.progress }}%</span>
+              [style.--progress]="currentEnrollment.progress">
+              <span>{{ currentEnrollment.progress }}%</span>
             </div>
 
             <div class="hero-section__progress-info">
               <p class="hero-section__side-label">Current progress</p>
               <h3 class="hero-section__side-title">{{ currentCourse?.title }}</h3>
               <p class="hero-section__side-meta">
-                Progress: {{ currentEnrollment?.progress }}%
+                Progress: {{ currentEnrollment.progress }}%
               </p>
             </div>
           </div>
@@ -61,7 +61,7 @@
       <div class="hero-section__content hero-section__content--onboarding">
         <div class="hero-section__main">
           <h1 class="hero-section__title">
-            Hi, <span class="hero-section__brand">{{ user.name }}</span>.
+            Hi, <span class="hero-section__brand">{{ user?.name }}</span>.
           </h1>
 
           <p class="hero-section__text">

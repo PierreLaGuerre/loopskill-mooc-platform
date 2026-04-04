@@ -1,0 +1,133 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { User } from '../models/user.model';
+import { MOCK_USER } from '../mocks/mock-user';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private readonly STORAGE_CURRENT_USER_KEY = 'loopskill_current_user';
+  private readonly STORAGE_USERS_KEY = 'loopskill_users';
+
+  private currentUserSubject: BehaviorSubject<User | null>;
+  public currentUser$: Observable<User | null>;
+
+  constructor() {
+    this.initializeUsers();
+
+    const storedUser = this.getUserFromStorage();
+    this.currentUserSubject = new BehaviorSubject<User | null>(storedUser);
+    this.currentUser$ = this.currentUserSubject.asObservable();
+  }
+
+  login(email: string, password: string): boolean {
+    const users = this.getUsers();
+
+    const foundUser = users.find(
+      (user) => user.email === email && user.password === password
+    );
+
+    if (foundUser != null) {
+      localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(foundUser));
+      this.currentUserSubject.next(foundUser);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  register(
+    name: string,
+    email: string,
+    password: string,
+    clientType: string,
+    interests: string[]
+  ): boolean {
+    const users = this.getUsers();
+
+    const existingUser = users.find((user) => user.email === email);
+
+    if (existingUser != null) {
+      return false;
+    }
+
+    const newUser: User = {
+      id: this.generateNextId(users),
+      name: name,
+      email: email,
+      password: password,
+      role: 'student',
+      clientType: clientType,
+      planId: 1,
+      interests: interests
+    };
+
+    const updatedUsers: User[] = [...users, newUser];
+
+    localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(updatedUsers));
+    localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(newUser));
+    this.currentUserSubject.next(newUser);
+
+    return true;
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.STORAGE_CURRENT_USER_KEY);
+    this.currentUserSubject.next(null);
+  }
+
+  getCurrentUser(): User | null {
+    return this.currentUserSubject.value;
+  }
+
+  getCurrentUserObservable(): Observable<User | null> {
+    return this.currentUser$;
+  }
+
+  isLoggedIn(): boolean {
+    if (this.currentUserSubject.value != null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private initializeUsers(): void {
+    const storedUsers = localStorage.getItem(this.STORAGE_USERS_KEY);
+
+    if (storedUsers == null) {
+      const initialUsers: User[] = [MOCK_USER];
+      localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(initialUsers));
+    }
+  }
+
+  private getUsers(): User[] {
+    const usersJson = localStorage.getItem(this.STORAGE_USERS_KEY);
+
+    if (usersJson != null) {
+      return JSON.parse(usersJson) as User[];
+    } else {
+      return [];
+    }
+  }
+
+  private getUserFromStorage(): User | null {
+    const userJson = localStorage.getItem(this.STORAGE_CURRENT_USER_KEY);
+
+    if (userJson != null) {
+      return JSON.parse(userJson) as User;
+    } else {
+      return null;
+    }
+  }
+
+  private generateNextId(users: User[]): number {
+    if (users.length === 0) {
+      return 1;
+    } else {
+      const ids = users.map((user) => user.id);
+      return Math.max(...ids) + 1;
+    }
+  }
+}
