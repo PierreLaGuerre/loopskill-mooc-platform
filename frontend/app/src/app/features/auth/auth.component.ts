@@ -103,7 +103,7 @@ export class AuthComponent {
 
     if (ok === true) {
       this.errorMessage = '';
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/home');
     } else {
       this.errorMessage = 'Este email ya está registrado.';
     }

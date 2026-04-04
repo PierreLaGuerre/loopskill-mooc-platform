@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-import { MOCK_USER } from '../../mocks/mock-user';
 import { MOCK_COURSES } from '../../mocks/mock-courses';
 import { Course } from '../../models/course.model';
+import { User } from '../../models/user.model';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -14,13 +15,28 @@ import { Course } from '../../models/course.model';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
-export class NavbarComponent {
-  user = MOCK_USER;
-  userInitial: string = this.user.name.charAt(0).toUpperCase();
+export class NavbarComponent implements OnInit {
+  private authService = inject(AuthService);
+
+  user: User | null = null;
 
   isMobileMenuOpen: boolean = false;
   searchTerm: string = '';
   isSearchOpen: boolean = false;
+
+  ngOnInit(): void {
+    this.authService.getCurrentUserObservable().subscribe((user) => {
+      this.user = user;
+    });
+  }
+
+  get userInitial(): string {
+    if (this.user != null && this.user.name.trim() !== '') {
+      return this.user.name.charAt(0).toUpperCase();
+    } else {
+      return '?';
+    }
+  }
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;

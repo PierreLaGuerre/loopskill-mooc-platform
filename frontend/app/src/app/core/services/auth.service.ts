@@ -22,15 +22,19 @@ export class AuthService {
   }
 
   login(email: string, password: string): boolean {
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPassword = password.trim();
+
     const users = this.getUsers();
 
     const foundUser = users.find(
-      (user) => user.email === email && user.password === password
+      (user) =>
+        user.email.trim().toLowerCase() === normalizedEmail &&
+        user.password === normalizedPassword
     );
 
     if (foundUser != null) {
-      localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(foundUser));
-      this.currentUserSubject.next(foundUser);
+      this.setCurrentUser(foundUser);
       return true;
     } else {
       return false;
@@ -44,9 +48,15 @@ export class AuthService {
     clientType: string,
     interests: string[]
   ): boolean {
+    const normalizedName = name.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPassword = password.trim();
+
     const users = this.getUsers();
 
-    const existingUser = users.find((user) => user.email === email);
+    const existingUser = users.find(
+      (user) => user.email.trim().toLowerCase() === normalizedEmail
+    );
 
     if (existingUser != null) {
       return false;
@@ -54,9 +64,9 @@ export class AuthService {
 
     const newUser: User = {
       id: this.generateNextId(users),
-      name: name,
-      email: email,
-      password: password,
+      name: normalizedName,
+      email: normalizedEmail,
+      password: normalizedPassword,
       role: 'student',
       clientType: clientType,
       planId: 1,
@@ -66,8 +76,7 @@ export class AuthService {
     const updatedUsers: User[] = [...users, newUser];
 
     localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(updatedUsers));
-    localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(newUser));
-    this.currentUserSubject.next(newUser);
+    this.setCurrentUser(newUser);
 
     return true;
   }
@@ -120,6 +129,11 @@ export class AuthService {
     } else {
       return null;
     }
+  }
+
+  private setCurrentUser(user: User): void {
+    localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(user));
+    this.currentUserSubject.next(user);
   }
 
   private generateNextId(users: User[]): number {
