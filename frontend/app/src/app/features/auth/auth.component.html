@@ -1,7 +1,13 @@
 <section class="auth-page">
+  <div class="auth-overlay"></div>
+
   <div class="auth-card">
     <div class="auth-brand">
-      <img src="assets/images/loopskill-logo-cropped.png" alt="LoopSkill" class="auth-brand__logo" />
+      <img
+        src="assets/images/loopskill-logo-cropped.png"
+        alt="LoopSkill"
+        class="auth-brand__logo"
+      />
     </div>
 
     <div class="auth-header">
@@ -18,11 +24,19 @@
     </div>
 
     <div class="auth-tabs">
-      <button type="button" [class.active]="mode === 'login'" (click)="setMode('login')">
+      <button
+        type="button"
+        [class.active]="mode === 'login'"
+        (click)="setMode('login')"
+      >
         Login
       </button>
 
-      <button type="button" [class.active]="mode === 'register'" (click)="setMode('register')">
+      <button
+        type="button"
+        [class.active]="mode === 'register'"
+        (click)="setMode('register')"
+      >
         Register
       </button>
     </div>
@@ -31,15 +45,30 @@
       {{ errorMessage }}
     </p>
 
-    <form *ngIf="mode === 'login'" [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()" class="auth-form">
+    <form
+      *ngIf="mode === 'login'"
+      [formGroup]="loginForm"
+      (ngSubmit)="onLoginSubmit()"
+      class="auth-form"
+    >
       <div class="form-group">
         <label for="login-email">Email</label>
-        <input id="login-email" type="email" formControlName="email" placeholder="Enter your email" />
+        <input
+          id="login-email"
+          type="email"
+          formControlName="email"
+          placeholder="Enter your email"
+        />
       </div>
 
       <div class="form-group">
         <label for="login-password">Password</label>
-        <input id="login-password" type="password" formControlName="password" placeholder="Enter your password" />
+        <input
+          id="login-password"
+          type="password"
+          formControlName="password"
+          placeholder="Enter your password"
+        />
       </div>
 
       <button type="submit" class="auth-button">
@@ -47,37 +76,68 @@
       </button>
     </form>
 
-    <form *ngIf="mode === 'register'" [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()" class="auth-form">
+    <form
+      *ngIf="mode === 'register'"
+      [formGroup]="registerForm"
+      (ngSubmit)="onRegisterSubmit()"
+      class="auth-form"
+    >
       <div class="form-group">
         <label for="register-name">Name</label>
-        <input id="register-name" type="text" formControlName="name" placeholder="Enter your name" />
+        <input
+          id="register-name"
+          type="text"
+          formControlName="name"
+          placeholder="Enter your name"
+        />
       </div>
 
       <div class="form-group">
         <label for="register-email">Email</label>
-        <input id="register-email" type="email" formControlName="email" placeholder="Enter your email" />
+        <input
+          id="register-email"
+          type="email"
+          formControlName="email"
+          placeholder="Enter your email"
+        />
       </div>
 
       <div class="form-group">
         <label for="register-password">Password</label>
-        <input id="register-password" type="password" formControlName="password" placeholder="Choose a password" />
+        <input
+          id="register-password"
+          type="password"
+          formControlName="password"
+          placeholder="Choose a password"
+        />
       </div>
 
-      <div class="form-group">
+      <div class="form-group form-group--compact">
         <label for="client-type">Client type</label>
         <select id="client-type" formControlName="clientType">
           <option value="estudiante">Student</option>
           <option value="profesional">Professional</option>
           <option value="empresa">Company</option>
         </select>
+        <p class="field-hint">
+          This helps us adapt the experience to your profile.
+        </p>
       </div>
 
-      <div class="form-group">
-        <label>Select your interests</label>
+      <div class="form-group form-group--interests">
+        <div class="interests-header">
+          <label>Select your interests</label>
+          <span class="interests-helper">Choose the topics you want to learn</span>
+        </div>
 
         <div class="interests-list">
-          <button type="button" class="interest-chip" *ngFor="let interest of availableInterests"
-            [class.selected]="isInterestSelected(interest)" (click)="toggleInterest(interest)">
+          <button
+            type="button"
+            class="interest-chip"
+            *ngFor="let interest of availableInterests"
+            [class.selected]="isInterestSelected(interest)"
+            (click)="toggleInterest(interest)"
+          >
             {{ interest }}
           </button>
         </div>
