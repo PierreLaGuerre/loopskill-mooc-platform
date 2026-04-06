@@ -19,7 +19,7 @@
       </p>
 
       <p class="auth-subtitle" *ngIf="mode === 'register'">
-        Tell us about yourself and choose your interests
+        Create your account to start your personalized learning journey
       </p>
     </div>
 
@@ -115,36 +115,17 @@
       <div class="form-group form-group--compact">
         <label for="client-type">Client type</label>
         <select id="client-type" formControlName="clientType">
-          <option value="estudiante">Student</option>
-          <option value="profesional">Professional</option>
-          <option value="empresa">Company</option>
+          <option value="student">Student</option>
+          <option value="professional">Professional</option>
+          <option value="company">Company</option>
         </select>
         <p class="field-hint">
           This helps us adapt the experience to your profile.
         </p>
       </div>
 
-      <div class="form-group form-group--interests">
-        <div class="interests-header">
-          <label>Select your interests</label>
-          <span class="interests-helper">Choose the topics you want to learn</span>
-        </div>
-
-        <div class="interests-list">
-          <button
-            type="button"
-            class="interest-chip"
-            *ngFor="let interest of availableInterests"
-            [class.selected]="isInterestSelected(interest)"
-            (click)="toggleInterest(interest)"
-          >
-            {{ interest }}
-          </button>
-        </div>
-      </div>
-
       <button type="submit" class="auth-button">
-        Create account
+        Continue
       </button>
     </form>
   </div>

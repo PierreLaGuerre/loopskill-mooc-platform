@@ -45,8 +45,7 @@ export class AuthService {
     name: string,
     email: string,
     password: string,
-    clientType: string,
-    interests: string[]
+    clientType: string
   ): boolean {
     const normalizedName = name.trim();
     const normalizedEmail = email.trim().toLowerCase();
@@ -70,7 +69,7 @@ export class AuthService {
       role: 'student',
       clientType: clientType,
       planId: 1,
-      interests: interests
+      interests: []
     };
 
     const updatedUsers: User[] = [...users, newUser];
@@ -79,6 +78,32 @@ export class AuthService {
     this.setCurrentUser(newUser);
 
     return true;
+  }
+
+  updateCurrentUserInterests(interests: string[]): void {
+    const currentUser = this.getCurrentUser();
+
+    if (currentUser == null) {
+      return;
+    }
+
+    const updatedUser: User = {
+      ...currentUser,
+      interests: interests
+    };
+
+    const users = this.getUsers();
+    const updatedUsers = users.map((user) => {
+      if (user.id === updatedUser.id) {
+        return updatedUser;
+      } else {
+        return user;
+      }
+    });
+
+    localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(updatedUsers));
+    localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(updatedUser));
+    this.currentUserSubject.next(updatedUser);
   }
 
   logout(): void {

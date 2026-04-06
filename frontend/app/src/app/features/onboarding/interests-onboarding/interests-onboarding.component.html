@@ -1,0 +1,53 @@
+<section class="interests-onboarding-page">
+  <div class="interests-onboarding-card">
+    <div class="interests-onboarding-brand">
+      <img
+        src="assets/images/loopskill-logo-cropped.png"
+        alt="LoopSkill"
+        class="interests-onboarding-brand__logo"
+      />
+    </div>
+
+    <div class="interests-onboarding-header">
+      <h1>What do you want to learn?</h1>
+      <p>
+        Choose the topics that interest you most. We’ll use them to personalize
+        your recommendations.
+      </p>
+    </div>
+
+    <div class="interests-onboarding-list">
+      <button
+        type="button"
+        class="interest-chip"
+        *ngFor="let interest of availableInterests"
+        [class.selected]="isInterestSelected(interest)"
+        (click)="toggleInterest(interest)"
+      >
+        {{ interest }}
+      </button>
+    </div>
+
+    <p class="interests-onboarding-hint">
+      You can select as many interests as you want.
+    </p>
+
+    <div class="interests-onboarding-actions">
+      <button
+        type="button"
+        class="interests-onboarding-skip"
+        (click)="skip()"
+      >
+        Skip for now
+      </button>
+
+      <button
+        type="button"
+        class="interests-onboarding-finish"
+        (click)="finishOnboarding()"
+      >
+        Finish
+      </button>
+    </div>
+  </div>
+</section>

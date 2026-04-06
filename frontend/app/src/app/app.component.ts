@@ -28,7 +28,7 @@ export class AppComponent {
   }
 
   private updateLayoutVisibility(url: string): void {
-    if (url.startsWith('/auth')) {
+    if (url.startsWith('/auth') || url.startsWith('/onboarding')) {
       this.hideLayout = true;
     } else {
       this.hideLayout = false;

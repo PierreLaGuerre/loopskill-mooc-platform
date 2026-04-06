@@ -81,31 +81,29 @@ export class AuthComponent {
     }
   }
 
-  onRegisterSubmit(): void {
-    if (this.registerForm.invalid) {
-      this.registerForm.markAllAsTouched();
-      return;
-    }
-
-    const name = this.registerForm.value.name ?? '';
-    const email = this.registerForm.value.email ?? '';
-    const password = this.registerForm.value.password ?? '';
-    const clientType = this.registerForm.value.clientType ?? 'profesional';
-    const interests = this.registerForm.value.interests ?? [];
-
-    const ok = this.authService.register(
-      name,
-      email,
-      password,
-      clientType,
-      interests
-    );
-
-    if (ok === true) {
-      this.errorMessage = '';
-      this.router.navigateByUrl('/home');
-    } else {
-      this.errorMessage = 'Este email ya está registrado.';
-    }
+ onRegisterSubmit(): void {
+  if (this.registerForm.invalid) {
+    this.registerForm.markAllAsTouched();
+    return;
   }
+
+  const name = this.registerForm.value.name ?? '';
+  const email = this.registerForm.value.email ?? '';
+  const password = this.registerForm.value.password ?? '';
+  const clientType = this.registerForm.value.clientType ?? 'professional';
+
+  const ok = this.authService.register(
+    name,
+    email,
+    password,
+    clientType
+  );
+
+  if (ok === true) {
+    this.errorMessage = '';
+    this.router.navigateByUrl('/onboarding/interests');
+  } else {
+    this.errorMessage = 'This email is already registered.';
+  }
+}
 }

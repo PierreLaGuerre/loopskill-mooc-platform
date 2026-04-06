@@ -5,7 +5,9 @@
     <app-popular-courses-section></app-popular-courses-section>
   </div>
 
-  <app-recommended-courses-section></app-recommended-courses-section>
+  <app-recommended-courses-section
+    *ngIf="currentUser != null && currentUser.interests.length > 0">
+  </app-recommended-courses-section>
 
   <div class="home-page__desktop-only">
     <app-categories-section></app-categories-section>

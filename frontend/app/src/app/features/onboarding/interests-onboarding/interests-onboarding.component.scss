@@ -1,0 +1,209 @@
+.interests-onboarding-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 56px 20px;
+  background-color: #f3f8f3;
+  font-family: 'Montserrat', Arial, sans-serif;
+  color: #111827;
+  overflow: hidden;
+
+  /*
+  background-image: url('/assets/images/auth-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  */
+}
+
+.interests-onboarding-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 560px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #d8e2d8;
+  border-radius: 30px;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 34px 32px 30px;
+}
+
+.interests-onboarding-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.35rem;
+}
+
+.interests-onboarding-brand__logo {
+  display: block;
+  width: min(230px, 68%);
+  height: auto;
+  object-fit: contain;
+}
+
+.interests-onboarding-header {
+  text-align: center;
+  margin-bottom: 30px;
+
+  h1 {
+    margin: 0 0 10px 0;
+    font-size: 2rem;
+    line-height: 1.08;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #0f172a;
+  }
+
+  p {
+    margin: 0 auto;
+    max-width: 390px;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #4b5563;
+  }
+}
+
+.interests-onboarding-list {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 10px;
+  row-gap: 14px;
+  margin-bottom: 18px;
+}
+
+.interest-chip {
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #374151;
+  border-radius: 999px;
+  padding: 11px 15px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-family: 'Montserrat', Arial, sans-serif;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.interest-chip:hover {
+  border-color: #9ca3af;
+  background-color: #f9fafb;
+  transform: translateY(-1px);
+}
+
+.interest-chip.selected {
+  background-color: #4fb343;
+  border-color: #4fb343;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(79, 179, 67, 0.2);
+}
+
+.interests-onboarding-hint {
+  margin: 0 0 24px 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.interests-onboarding-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.interests-onboarding-skip,
+.interests-onboarding-finish {
+  min-height: 50px;
+  border-radius: 16px;
+  box-sizing: border-box;
+  font-size: 0.98rem;
+  font-weight: 700;
+  font-family: 'Montserrat', Arial, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.interests-onboarding-skip {
+  border: 1.5px solid #1f2937;
+  background-color: #ffffff;
+  color: #374151;
+}
+
+.interests-onboarding-skip:hover {
+  border-color: #9ca3af;
+  background-color: #f9fafb;
+}
+
+.interests-onboarding-finish {
+  border: 1.5px solid #2d6f28;
+  background-color: #4fb343;
+  color: #ffffff;
+}
+
+.interests-onboarding-finish:hover {
+  background-color: #439a39;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(79, 179, 67, 0.18);
+}
+
+@media (max-width: 640px) {
+  .interests-onboarding-page {
+    padding: 28px 16px;
+    align-items: flex-start;
+  }
+
+  .interests-onboarding-card {
+    padding: 24px 18px 22px;
+    border-radius: 24px;
+  }
+
+  .interests-onboarding-brand {
+    margin-bottom: 1rem;
+  }
+
+  .interests-onboarding-brand__logo {
+    width: min(210px, 74%);
+  }
+
+  .interests-onboarding-header {
+    margin-bottom: 24px;
+
+    h1 {
+      font-size: 1.72rem;
+    }
+
+    p {
+      font-size: 0.96rem;
+    }
+  }
+
+  .interests-onboarding-list {
+    column-gap: 9px;
+    row-gap: 13px;
+  }
+
+  .interest-chip {
+    font-size: 0.88rem;
+    padding: 10px 14px;
+  }
+
+  .interests-onboarding-hint {
+    font-size: 0.84rem;
+    margin-bottom: 20px;
+  }
+
+  .interests-onboarding-actions {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .interests-onboarding-skip,
+  .interests-onboarding-finish {
+    min-height: 48px;
+    font-size: 0.94rem;
+  }
+}
