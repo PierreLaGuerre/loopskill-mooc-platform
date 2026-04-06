@@ -1,1 +1,119 @@
-<p>course-detail works!</p>
+<section class="course-detail-page" *ngIf="course != null; else courseNotFound">
+  <div class="course-detail-hero">
+    <div class="course-detail-hero__content">
+      <p class="course-detail-hero__category">
+        {{ course.category }}
+      </p>
+
+      <h1 class="course-detail-hero__title">
+        {{ course.title }}
+      </h1>
+
+      <p class="course-detail-hero__description">
+        {{ course.description }}
+      </p>
+
+      <div class="course-detail-hero__meta">
+        <span class="course-detail-chip course-detail-chip--level">
+          {{ course.level }}
+        </span>
+
+        <span class="course-detail-chip course-detail-chip--plan">
+          {{ course.requiredPlan }}
+        </span>
+      </div>
+
+      <div class="course-detail-hero__tags">
+        <span
+          class="course-detail-tag"
+          *ngFor="let tag of course.tags">
+          {{ tag }}
+        </span>
+      </div>
+
+      <div class="course-detail-hero__actions">
+        <button type="button" class="course-detail-hero__cta">
+          Start course
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="course-detail-body">
+    <section class="course-detail-section course-detail-section--overview">
+      <h2>Course overview</h2>
+
+      <div class="course-detail-overview">
+        <div class="course-detail-overview__item">
+          <span class="course-detail-overview__label">Required plan</span>
+          <span class="course-detail-overview__value">{{ course.requiredPlan }}</span>
+        </div>
+
+        <div class="course-detail-overview__item">
+          <span class="course-detail-overview__label">Level</span>
+          <span class="course-detail-overview__value">{{ course.level }}</span>
+        </div>
+
+        <div class="course-detail-overview__item">
+          <span class="course-detail-overview__label">Category</span>
+          <span class="course-detail-overview__value">{{ course.category }}</span>
+        </div>
+
+        <div class="course-detail-overview__item">
+          <span class="course-detail-overview__label">Format</span>
+          <span class="course-detail-overview__value">Self-paced learning</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="course-detail-section" *ngIf="courseOutcomes.length > 0">
+      <h2>What you'll learn</h2>
+
+      <div class="course-detail-outcomes">
+        <div
+          class="course-detail-outcome"
+          *ngFor="let outcome of courseOutcomes">
+          <span class="course-detail-outcome__icon">✓</span>
+          <p class="course-detail-outcome__text">
+            {{ outcome.text }}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="course-detail-section">
+      <h2>Skills you’ll gain</h2>
+
+      <div class="course-detail-skills">
+        <span
+          class="course-detail-skill"
+          *ngFor="let tag of course.tags">
+          {{ tag }}
+        </span>
+      </div>
+    </section>
+
+    <section class="course-detail-section">
+      <h2>About this course</h2>
+
+      <p>
+        {{ course.description }}
+      </p>
+
+      <p>
+        This course is designed to help you build practical skills step by step,
+        with a clear structure and hands-on learning approach. It fits naturally
+        into the LoopSkill learning experience and can later be connected with
+        progress tracking, enrollments and plan-based access.
+      </p>
+    </section>
+  </div>
+</section>
+
+<ng-template #courseNotFound>
+  <section class="course-detail-empty">
+    <h1>Course not found</h1>
+    <p>The course you are trying to access does not exist or is no longer available.</p>
+    <a routerLink="/home" class="course-detail-empty__link">Back to home</a>
+  </section>
+</ng-template>

@@ -25,9 +25,11 @@
         {{ course.requiredPlan }}
       </span>
 
-      <button class="course-card__button" type="button">
+      <a
+        class="course-card__button"
+        [routerLink]="['/courses', course.id]">
         View course
-      </button>
+      </a>
     </div>
   </div>
 </article>
