@@ -24,16 +24,14 @@
       </div>
 
       <div class="course-detail-hero__tags">
-        <span
-          class="course-detail-tag"
-          *ngFor="let tag of course.tags">
+        <span class="course-detail-tag" *ngFor="let tag of course.tags">
           {{ tag }}
         </span>
       </div>
 
       <div class="course-detail-hero__actions">
-        <button type="button" class="course-detail-hero__cta">
-          Start course
+        <button type="button" class="course-detail-hero__cta" (click)="onCtaClick()">
+          {{ ctaLabel }}
         </button>
       </div>
     </div>
@@ -44,24 +42,20 @@
       <h2>Course overview</h2>
 
       <div class="course-detail-overview">
+
         <div class="course-detail-overview__item">
-          <span class="course-detail-overview__label">Required plan</span>
-          <span class="course-detail-overview__value">{{ course.requiredPlan }}</span>
+          <span class="course-detail-overview__label">Instructor</span>
+          <span class="course-detail-overview__value">{{ course.instructor }}</span>
         </div>
 
         <div class="course-detail-overview__item">
-          <span class="course-detail-overview__label">Level</span>
-          <span class="course-detail-overview__value">{{ course.level }}</span>
+          <span class="course-detail-overview__label">Duration</span>
+          <span class="course-detail-overview__value">{{ course.durationHours }} hours</span>
         </div>
 
         <div class="course-detail-overview__item">
-          <span class="course-detail-overview__label">Category</span>
-          <span class="course-detail-overview__value">{{ course.category }}</span>
-        </div>
-
-        <div class="course-detail-overview__item">
-          <span class="course-detail-overview__label">Format</span>
-          <span class="course-detail-overview__value">Self-paced learning</span>
+          <span class="course-detail-overview__label">Lessons</span>
+          <span class="course-detail-overview__value">{{ course.lessonsCount }} lessons</span>
         </div>
       </div>
     </section>
@@ -70,9 +64,7 @@
       <h2>What you'll learn</h2>
 
       <div class="course-detail-outcomes">
-        <div
-          class="course-detail-outcome"
-          *ngFor="let outcome of courseOutcomes">
+        <div class="course-detail-outcome" *ngFor="let outcome of courseOutcomes">
           <span class="course-detail-outcome__icon">✓</span>
           <p class="course-detail-outcome__text">
             {{ outcome.text }}
@@ -85,9 +77,7 @@
       <h2>Skills you’ll gain</h2>
 
       <div class="course-detail-skills">
-        <span
-          class="course-detail-skill"
-          *ngFor="let tag of course.tags">
+        <span class="course-detail-skill" *ngFor="let tag of course.tags">
           {{ tag }}
         </span>
       </div>

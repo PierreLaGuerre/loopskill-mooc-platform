@@ -3,9 +3,12 @@ export interface Course {
   title: string;
   description: string;
   category: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
-  requiredPlan: 'Free' | 'Pro' | 'Premium';
+  level: string;
+  requiredPlan: string;
   image: string;
   tags: string[];
   isPopular: boolean;
+  instructor: string;
+  durationHours: number;
+  lessonsCount: number;
 }

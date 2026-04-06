@@ -10,7 +10,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Free',
     image: 'assets/images/courses/python.png',
     tags: ['python', 'oop'],
-    isPopular: true
+    isPopular: true,
+    instructor: 'Laura Bennett',
+    durationHours: 18,
+    lessonsCount: 42
   },
   {
     id: 2,
@@ -21,7 +24,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Free',
     image: 'assets/images/courses/java.png',
     tags: ['java', 'oop'],
-    isPopular: false
+    isPopular: false,
+    instructor: 'Daniel Carter',
+    durationHours: 20,
+    lessonsCount: 46
   },
   {
     id: 3,
@@ -32,19 +38,11 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Pro',
     image: 'assets/images/courses/angular.png',
     tags: ['angular', 'typescript', 'rest api'],
-    isPopular: true
+    isPopular: true,
+    instructor: 'Sophie Turner',
+    durationHours: 22,
+    lessonsCount: 50
   },
-  {
-  id: 21,
-  title: 'Node.js Fundamentals',
-  description: 'Learn to build fast and scalable backend applications using Node.js and JavaScript.',
-  category: 'Programming',
-  level: 'Intermediate',
-  requiredPlan: 'Pro',
-  image: 'assets/images/courses/node.png',
-  tags: ['nodejs', 'backend', 'rest api'],
-  isPopular: true
-},
   {
     id: 4,
     title: 'React Fundamentals',
@@ -54,7 +52,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Premium',
     image: 'assets/images/courses/react.png',
     tags: ['react', 'typescript'],
-    isPopular: true
+    isPopular: true,
+    instructor: 'Michael Reed',
+    durationHours: 21,
+    lessonsCount: 48
   },
   {
     id: 5,
@@ -65,7 +66,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Free',
     image: 'assets/images/courses/sql.png',
     tags: ['sql'],
-    isPopular: true
+    isPopular: true,
+    instructor: 'Emma Brooks',
+    durationHours: 16,
+    lessonsCount: 36
   },
   {
     id: 6,
@@ -76,7 +80,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Free',
     image: 'assets/images/courses/mysql.png',
     tags: ['mysql', 'sql'],
-    isPopular: false
+    isPopular: false,
+    instructor: 'Chris Palmer',
+    durationHours: 17,
+    lessonsCount: 38
   },
   {
     id: 7,
@@ -87,7 +94,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Pro',
     image: 'assets/images/courses/postgresql.png',
     tags: ['postgresql', 'sql'],
-    isPopular: false
+    isPopular: false,
+    instructor: 'Natalie Stone',
+    durationHours: 19,
+    lessonsCount: 41
   },
   {
     id: 8,
@@ -98,7 +108,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Premium',
     image: 'assets/images/courses/mongodb.png',
     tags: ['mongodb'],
-    isPopular: false
+    isPopular: false,
+    instructor: 'Ryan Cooper',
+    durationHours: 18,
+    lessonsCount: 39
   },
   {
     id: 9,
@@ -109,7 +122,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Free',
     image: 'assets/images/courses/aws.png',
     tags: ['aws'],
-    isPopular: true
+    isPopular: true,
+    instructor: 'Olivia Harper',
+    durationHours: 15,
+    lessonsCount: 34
   },
   {
     id: 10,
@@ -120,7 +136,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Free',
     image: 'assets/images/courses/azure.png',
     tags: ['azure'],
-    isPopular: false
+    isPopular: false,
+    instructor: 'Jacob Evans',
+    durationHours: 15,
+    lessonsCount: 33
   },
   {
     id: 11,
@@ -131,7 +150,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Pro',
     image: 'assets/images/courses/docker.png',
     tags: ['docker'],
-    isPopular: true
+    isPopular: true,
+    instructor: 'Ethan Moore',
+    durationHours: 18,
+    lessonsCount: 40
   },
   {
     id: 12,
@@ -142,7 +164,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Premium',
     image: 'assets/images/courses/kubernetes.png',
     tags: ['kubernetes', 'docker'],
-    isPopular: false
+    isPopular: false,
+    instructor: 'Amelia Ross',
+    durationHours: 22,
+    lessonsCount: 47
   },
   {
     id: 13,
@@ -153,7 +178,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Free',
     image: 'assets/images/courses/python-data-analysis.png',
     tags: ['python', 'data analysis'],
-    isPopular: true
+    isPopular: true,
+    instructor: 'Isabella Ward',
+    durationHours: 18,
+    lessonsCount: 42
   },
   {
     id: 14,
@@ -164,7 +192,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Free',
     image: 'assets/images/courses/pandas-numpy.png',
     tags: ['pandas', 'numpy', 'data analysis'],
-    isPopular: false
+    isPopular: false,
+    instructor: 'Noah Hayes',
+    durationHours: 17,
+    lessonsCount: 39
   },
   {
     id: 15,
@@ -175,7 +206,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Pro',
     image: 'assets/images/courses/machine-learning.png',
     tags: ['machine learning', 'python'],
-    isPopular: true
+    isPopular: true,
+    instructor: 'Grace Mitchell',
+    durationHours: 20,
+    lessonsCount: 44
   },
   {
     id: 16,
@@ -186,7 +220,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Premium',
     image: 'assets/images/courses/powerbi.png',
     tags: ['power bi', 'data analysis'],
-    isPopular: false
+    isPopular: false,
+    instructor: 'Lucas Perry',
+    durationHours: 16,
+    lessonsCount: 35
   },
   {
     id: 17,
@@ -197,7 +234,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Free',
     image: 'assets/images/courses/github.png',
     tags: ['git', 'github'],
-    isPopular: true
+    isPopular: true,
+    instructor: 'Mia Foster',
+    durationHours: 14,
+    lessonsCount: 31
   },
   {
     id: 18,
@@ -208,7 +248,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Free',
     image: 'assets/images/courses/linux.png',
     tags: ['linux'],
-    isPopular: false
+    isPopular: false,
+    instructor: 'Henry Simmons',
+    durationHours: 15,
+    lessonsCount: 34
   },
   {
     id: 19,
@@ -219,7 +262,10 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Pro',
     image: 'assets/images/courses/cicd.png',
     tags: ['ci/cd'],
-    isPopular: false
+    isPopular: false,
+    instructor: 'Chloe Murphy',
+    durationHours: 18,
+    lessonsCount: 38
   },
   {
     id: 20,
@@ -230,6 +276,23 @@ export const MOCK_COURSES: Course[] = [
     requiredPlan: 'Premium',
     image: 'assets/images/courses/docker-devops.png',
     tags: ['docker', 'ci/cd'],
-    isPopular: true
+    isPopular: true,
+    instructor: 'Liam Parker',
+    durationHours: 19,
+    lessonsCount: 41
+  },
+  {
+    id: 21,
+    title: 'Node.js Fundamentals',
+    description: 'Learn to build fast and scalable backend applications using Node.js and JavaScript.',
+    category: 'Programming',
+    level: 'Intermediate',
+    requiredPlan: 'Pro',
+    image: 'assets/images/courses/node.png',
+    tags: ['nodejs', 'backend', 'rest api'],
+    isPopular: true,
+    instructor: 'Ethan Moore',
+    durationHours: 20,
+    lessonsCount: 44
   }
 ];
