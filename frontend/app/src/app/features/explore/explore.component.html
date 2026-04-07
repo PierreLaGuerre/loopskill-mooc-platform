@@ -1,1 +1,36 @@
-<p>explore works!</p>
+<section class="explore-page">
+  <div class="explore-page__header">
+    <p class="explore-page__eyebrow">LoopSkill catalog</p>
+    <h1 class="explore-page__title">Explore courses</h1>
+    <p class="explore-page__subtitle">
+      Browse all categories and discover the skills you want to build next.
+    </p>
+  </div>
+
+  <div class="explore-page__content" *ngIf="categoryGroups.length > 0; else noCourses">
+    <section
+      class="explore-category"
+      *ngFor="let group of categoryGroups">
+      <div class="explore-category__header">
+        <h2 class="explore-category__title">{{ group.category.name }}</h2>
+        <p class="explore-category__description">
+          {{ group.category.description }}
+        </p>
+      </div>
+
+      <div class="explore-category__grid" *ngIf="group.courses.length > 0">
+        <app-course-card
+          *ngFor="let course of group.courses"
+          [course]="course">
+        </app-course-card>
+      </div>
+    </section>
+  </div>
+</section>
+
+<ng-template #noCourses>
+  <section class="explore-empty">
+    <h2>No courses available</h2>
+    <p>There are no courses to display right now.</p>
+  </section>
+</ng-template>

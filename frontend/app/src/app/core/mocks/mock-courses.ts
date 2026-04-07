@@ -15,20 +15,7 @@ export const MOCK_COURSES: Course[] = [
     durationHours: 18,
     lessonsCount: 42
   },
-  {
-    id: 2,
-    title: 'Java OOP Essentials',
-    description: 'Master object-oriented programming concepts with Java and learn how to structure maintainable applications.',
-    category: 'Programming',
-    level: 'Beginner',
-    requiredPlan: 'Free',
-    image: 'assets/images/courses/java.png',
-    tags: ['java', 'oop'],
-    isPopular: false,
-    instructor: 'Daniel Carter',
-    durationHours: 20,
-    lessonsCount: 46
-  },
+ 
   {
     id: 3,
     title: 'Angular from Scratch',
