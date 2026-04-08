@@ -25,10 +25,21 @@
 .hero-section__content--onboarding {
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, #f5f9f5 0%, #edf7ed 100%);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(245, 249, 245, 0.92) 0%,
+      rgba(237, 247, 237, 0.82) 38%,
+      rgba(237, 247, 237, 0.60) 100%
+    ),
+    url('/assets/images/course-detail-hero-bg.png');
+  background-repeat: no-repeat;
+  background-size: cover, 82%;
+  background-position: center, right -40px center;
+
   border: 1px solid #e5e7eb;
-  padding: 2.25rem 2.75rem;
-  min-height: 220px;
+  padding: 2.4rem 2.75rem;
+  min-height: 260px;
 }
 
 .hero-section__main {
