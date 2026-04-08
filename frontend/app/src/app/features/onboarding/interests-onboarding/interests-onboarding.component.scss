@@ -76,7 +76,7 @@
 }
 
 .interest-chip {
-  border: 1px solid #d1d5db;
+  border: 1px solid #d4ddd4;
   background-color: #ffffff;
   color: #374151;
   border-radius: 999px;
@@ -90,16 +90,16 @@
 }
 
 .interest-chip:hover {
-  border-color: #9ca3af;
-  background-color: #f9fafb;
+  border-color: #b9c6b9;
+  background-color: #f9fbf9;
   transform: translateY(-1px);
 }
 
 .interest-chip.selected {
-  background-color: #4fb343;
-  border-color: #4fb343;
-  color: #ffffff;
-  box-shadow: 0 8px 18px rgba(79, 179, 67, 0.2);
+  background-color: #eef7ec;
+  border-color: #9fd39a;
+  color: #2f5f2a;
+  box-shadow: 0 6px 14px rgba(79, 179, 67, 0.1);
 }
 
 .interests-onboarding-hint {
@@ -128,14 +128,14 @@
 }
 
 .interests-onboarding-skip {
-  border: 1.5px solid #1f2937;
+  border: 1.5px solid #d4ddd4;
   background-color: #ffffff;
   color: #374151;
 }
 
 .interests-onboarding-skip:hover {
-  border-color: #9ca3af;
-  background-color: #f9fafb;
+  border-color: #b9c6b9;
+  background-color: #f9fbf9;
 }
 
 .interests-onboarding-finish {

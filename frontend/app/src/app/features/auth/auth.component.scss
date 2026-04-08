@@ -10,7 +10,7 @@
   color: #111827;
   overflow: hidden;
 
-  /* 
+  /*
   background-image: url('/assets/images/auth-bg.png');
   background-size: cover;
   background-position: center;
@@ -87,7 +87,7 @@
   button {
     min-height: 46px;
     padding: 0.75rem 1rem;
-    border: 1.5px solid #1f2937;
+    border: 1.5px solid #d4ddd4;
     border-radius: 16px;
     box-sizing: border-box;
     background-color: #ffffff;
@@ -100,18 +100,19 @@
   }
 
   button:hover {
-    border-color: #9ca3af;
-    background-color: #f9fafb;
+    border-color: #b9c6b9;
+    background-color: #f9fbf9;
   }
 
   button.active {
-    background-color: #4fb343;
-    border-color: #2d6f28;
-    color: #ffffff;
+    background-color: #eef7ec;
+    border-color: #9fd39a;
+    color: #2f5f2a;
   }
 
   button.active:hover {
-    background-color: #439a39;
+    background-color: #e8f4e5;
+    border-color: #8bc985;
     transform: translateY(-1px);
   }
 }
@@ -194,12 +195,13 @@
 .interests-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  column-gap: 10px;
+  row-gap: 12px;
   padding-top: 2px;
 }
 
 .interest-chip {
-  border: 1px solid #d1d5db;
+  border: 1px solid #d4ddd4;
   background-color: #ffffff;
   color: #374151;
   border-radius: 999px;
@@ -213,16 +215,16 @@
 }
 
 .interest-chip:hover {
-  border-color: #9ca3af;
-  background-color: #f9fafb;
+  border-color: #b9c6b9;
+  background-color: #f9fbf9;
   transform: translateY(-1px);
 }
 
 .interest-chip.selected {
-  background-color: #4fb343;
-  border-color: #4fb343;
-  color: #ffffff;
-  box-shadow: 0 8px 18px rgba(79, 179, 67, 0.2);
+  background-color: #eef7ec;
+  border-color: #9fd39a;
+  color: #2f5f2a;
+  box-shadow: 0 6px 14px rgba(79, 179, 67, 0.1);
 }
 
 .auth-button {
@@ -309,7 +311,8 @@
   }
 
   .interests-list {
-    gap: 9px;
+    column-gap: 9px;
+    row-gap: 11px;
   }
 
   .interest-chip {
