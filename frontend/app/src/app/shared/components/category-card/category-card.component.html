@@ -1,4 +1,9 @@
-<div class="category-card">
+<a
+  class="category-card"
+  [routerLink]="['/explore']"
+  [queryParams]="{ category: category.name }"
+  [attr.aria-label]="'Explore ' + category.name + ' courses'">
+
   <div class="category-card__icon-wrapper">
     <img
       class="category-card__icon"
@@ -11,4 +16,4 @@
   <p class="category-card__description">
     {{ category.description }}
   </p>
-</div>
+</a>
