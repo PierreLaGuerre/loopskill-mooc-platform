@@ -1,1 +1,111 @@
-<p>user-page works!</p>
+<section class="user-page">
+    <div class="user-page__container">
+        <div class="user-page__header">
+            <p class="user-page__eyebrow">LoopSkill dashboard</p>
+            <h1 class="user-page__title">My Learnings</h1>
+            <p class="user-page__subtitle">
+                Track your current courses and revisit the ones you have already completed.
+            </p>
+        </div>
+
+        <div class="user-page__tabs">
+            <button type="button" class="user-page__tab" [class.active]="activeTab === 'in-progress'"
+                (click)="setActiveTab('in-progress')">
+                In Progress
+            </button>
+
+            <button type="button" class="user-page__tab" [class.active]="activeTab === 'completed'"
+                (click)="setActiveTab('completed')">
+                Completed
+            </button>
+        </div>
+
+        <ng-container *ngIf="activeTab === 'in-progress'">
+            <div class="user-page__list" *ngIf="inProgressCourses.length > 0; else noInProgressCourses">
+                <article class="learning-card" *ngFor="let item of inProgressCourses">
+                    <div class="learning-card__image-wrapper">
+                        <img class="learning-card__image" [src]="item.course.image" [alt]="item.course.title" />
+                    </div>
+
+                    <div class="learning-card__content">
+                        <h2 class="learning-card__title">{{ item.course.title }}</h2>
+
+                        <p class="learning-card__meta">
+                            {{ item.course.category }} · {{ item.course.level }}
+                        </p>
+
+                        <p class="learning-card__progress">
+                            Progress: {{ item.enrollment.progress }}%
+                        </p>
+
+                        <p class="learning-card__date">
+                            Started on: {{ item.enrollment.enrolledAt | date:'mediumDate' }}
+                        </p>
+                    </div>
+
+                    <div class="learning-card__actions">
+                        <a class="learning-card__button" [routerLink]="['/courses', item.course.id]">
+                            Resume
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </ng-container>
+
+        <ng-container *ngIf="activeTab === 'completed'">
+            <div class="user-page__list" *ngIf="completedCourses.length > 0; else noCompletedCourses">
+                <article class="learning-card" *ngFor="let item of completedCourses">
+                    <div class="learning-card__image-wrapper">
+                        <img class="learning-card__image" [src]="item.course.image" [alt]="item.course.title" />
+                    </div>
+
+                    <div class="learning-card__content">
+                        <h2 class="learning-card__title">{{ item.course.title }}</h2>
+
+                        <p class="learning-card__meta">
+                            {{ item.course.category }} · {{ item.course.level }}
+                        </p>
+
+                        <p class="learning-card__progress learning-card__progress--completed">
+                            Completed: 100%
+                        </p>
+
+                        <p class="learning-card__date">
+                            Finished course
+                        </p>
+                    </div>
+
+                    <div class="learning-card__actions">
+                        <a class="learning-card__button learning-card__button--secondary"
+                            [routerLink]="['/courses', item.course.id]">
+                            View course
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </ng-container>
+    </div>
+</section>
+
+<ng-template #noInProgressCourses>
+    <section class="user-page__empty">
+        <h2>No courses in progress yet</h2>
+        <p>Start a course and you will see it here.</p>
+        <a routerLink="/explore" class="user-page__empty-link">Explore courses</a>
+    </section>
+</ng-template>
+
+<ng-template #noCompletedCourses>
+    <section class="user-page__empty user-page__empty--image">
+        <div class="user-page__empty-text">
+            <h2>You will find your finished courses here.</h2>
+            <p>Complete a course and it will appear in this section.</p>
+        </div>
+        <div class="user-page__empty-image-wrapper">
+            <img class="user-page__empty-image" src="assets/images/empty-completed-courses.png"
+                alt="No completed courses yet" />
+        </div>
+
+
+    </section>
+</ng-template>
