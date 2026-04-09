@@ -1,1 +1,166 @@
-<p>plans works!</p>
+<div class="plans-page">
+  <section class="plans-hero">
+    <div class="plans-hero__content">
+      <p class="plans-hero__eyebrow">Plans & pricing</p>
+
+      <h1 class="plans-hero__title">Choose the plan that supports your learning path</h1>
+
+      <p class="plans-hero__description">
+        Compare available plans, review what is included in each option and upgrade your
+        access whenever you are ready to unlock more courses.
+      </p>
+
+      <div class="plans-hero__status" *ngIf="currentUser != null">
+        <span class="plans-hero__status-label">Your current plan</span>
+        <span class="plans-hero__status-value">
+          {{ plans[currentPlanId! - 1].name }}
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="plans-pricing">
+    <article
+      class="plan-card"
+      *ngFor="let plan of plans"
+      [class.plan-card--recommended]="plan.recommended === true"
+      [class.plan-card--current]="isCurrentPlan(plan.id) == true"
+    >
+      <div class="plan-card__top">
+        <div class="plan-card__badges">
+          <span class="plan-card__badge plan-card__badge--recommended" *ngIf="plan.recommended === true">
+            Most popular
+          </span>
+
+          <span class="plan-card__badge plan-card__badge--current" *ngIf="isCurrentPlan(plan.id) == true">
+            Current plan
+          </span>
+        </div>
+
+        <h2 class="plan-card__name">{{ plan.name }}</h2>
+
+        <div class="plan-card__price">
+          <span class="plan-card__price-value" *ngIf="plan.price > 0">${{ plan.price }}</span>
+          <span class="plan-card__price-value" *ngIf="plan.price === 0">Free</span>
+          <span class="plan-card__price-period" *ngIf="plan.price > 0">/ month</span>
+        </div>
+
+        <p class="plan-card__description">
+          {{ plan.description }}
+        </p>
+      </div>
+
+      <ul class="plan-card__features">
+        <li class="plan-card__feature" *ngFor="let feature of plan.features">
+          <span class="plan-card__feature-icon">✓</span>
+          <span class="plan-card__feature-text">{{ feature }}</span>
+        </li>
+      </ul>
+
+      <div class="plan-card__actions">
+        <button
+          class="plan-card__button"
+          type="button"
+          [class.plan-card__button--secondary]="isCurrentPlan(plan.id) == true || canUpgradeTo(plan.id) == false"
+          [disabled]="isCurrentPlan(plan.id) == true || canUpgradeTo(plan.id) == false"
+          (click)="upgradePlan(plan.id)"
+        >
+          {{ getPlanButtonLabel(plan.id) }}
+        </button>
+      </div>
+    </article>
+  </section>
+
+  <section class="plans-feedback" *ngIf="upgradeMessage !== ''">
+    <div class="plans-feedback__card">
+      <p>{{ upgradeMessage }}</p>
+    </div>
+  </section>
+
+  <section class="plans-comparison">
+    <div class="plans-section">
+      <h2>Compare plan features</h2>
+
+      <div class="plans-comparison__table">
+        <div class="plans-comparison__row plans-comparison__row--head">
+          <div class="plans-comparison__cell plans-comparison__cell--feature">Feature</div>
+          <div class="plans-comparison__cell">Free</div>
+          <div class="plans-comparison__cell">Pro</div>
+          <div class="plans-comparison__cell">Premium</div>
+        </div>
+
+        <div class="plans-comparison__row">
+          <div class="plans-comparison__cell plans-comparison__cell--feature">Beginner courses</div>
+          <div class="plans-comparison__cell">Included</div>
+          <div class="plans-comparison__cell">Included</div>
+          <div class="plans-comparison__cell">Included</div>
+        </div>
+
+        <div class="plans-comparison__row">
+          <div class="plans-comparison__cell plans-comparison__cell--feature">Intermediate courses</div>
+          <div class="plans-comparison__cell">—</div>
+          <div class="plans-comparison__cell">Included</div>
+          <div class="plans-comparison__cell">Included</div>
+        </div>
+
+        <div class="plans-comparison__row">
+          <div class="plans-comparison__cell plans-comparison__cell--feature">Advanced courses</div>
+          <div class="plans-comparison__cell">—</div>
+          <div class="plans-comparison__cell">—</div>
+          <div class="plans-comparison__cell">Included</div>
+        </div>
+
+        <div class="plans-comparison__row">
+          <div class="plans-comparison__cell plans-comparison__cell--feature">Personalized recommendations</div>
+          <div class="plans-comparison__cell">Yes</div>
+          <div class="plans-comparison__cell">Yes</div>
+          <div class="plans-comparison__cell">Yes</div>
+        </div>
+
+        <div class="plans-comparison__row">
+          <div class="plans-comparison__cell plans-comparison__cell--feature">Progress tracking</div>
+          <div class="plans-comparison__cell">Yes</div>
+          <div class="plans-comparison__cell">Yes</div>
+          <div class="plans-comparison__cell">Yes</div>
+        </div>
+
+        <div class="plans-comparison__row">
+          <div class="plans-comparison__cell plans-comparison__cell--feature">Priority support</div>
+          <div class="plans-comparison__cell">—</div>
+          <div class="plans-comparison__cell">Basic</div>
+          <div class="plans-comparison__cell">Priority</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="plans-faq">
+    <div class="plans-section">
+      <h2>Frequently asked questions</h2>
+
+      <div class="plans-faq__list">
+        <article class="plans-faq__item">
+          <h3>Can I upgrade my plan later?</h3>
+          <p>
+            Yes. You can upgrade your plan at any time to unlock more content and features.
+          </p>
+        </article>
+
+        <article class="plans-faq__item">
+          <h3>Will I keep my progress after upgrading?</h3>
+          <p>
+            Yes. Your enrollments and learning progress stay linked to your account.
+          </p>
+        </article>
+
+        <article class="plans-faq__item">
+          <h3>Does this page already process payments?</h3>
+          <p>
+            Not yet. In this version, plan changes are simulated to keep the frontend ready
+            for future backend integration.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+</div>

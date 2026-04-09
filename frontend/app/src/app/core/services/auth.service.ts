@@ -106,6 +106,32 @@ export class AuthService {
     this.currentUserSubject.next(updatedUser);
   }
 
+  updateCurrentUserPlan(planId: number): void {
+    const currentUser = this.getCurrentUser();
+
+    if (currentUser == null) {
+      return;
+    }
+
+    const updatedUser: User = {
+      ...currentUser,
+      planId: planId
+    };
+
+    const users = this.getUsers();
+    const updatedUsers = users.map((user) => {
+      if (user.id === updatedUser.id) {
+        return updatedUser;
+      } else {
+        return user;
+      }
+    });
+
+    localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(updatedUsers));
+    localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(updatedUser));
+    this.currentUserSubject.next(updatedUser);
+  }
+
   logout(): void {
     localStorage.removeItem(this.STORAGE_CURRENT_USER_KEY);
     this.currentUserSubject.next(null);
