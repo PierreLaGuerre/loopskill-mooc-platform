@@ -60,6 +60,38 @@ INSERT INTO `plans` (`id`, `name`, `price`, `description`) VALUES
 
 -- --------------------------------------------------------
 --
+-- Estructura de tabla para la tabla `plan_features`
+--
+CREATE TABLE `plan_features` (
+  `id` int(11) NOT NULL,
+  `plan_id` int(11) NOT NULL,
+  `feature_text` varchar(255) NOT NULL,
+  `display_order` int(11) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `plan_features`
+--
+INSERT INTO `plan_features` (`id`, `plan_id`, `feature_text`, `display_order`) VALUES
+(1, 1, 'Access to beginner courses', 1),
+(2, 1, 'Personalized recommendations', 2),
+(3, 1, 'Progress tracking', 3),
+(4, 1, 'Learning dashboard', 4),
+
+(5, 2, 'Everything in Free', 1),
+(6, 2, 'Access to intermediate courses', 2),
+(7, 2, 'Expanded course catalog', 3),
+(8, 2, 'Priority access to new content', 4),
+(9, 2, 'More advanced learning paths', 5),
+
+(10, 3, 'Everything in Pro', 1),
+(11, 3, 'Access to advanced courses', 2),
+(12, 3, 'Full catalog access', 3),
+(13, 3, 'Premium learning experience', 4),
+(14, 3, 'Priority support', 5);
+
+-- --------------------------------------------------------
+--
 -- Estructura de tabla para la tabla `tags`
 --
 CREATE TABLE `tags` (
@@ -396,6 +428,13 @@ ALTER TABLE `plans`
   ADD UNIQUE KEY `name` (`name`);
 
 --
+-- Indices de la tabla `plan_features`
+--
+ALTER TABLE `plan_features`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `plan_id` (`plan_id`);
+
+--
 -- Indices de la tabla `tags`
 --
 ALTER TABLE `tags`
@@ -458,6 +497,9 @@ ALTER TABLE `categories`
 ALTER TABLE `plans`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
+ALTER TABLE `plan_features`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
 ALTER TABLE `tags`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
@@ -479,6 +521,9 @@ ALTER TABLE `enrollments`
 
 ALTER TABLE `users`
   ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`);
+
+ALTER TABLE `plan_features`
+  ADD CONSTRAINT `plan_features_ibfk_1` FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`) ON DELETE CASCADE;
 
 ALTER TABLE `courses`
   ADD CONSTRAINT `courses_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`),
