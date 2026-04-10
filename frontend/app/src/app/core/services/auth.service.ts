@@ -92,18 +92,7 @@ export class AuthService {
       interests: interests
     };
 
-    const users = this.getUsers();
-    const updatedUsers = users.map((user) => {
-      if (user.id === updatedUser.id) {
-        return updatedUser;
-      } else {
-        return user;
-      }
-    });
-
-    localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(updatedUsers));
-    localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(updatedUser));
-    this.currentUserSubject.next(updatedUser);
+    this.persistUpdatedUser(updatedUser);
   }
 
   updateCurrentUserPlan(planId: number): void {
@@ -118,18 +107,62 @@ export class AuthService {
       planId: planId
     };
 
-    const users = this.getUsers();
-    const updatedUsers = users.map((user) => {
-      if (user.id === updatedUser.id) {
-        return updatedUser;
-      } else {
-        return user;
-      }
-    });
+    this.persistUpdatedUser(updatedUser);
+  }
 
-    localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(updatedUsers));
-    localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(updatedUser));
-    this.currentUserSubject.next(updatedUser);
+  updateCurrentUserProfile(name: string, email: string): boolean {
+    const currentUser = this.getCurrentUser();
+
+    if (currentUser == null) {
+      return false;
+    }
+
+    const normalizedName = name.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const users = this.getUsers();
+
+    const existingUser = users.find(
+      (user) =>
+        user.email.trim().toLowerCase() === normalizedEmail &&
+        user.id !== currentUser.id
+    );
+
+    if (existingUser != null) {
+      return false;
+    }
+
+    const updatedUser: User = {
+      ...currentUser,
+      name: normalizedName,
+      email: normalizedEmail
+    };
+
+    this.persistUpdatedUser(updatedUser);
+    return true;
+  }
+
+  updateCurrentUserPassword(currentPassword: string, newPassword: string): boolean {
+    const currentUser = this.getCurrentUser();
+
+    if (currentUser == null) {
+      return false;
+    }
+
+    const normalizedCurrentPassword = currentPassword.trim();
+    const normalizedNewPassword = newPassword.trim();
+
+    if (currentUser.password !== normalizedCurrentPassword) {
+      return false;
+    }
+
+    const updatedUser: User = {
+      ...currentUser,
+      password: normalizedNewPassword
+    };
+
+    this.persistUpdatedUser(updatedUser);
+    return true;
   }
 
   logout(): void {
@@ -185,6 +218,21 @@ export class AuthService {
   private setCurrentUser(user: User): void {
     localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(user));
     this.currentUserSubject.next(user);
+  }
+
+  private persistUpdatedUser(updatedUser: User): void {
+    const users = this.getUsers();
+    const updatedUsers = users.map((user) => {
+      if (user.id === updatedUser.id) {
+        return updatedUser;
+      } else {
+        return user;
+      }
+    });
+
+    localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(updatedUsers));
+    localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(updatedUser));
+    this.currentUserSubject.next(updatedUser);
   }
 
   private generateNextId(users: User[]): number {

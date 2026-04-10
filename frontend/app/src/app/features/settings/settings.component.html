@@ -1,0 +1,143 @@
+<div class="settings-page" *ngIf="currentUser != null">
+  <section class="settings-hero">
+    <div class="settings-hero__content">
+      <p class="settings-hero__eyebrow">User settings</p>
+
+      <h1 class="settings-hero__title">Manage your account</h1>
+
+      <p class="settings-hero__description">
+        Update your personal information and choose the new skills you want to learn.
+      </p>
+    </div>
+  </section>
+
+  <div class="settings-layout">
+    <aside class="settings-sidebar">
+      <div class="settings-sidebar__card">
+        <div class="settings-sidebar__avatar">
+          {{ currentUser.name.charAt(0) }}
+        </div>
+
+        <h2 class="settings-sidebar__name">{{ currentUser.name }}</h2>
+        <p class="settings-sidebar__email">{{ currentUser.email }}</p>
+
+        <div class="settings-sidebar__meta">
+          <span class="settings-sidebar__label">Client type</span>
+          <span class="settings-sidebar__value">{{ currentUser.clientType }}</span>
+        </div>
+
+        <div class="settings-sidebar__meta">
+          <span class="settings-sidebar__label">Current plan</span>
+          <a class="settings-sidebar__link" routerLink="/plans">{{ currentPlanName }}</a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="settings-main">
+      <section class="settings-section">
+        <div class="settings-section__header">
+          <h2>Account</h2>
+          <p>Update the main information associated with your LoopSkill account.</p>
+        </div>
+
+        <div class="settings-form">
+          <div class="settings-field">
+            <label for="name">Name</label>
+            <input id="name" type="text" [(ngModel)]="name" />
+          </div>
+
+          <div class="settings-field">
+            <label for="email">Email</label>
+            <input id="email" type="email" [(ngModel)]="email" />
+          </div>
+
+          <div class="settings-field">
+            <label for="clientType">Client type</label>
+            <input id="clientType" type="text" [value]="clientType" readonly />
+          </div>
+
+          <div class="settings-field">
+            <label for="plan">Current plan</label>
+            <div class="settings-field__plan">
+              <input id="plan" type="text" [value]="currentPlanName" readonly />
+              <a class="settings-field__plan-link" routerLink="/plans">Manage plan</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section__actions">
+          <button type="button" class="settings-button" (click)="saveProfile()">
+            Save account changes
+          </button>
+        </div>
+
+        <div class="settings-message" *ngIf="accountMessage !== ''">
+          {{ accountMessage }}
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <div class="settings-section__header">
+          <h2>Password</h2>
+          <p>Change your password to keep your account secure.</p>
+        </div>
+
+        <div class="settings-form">
+          <div class="settings-field">
+            <label for="currentPassword">Current password</label>
+            <input id="currentPassword" type="password" [(ngModel)]="currentPassword" />
+          </div>
+
+          <div class="settings-field">
+            <label for="newPassword">New password</label>
+            <input id="newPassword" type="password" [(ngModel)]="newPassword" />
+          </div>
+
+          <div class="settings-field">
+            <label for="confirmNewPassword">Confirm new password</label>
+            <input id="confirmNewPassword" type="password" [(ngModel)]="confirmNewPassword" />
+          </div>
+        </div>
+
+        <div class="settings-section__actions">
+          <button type="button" class="settings-button" (click)="savePassword()">
+            Update password
+          </button>
+        </div>
+
+        <div class="settings-message" *ngIf="passwordMessage !== ''">
+          {{ passwordMessage }}
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <div class="settings-section__header">
+          <h2>Interests</h2>
+          <p>Select the topics you want LoopSkill to use for personalized recommendations.</p>
+        </div>
+
+        <div class="settings-interests">
+          <button
+            type="button"
+            class="settings-interest"
+            *ngFor="let interest of availableInterests"
+            [class.settings-interest--active]="isInterestSelected(interest) == true"
+            (click)="toggleInterest(interest)"
+          >
+            {{ interest }}
+          </button>
+        </div>
+
+        <div class="settings-section__actions">
+          <button type="button" class="settings-button" (click)="saveInterests()">
+            Save interests
+          </button>
+        </div>
+
+        <div class="settings-message" *ngIf="interestsMessage !== ''">
+          {{ interestsMessage }}
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
