@@ -75,7 +75,8 @@
 }
 
 .settings-sidebar__card,
-.settings-section {
+.settings-section,
+.settings-tabs {
   background-color: #ffffff;
   border: 1px solid #dde7dd;
   border-radius: 24px;
@@ -154,6 +155,38 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+.settings-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px;
+}
+
+.settings-tab {
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid #d8e2d8;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: 'Montserrat', Arial, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-tab:hover {
+  border-color: #9fd39a;
+  background-color: #f7fbf7;
+}
+
+.settings-tab--active {
+  background-color: #eef7ec;
+  border-color: #9fd39a;
+  color: #2f5f2a;
 }
 
 .settings-section {
@@ -322,6 +355,122 @@
   color: #2f5f2a;
 }
 
+.settings-admin-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border: 1px solid #e4ebe4;
+  border-radius: 18px;
+  background-color: #fbfdfb;
+}
+
+.settings-admin-toolbar__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-admin-toolbar__label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.settings-admin-toolbar__value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.settings-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-admin-course {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 20px;
+  border: 1px solid #e4ebe4;
+  border-radius: 20px;
+  background-color: #fbfdfb;
+}
+
+.settings-admin-course__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-admin-course__title {
+  margin: 0 0 12px 0;
+  font-size: 1.05rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.settings-admin-course__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.settings-admin-course__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background-color: #eef7ec;
+  border: 1px solid #9fd39a;
+  color: #2f5f2a;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.settings-admin-course__description {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: #4b5563;
+}
+
+.settings-admin-course__actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.settings-admin-course__button {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: 'Montserrat', Arial, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-admin-course__button--danger {
+  border: 1px solid #efc7c7;
+  background-color: #ffffff;
+  color: #b42318;
+}
+
+.settings-admin-course__button--danger:hover {
+  background-color: #fff5f5;
+  border-color: #e7a9a9;
+}
+
 @media (max-width: 1024px) {
   .settings-hero__content {
     background-size: cover, 112%;
@@ -366,12 +515,23 @@
   }
 
   .settings-sidebar__card,
-  .settings-section {
+  .settings-section,
+  .settings-tabs {
     border-radius: 20px;
   }
 
   .settings-sidebar__card {
     padding: 22px 18px;
+  }
+
+  .settings-tabs {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .settings-tab {
+    width: 100%;
+    justify-content: center;
   }
 
   .settings-section {
@@ -397,6 +557,27 @@
   }
 
   .settings-interest {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .settings-admin-toolbar {
+    padding: 14px 16px;
+    border-radius: 16px;
+  }
+
+  .settings-admin-course {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 18px 16px;
+    border-radius: 18px;
+  }
+
+  .settings-admin-course__actions {
+    width: 100%;
+  }
+
+  .settings-admin-course__button {
     width: 100%;
     justify-content: center;
   }

@@ -10,3 +10,14 @@ export const MOCK_USER: User = {
   planId: 2,
   interests: ['python', 'angular', 'github', 'git', 'nodejs', 'java', 'docker']
 };
+
+export const MOCK_ADMIN_USER: User = {
+  id: 2,
+  name: 'Alejandro Martin',
+  email: 'alejandro.martin@loopskill.com',
+  password: '1234',
+  role: 'admin',
+  clientType: 'professional',
+  planId: 3,
+  interests: ['Angular', 'AWS', 'SQL']
+};
