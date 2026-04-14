@@ -3,11 +3,11 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { User } from '../../core/models/user.model';
+import { Course } from '../../core/models/course.model';
 import { AuthService } from '../../core/services/auth.service';
+import { CourseService } from '../../core/services/course.service';
 import { MOCK_INTERESTS } from '../../core/mocks/mock-interests';
 import { MOCK_PLANS } from '../../core/mocks/mock-plans';
-import { CourseService } from '../../core/services/course.service';
-import { Course } from '../../core/models/course.model';
 
 type SettingsTab = 'account' | 'password' | 'interests' | 'admin';
 
@@ -39,6 +39,17 @@ export class SettingsComponent implements OnInit {
 
   courses: Course[] = [];
   adminMessage: string = '';
+
+  newCourseTitle: string = '';
+  newCourseDescription: string = '';
+  newCourseCategory: string = 'Programming';
+  newCourseLevel: string = 'Beginner';
+  newCourseRequiredPlan: string = 'Free';
+  newCourseImage: string = 'assets/images/courses/python.png';
+  newCourseInstructor: string = '';
+  newCourseDurationHours: number = 10;
+  newCourseLessonsCount: number = 20;
+  newCourseTagsText: string = '';
 
   accountMessage: string = '';
   passwordMessage: string = '';
@@ -74,7 +85,6 @@ export class SettingsComponent implements OnInit {
 
   loadCourses(): void {
     const loadedCourses = this.courseService.getCourses();
-
     this.courses = [...loadedCourses].sort((a, b) => a.title.localeCompare(b.title));
   }
 
@@ -107,6 +117,40 @@ export class SettingsComponent implements OnInit {
     }
 
     this.interestsMessage = '';
+  }
+
+  createCourse(): void {
+    if (
+      this.newCourseTitle.trim() === '' ||
+      this.newCourseDescription.trim() === '' ||
+      this.newCourseInstructor.trim() === ''
+    ) {
+      this.adminMessage = 'Please complete title, description and instructor.';
+      return;
+    }
+
+    const tags = this.newCourseTagsText
+      .split(',')
+      .map((tag) => tag.trim().toLowerCase())
+      .filter((tag) => tag !== '');
+
+    this.courseService.createCourse({
+      title: this.newCourseTitle.trim(),
+      description: this.newCourseDescription.trim(),
+      category: this.newCourseCategory,
+      level: this.newCourseLevel,
+      requiredPlan: this.newCourseRequiredPlan,
+      image: this.newCourseImage.trim(),
+      tags: tags,
+      isPopular: false,
+      instructor: this.newCourseInstructor.trim(),
+      durationHours: this.newCourseDurationHours,
+      lessonsCount: this.newCourseLessonsCount
+    });
+
+    this.resetNewCourseForm();
+    this.loadCourses();
+    this.adminMessage = 'Course created successfully.';
   }
 
   deleteCourse(courseId: number): void {
@@ -161,6 +205,19 @@ export class SettingsComponent implements OnInit {
     this.authService.updateCurrentUserInterests(this.selectedInterests);
     this.interestsMessage = 'Your interests have been updated.';
     this.loadCurrentUser();
+  }
+
+  private resetNewCourseForm(): void {
+    this.newCourseTitle = '';
+    this.newCourseDescription = '';
+    this.newCourseCategory = 'Programming';
+    this.newCourseLevel = 'Beginner';
+    this.newCourseRequiredPlan = 'Free';
+    this.newCourseImage = 'assets/images/courses/python.png';
+    this.newCourseInstructor = '';
+    this.newCourseDurationHours = 10;
+    this.newCourseLessonsCount = 20;
+    this.newCourseTagsText = '';
   }
 
   private clearMessages(): void {
