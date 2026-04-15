@@ -151,19 +151,18 @@ El modelo permite implementar recomendaciones por coincidencia entre `user_inter
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/loopskill.git
+git clone https://github.com/PierreLaGuerre/loopskill.git
 
 # Instalar dependencias
-cd loopskill-frontend
 npm install
 
 # Arrancar en modo desarrollo
+cd frontend/app
 ng serve
 
 # La aplicación estará disponible en http://localhost:4200
 ```
 
-> El frontend funciona de forma independiente sin backend gracias a la capa de persistencia mock con LocalStorage. No se requiere ninguna configuración adicional para explorarlo.
 
 ---
 
