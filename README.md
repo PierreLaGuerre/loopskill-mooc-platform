@@ -2,13 +2,9 @@
 
 <br/>
 
-```
-    __    ____  ____  ____  _____ __ __ ______    __ 
-   / /   / __ \/ __ \/ __ \/ ___// //_//  _/ /   / / 
-  / /   / / / / / / / /_/ /\__ \/ ,<   / // /   / /  
- / /___/ /_/ / /_/ / ____/___/ / /| |_/ // /___/ /___
-/_____/\____/\____/_/    /____/_/ |_/___/_____/_____/ 
-```
+<div align="center">
+
+<img src=".\assets\images\LoopSkill_logo.jpg" alt="LoopSkill" width="600"/>
 
 **Plataforma MOOC con recomendaciones personalizadas y control de acceso por planes**
 
