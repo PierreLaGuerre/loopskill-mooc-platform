@@ -2,6 +2,7 @@
 
 <br/>
 
+<img width="554" height="192" alt="imagen" src="https://github.com/user-attachments/assets/d11417fa-addd-48ce-8910-6b058710105c" />
 
 
 **Plataforma MOOC con recomendaciones personalizadas y control de acceso por planes**
