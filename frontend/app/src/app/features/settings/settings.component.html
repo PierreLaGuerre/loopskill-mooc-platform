@@ -182,13 +182,15 @@
         <div class="settings-section__header">
           <h2>Admin panel</h2>
           <p>
-            Manage the course catalog from here. You can create new courses and remove
-            existing ones. Edit support will be added next.
+            Manage the course catalog from here. You can create, edit and delete courses
+            from the current catalog.
           </p>
         </div>
 
         <div class="settings-admin-create">
-          <h3 class="settings-admin-create__title">Add course</h3>
+          <h3 class="settings-admin-create__title">
+            {{ isEditingCourse() == true ? 'Edit course' : 'Add course' }}
+          </h3>
 
           <div class="settings-form">
             <div class="settings-field">
@@ -257,8 +259,17 @@
           </div>
 
           <div class="settings-section__actions">
-            <button type="button" class="settings-button" (click)="createCourse()">
-              Add course
+            <button type="button" class="settings-button" (click)="saveCourse()">
+              {{ isEditingCourse() == true ? 'Save changes' : 'Add course' }}
+            </button>
+
+            <button
+              *ngIf="isEditingCourse() == true"
+              type="button"
+              class="settings-button settings-button--secondary"
+              (click)="cancelEditCourse()"
+            >
+              Cancel
             </button>
           </div>
         </div>
@@ -287,6 +298,14 @@
             </div>
 
             <div class="settings-admin-course__actions">
+              <button
+                type="button"
+                class="settings-admin-course__button settings-admin-course__button--edit"
+                (click)="startEditCourse(course)"
+              >
+                Edit
+              </button>
+
               <button
                 type="button"
                 class="settings-admin-course__button settings-admin-course__button--danger"

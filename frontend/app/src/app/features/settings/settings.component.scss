@@ -308,6 +308,9 @@
 
 .settings-section__actions {
   margin-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .settings-button {
@@ -329,6 +332,20 @@
   background-color: #439a39;
   transform: translateY(-1px);
   box-shadow: 0 14px 28px rgba(79, 179, 67, 0.18);
+}
+
+.settings-button--secondary {
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d8e2d8;
+  box-shadow: none;
+}
+
+.settings-button--secondary:hover {
+  background-color: #f7fbf7;
+  border-color: #9fd39a;
+  transform: none;
+  box-shadow: none;
 }
 
 .settings-message {
@@ -482,6 +499,7 @@
   flex-shrink: 0;
   display: flex;
   align-items: flex-start;
+  gap: 10px;
 }
 
 .settings-admin-course__button {
@@ -493,6 +511,17 @@
   font-family: 'Montserrat', Arial, sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.settings-admin-course__button--edit {
+  border: 1px solid #d8e2d8;
+  background-color: #ffffff;
+  color: #374151;
+}
+
+.settings-admin-course__button--edit:hover {
+  background-color: #f7fbf7;
+  border-color: #9fd39a;
 }
 
 .settings-admin-course__button--danger {
@@ -591,6 +620,10 @@
     width: 100%;
   }
 
+  .settings-section__actions {
+    flex-direction: column;
+  }
+
   .settings-button {
     width: 100%;
   }
@@ -620,6 +653,7 @@
 
   .settings-admin-course__actions {
     width: 100%;
+    flex-direction: column;
   }
 
   .settings-admin-course__button {

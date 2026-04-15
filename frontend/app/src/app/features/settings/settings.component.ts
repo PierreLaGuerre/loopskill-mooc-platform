@@ -40,6 +40,8 @@ export class SettingsComponent implements OnInit {
   courses: Course[] = [];
   adminMessage: string = '';
 
+  editingCourseId: number | null = null;
+
   newCourseTitle: string = '';
   newCourseDescription: string = '';
   newCourseCategory: string = 'Programming';
@@ -105,6 +107,14 @@ export class SettingsComponent implements OnInit {
     }
   }
 
+  isEditingCourse(): boolean {
+    if (this.editingCourseId == null) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   isInterestSelected(interest: string): boolean {
     return this.selectedInterests.includes(interest);
   }
@@ -119,7 +129,28 @@ export class SettingsComponent implements OnInit {
     this.interestsMessage = '';
   }
 
-  createCourse(): void {
+  startEditCourse(course: Course): void {
+    this.editingCourseId = course.id;
+    this.newCourseTitle = course.title;
+    this.newCourseDescription = course.description;
+    this.newCourseCategory = course.category;
+    this.newCourseLevel = course.level;
+    this.newCourseRequiredPlan = course.requiredPlan;
+    this.newCourseImage = course.image;
+    this.newCourseInstructor = course.instructor;
+    this.newCourseDurationHours = course.durationHours;
+    this.newCourseLessonsCount = course.lessonsCount;
+    this.newCourseTagsText = course.tags.join(', ');
+    this.adminMessage = '';
+  }
+
+  cancelEditCourse(): void {
+    this.editingCourseId = null;
+    this.resetNewCourseForm();
+    this.adminMessage = '';
+  }
+
+  saveCourse(): void {
     if (
       this.newCourseTitle.trim() === '' ||
       this.newCourseDescription.trim() === '' ||
@@ -134,29 +165,73 @@ export class SettingsComponent implements OnInit {
       .map((tag) => tag.trim().toLowerCase())
       .filter((tag) => tag !== '');
 
-    this.courseService.createCourse({
-      title: this.newCourseTitle.trim(),
-      description: this.newCourseDescription.trim(),
-      category: this.newCourseCategory,
-      level: this.newCourseLevel,
-      requiredPlan: this.newCourseRequiredPlan,
-      image: this.newCourseImage.trim(),
-      tags: tags,
-      isPopular: false,
-      instructor: this.newCourseInstructor.trim(),
-      durationHours: this.newCourseDurationHours,
-      lessonsCount: this.newCourseLessonsCount
-    });
+    if (this.isEditingCourse() == true && this.editingCourseId != null) {
+      const existingCourse = this.courseService.getCourseById(this.editingCourseId);
 
-    this.resetNewCourseForm();
-    this.loadCourses();
-    this.adminMessage = 'Course created successfully.';
+      if (existingCourse == null) {
+        this.adminMessage = 'The selected course could not be found.';
+        return;
+      }
+
+      const updatedCourse: Course = {
+        ...existingCourse,
+        title: this.newCourseTitle.trim(),
+        description: this.newCourseDescription.trim(),
+        category: this.newCourseCategory,
+        level: this.newCourseLevel,
+        requiredPlan: this.newCourseRequiredPlan,
+        image: this.newCourseImage.trim(),
+        tags: tags,
+        instructor: this.newCourseInstructor.trim(),
+        durationHours: this.newCourseDurationHours,
+        lessonsCount: this.newCourseLessonsCount
+      };
+
+      const ok = this.courseService.updateCourse(updatedCourse);
+
+      if (ok == true) {
+        this.editingCourseId = null;
+        this.resetNewCourseForm();
+        this.loadCourses();
+        this.adminMessage = 'Course updated successfully.';
+      } else {
+        this.adminMessage = 'The course could not be updated.';
+      }
+    } else {
+      this.courseService.createCourse({
+        title: this.newCourseTitle.trim(),
+        description: this.newCourseDescription.trim(),
+        category: this.newCourseCategory,
+        level: this.newCourseLevel,
+        requiredPlan: this.newCourseRequiredPlan,
+        image: this.newCourseImage.trim(),
+        tags: tags,
+        isPopular: false,
+        instructor: this.newCourseInstructor.trim(),
+        durationHours: this.newCourseDurationHours,
+        lessonsCount: this.newCourseLessonsCount
+      });
+
+      this.resetNewCourseForm();
+      this.loadCourses();
+      this.adminMessage = 'Course created successfully.';
+    }
   }
 
   deleteCourse(courseId: number): void {
+    const confirmed = confirm('Are you sure you want to delete this course?');
+
+    if (confirmed == false) {
+      return;
+    }
+
     const ok = this.courseService.deleteCourse(courseId);
 
     if (ok == true) {
+      if (this.editingCourseId === courseId) {
+        this.cancelEditCourse();
+      }
+
       this.adminMessage = 'Course deleted successfully.';
       this.loadCourses();
     } else {
