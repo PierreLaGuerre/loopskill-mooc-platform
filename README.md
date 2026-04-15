@@ -2,9 +2,7 @@
 
 <br/>
 
-<div align="center">
 
-<img src=".\assets\images\LoopSkill_logo.jpg" alt="LoopSkill" width="600"/>
 
 **Plataforma MOOC con recomendaciones personalizadas y control de acceso por planes**
 
