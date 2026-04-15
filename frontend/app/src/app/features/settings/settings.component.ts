@@ -3,9 +3,13 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { User } from '../../core/models/user.model';
+import { Course } from '../../core/models/course.model';
 import { AuthService } from '../../core/services/auth.service';
+import { CourseService } from '../../core/services/course.service';
 import { MOCK_INTERESTS } from '../../core/mocks/mock-interests';
 import { MOCK_PLANS } from '../../core/mocks/mock-plans';
+
+type SettingsTab = 'account' | 'password' | 'interests' | 'admin';
 
 @Component({
   selector: 'app-settings',
@@ -16,8 +20,10 @@ import { MOCK_PLANS } from '../../core/mocks/mock-plans';
 })
 export class SettingsComponent implements OnInit {
   private authService = inject(AuthService);
+  private courseService = inject(CourseService);
 
   currentUser: User | null = null;
+  activeTab: SettingsTab = 'account';
 
   name: string = '';
   email: string = '';
@@ -31,12 +37,27 @@ export class SettingsComponent implements OnInit {
   availableInterests: string[] = MOCK_INTERESTS;
   selectedInterests: string[] = [];
 
+  courses: Course[] = [];
+  adminMessage: string = '';
+
+  newCourseTitle: string = '';
+  newCourseDescription: string = '';
+  newCourseCategory: string = 'Programming';
+  newCourseLevel: string = 'Beginner';
+  newCourseRequiredPlan: string = 'Free';
+  newCourseImage: string = 'assets/images/courses/python.png';
+  newCourseInstructor: string = '';
+  newCourseDurationHours: number = 10;
+  newCourseLessonsCount: number = 20;
+  newCourseTagsText: string = '';
+
   accountMessage: string = '';
   passwordMessage: string = '';
   interestsMessage: string = '';
 
   ngOnInit(): void {
     this.loadCurrentUser();
+    this.loadCourses();
   }
 
   loadCurrentUser(): void {
@@ -55,6 +76,32 @@ export class SettingsComponent implements OnInit {
       } else {
         this.currentPlanName = '';
       }
+
+      if (this.isAdmin() == false && this.activeTab === 'admin') {
+        this.activeTab = 'account';
+      }
+    }
+  }
+
+  loadCourses(): void {
+    const loadedCourses = this.courseService.getCourses();
+    this.courses = [...loadedCourses].sort((a, b) => a.title.localeCompare(b.title));
+  }
+
+  setActiveTab(tab: SettingsTab): void {
+    if (tab === 'admin' && this.isAdmin() == false) {
+      return;
+    }
+
+    this.activeTab = tab;
+    this.clearMessages();
+  }
+
+  isAdmin(): boolean {
+    if (this.currentUser == null) {
+      return false;
+    } else {
+      return this.currentUser.role === 'admin';
     }
   }
 
@@ -70,6 +117,51 @@ export class SettingsComponent implements OnInit {
     }
 
     this.interestsMessage = '';
+  }
+
+  createCourse(): void {
+    if (
+      this.newCourseTitle.trim() === '' ||
+      this.newCourseDescription.trim() === '' ||
+      this.newCourseInstructor.trim() === ''
+    ) {
+      this.adminMessage = 'Please complete title, description and instructor.';
+      return;
+    }
+
+    const tags = this.newCourseTagsText
+      .split(',')
+      .map((tag) => tag.trim().toLowerCase())
+      .filter((tag) => tag !== '');
+
+    this.courseService.createCourse({
+      title: this.newCourseTitle.trim(),
+      description: this.newCourseDescription.trim(),
+      category: this.newCourseCategory,
+      level: this.newCourseLevel,
+      requiredPlan: this.newCourseRequiredPlan,
+      image: this.newCourseImage.trim(),
+      tags: tags,
+      isPopular: false,
+      instructor: this.newCourseInstructor.trim(),
+      durationHours: this.newCourseDurationHours,
+      lessonsCount: this.newCourseLessonsCount
+    });
+
+    this.resetNewCourseForm();
+    this.loadCourses();
+    this.adminMessage = 'Course created successfully.';
+  }
+
+  deleteCourse(courseId: number): void {
+    const ok = this.courseService.deleteCourse(courseId);
+
+    if (ok == true) {
+      this.adminMessage = 'Course deleted successfully.';
+      this.loadCourses();
+    } else {
+      this.adminMessage = 'The course could not be deleted.';
+    }
   }
 
   saveProfile(): void {
@@ -113,5 +205,25 @@ export class SettingsComponent implements OnInit {
     this.authService.updateCurrentUserInterests(this.selectedInterests);
     this.interestsMessage = 'Your interests have been updated.';
     this.loadCurrentUser();
+  }
+
+  private resetNewCourseForm(): void {
+    this.newCourseTitle = '';
+    this.newCourseDescription = '';
+    this.newCourseCategory = 'Programming';
+    this.newCourseLevel = 'Beginner';
+    this.newCourseRequiredPlan = 'Free';
+    this.newCourseImage = 'assets/images/courses/python.png';
+    this.newCourseInstructor = '';
+    this.newCourseDurationHours = 10;
+    this.newCourseLessonsCount = 20;
+    this.newCourseTagsText = '';
+  }
+
+  private clearMessages(): void {
+    this.accountMessage = '';
+    this.passwordMessage = '';
+    this.interestsMessage = '';
+    this.adminMessage = '';
   }
 }

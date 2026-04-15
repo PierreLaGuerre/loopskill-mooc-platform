@@ -34,7 +34,46 @@
     </aside>
 
     <div class="settings-main">
-      <section class="settings-section">
+      <div class="settings-tabs">
+        <button
+          type="button"
+          class="settings-tab"
+          [class.settings-tab--active]="activeTab === 'account'"
+          (click)="setActiveTab('account')"
+        >
+          Account
+        </button>
+
+        <button
+          type="button"
+          class="settings-tab"
+          [class.settings-tab--active]="activeTab === 'password'"
+          (click)="setActiveTab('password')"
+        >
+          Password
+        </button>
+
+        <button
+          type="button"
+          class="settings-tab"
+          [class.settings-tab--active]="activeTab === 'interests'"
+          (click)="setActiveTab('interests')"
+        >
+          Interests
+        </button>
+
+        <button
+          *ngIf="isAdmin() == true"
+          type="button"
+          class="settings-tab"
+          [class.settings-tab--active]="activeTab === 'admin'"
+          (click)="setActiveTab('admin')"
+        >
+          Admin panel
+        </button>
+      </div>
+
+      <section class="settings-section" *ngIf="activeTab === 'account'">
         <div class="settings-section__header">
           <h2>Account</h2>
           <p>Update the main information associated with your LoopSkill account.</p>
@@ -76,7 +115,7 @@
         </div>
       </section>
 
-      <section class="settings-section">
+      <section class="settings-section" *ngIf="activeTab === 'password'">
         <div class="settings-section__header">
           <h2>Password</h2>
           <p>Change your password to keep your account secure.</p>
@@ -110,7 +149,7 @@
         </div>
       </section>
 
-      <section class="settings-section">
+      <section class="settings-section" *ngIf="activeTab === 'interests'">
         <div class="settings-section__header">
           <h2>Interests</h2>
           <p>Select the topics you want LoopSkill to use for personalized recommendations.</p>
@@ -136,6 +175,137 @@
 
         <div class="settings-message" *ngIf="interestsMessage !== ''">
           {{ interestsMessage }}
+        </div>
+      </section>
+
+      <section class="settings-section" *ngIf="activeTab === 'admin' && isAdmin() == true">
+        <div class="settings-section__header">
+          <h2>Admin panel</h2>
+          <p>
+            Manage the course catalog from here. You can create new courses and remove
+            existing ones. Edit support will be added next.
+          </p>
+        </div>
+
+        <div class="settings-admin-create">
+          <h3 class="settings-admin-create__title">Add course</h3>
+
+          <div class="settings-form">
+            <div class="settings-field">
+              <label for="newCourseTitle">Title</label>
+              <input id="newCourseTitle" type="text" [(ngModel)]="newCourseTitle" />
+            </div>
+
+            <div class="settings-field">
+              <label for="newCourseInstructor">Instructor</label>
+              <input id="newCourseInstructor" type="text" [(ngModel)]="newCourseInstructor" />
+            </div>
+
+            <div class="settings-field settings-field--full">
+              <label for="newCourseDescription">Description</label>
+              <input id="newCourseDescription" type="text" [(ngModel)]="newCourseDescription" />
+            </div>
+
+            <div class="settings-field">
+              <label for="newCourseCategory">Category</label>
+              <select id="newCourseCategory" [(ngModel)]="newCourseCategory">
+                <option value="Programming">Programming</option>
+                <option value="Databases">Databases</option>
+                <option value="Cloud">Cloud</option>
+                <option value="Data Science">Data Science</option>
+                <option value="DevOps">DevOps</option>
+              </select>
+            </div>
+
+            <div class="settings-field">
+              <label for="newCourseLevel">Level</label>
+              <select id="newCourseLevel" [(ngModel)]="newCourseLevel">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+
+            <div class="settings-field">
+              <label for="newCourseRequiredPlan">Required plan</label>
+              <select id="newCourseRequiredPlan" [(ngModel)]="newCourseRequiredPlan">
+                <option value="Free">Free</option>
+                <option value="Pro">Pro</option>
+                <option value="Premium">Premium</option>
+              </select>
+            </div>
+
+            <div class="settings-field">
+              <label for="newCourseImage">Image path</label>
+              <input id="newCourseImage" type="text" [(ngModel)]="newCourseImage" />
+            </div>
+
+            <div class="settings-field">
+              <label for="newCourseDurationHours">Duration (hours)</label>
+              <input id="newCourseDurationHours" type="number" [(ngModel)]="newCourseDurationHours" />
+            </div>
+
+            <div class="settings-field">
+              <label for="newCourseLessonsCount">Lessons</label>
+              <input id="newCourseLessonsCount" type="number" [(ngModel)]="newCourseLessonsCount" />
+            </div>
+
+            <div class="settings-field settings-field--full">
+              <label for="newCourseTagsText">Tags (comma separated)</label>
+              <input id="newCourseTagsText" type="text" [(ngModel)]="newCourseTagsText" />
+            </div>
+          </div>
+
+          <div class="settings-section__actions">
+            <button type="button" class="settings-button" (click)="createCourse()">
+              Add course
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-admin-toolbar">
+          <div class="settings-admin-toolbar__summary">
+            <span class="settings-admin-toolbar__label">Total courses</span>
+            <span class="settings-admin-toolbar__value">{{ courses.length }}</span>
+          </div>
+        </div>
+
+        <div class="settings-admin-list" *ngIf="courses.length > 0; else emptyAdminCourses">
+          <article class="settings-admin-course" *ngFor="let course of courses">
+            <div class="settings-admin-course__content">
+              <h3 class="settings-admin-course__title">{{ course.title }}</h3>
+
+              <div class="settings-admin-course__meta">
+                <span class="settings-admin-course__chip">{{ course.category }}</span>
+                <span class="settings-admin-course__chip">{{ course.level }}</span>
+                <span class="settings-admin-course__chip">Plan {{ course.requiredPlan }}</span>
+              </div>
+
+              <p class="settings-admin-course__description">
+                {{ course.description }}
+              </p>
+            </div>
+
+            <div class="settings-admin-course__actions">
+              <button
+                type="button"
+                class="settings-admin-course__button settings-admin-course__button--danger"
+                (click)="deleteCourse(course.id)"
+              >
+                Delete
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <ng-template #emptyAdminCourses>
+          <div class="settings-message">
+            No courses available in the catalog.
+          </div>
+        </ng-template>
+
+        <div class="settings-message" *ngIf="adminMessage !== ''">
+          {{ adminMessage }}
         </div>
       </section>
     </div>

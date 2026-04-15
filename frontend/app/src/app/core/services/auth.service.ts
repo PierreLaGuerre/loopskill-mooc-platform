@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../models/user.model';
-import { MOCK_USER } from '../mocks/mock-user';
+import { MOCK_ADMIN_USER, MOCK_USER } from '../mocks/mock-user';
 
 @Injectable({
   providedIn: 'root'
@@ -190,7 +190,7 @@ export class AuthService {
     const storedUsers = localStorage.getItem(this.STORAGE_USERS_KEY);
 
     if (storedUsers == null) {
-      const initialUsers: User[] = [MOCK_USER];
+      const initialUsers: User[] = [MOCK_USER, MOCK_ADMIN_USER];
       localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(initialUsers));
     }
   }
