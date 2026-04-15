@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c8ff50"/>
+      <stop offset="50%" stop-color="#55cc00"/>
+      <stop offset="100%" stop-color="#1e6600"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(220,255,130,0.9)"/>
+      <stop offset="100%" stop-color="rgba(220,255,130,0)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sombra desplazada -->
+  <path
+    d="M24,25 C21,18 15.5,12.5 10,13.5 C4,14.5 1,19.5 1,25 C1,30.5 4,35.5 10,36.5 C15.5,37.5 21,32 24,25 C27,18 32.5,12.5 38,13.5 C44,14.5 47,19.5 47,25 C47,30.5 44,35.5 38,36.5 C32.5,37.5 27,32 24,25"
+    fill="none" stroke="#0a3a00" stroke-width="10" stroke-linecap="round" opacity="0.4"
+  />
+
+  <!-- Cuerpo del infinito (stroke = hueco natural) -->
+  <path
+    d="M24,24 C21,17 15.5,11.5 10,12.5 C4,13.5 1,18.5 1,24 C1,29.5 4,34.5 10,35.5 C15.5,36.5 21,31 24,24 C27,17 32.5,11.5 38,12.5 C44,13.5 47,18.5 47,24 C47,29.5 44,34.5 38,35.5 C32.5,36.5 27,31 24,24"
+    fill="none" stroke="url(#grad)" stroke-width="9" stroke-linecap="round"
+  />
+
+  <!-- Brillo superior -->
+  <path
+    d="M24,24 C21,17 15.5,11.5 10,12.5 C4,13.5 1,18.5 1,24 C27,17 32.5,11.5 38,12.5 C44,13.5 47,18.5 47,24"
+    fill="none" stroke="url(#shine)" stroke-width="3" stroke-linecap="round"
+  />
+</svg>
