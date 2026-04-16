@@ -29,7 +29,7 @@
               "src/favicon.ico",
               "src/assets",
               {
-                "glob": "favicon_v2.svg",
+                "glob": "favicon_v3.svg",
                 "input": "src/assets",
                 "output": "/"
               }
@@ -94,7 +94,7 @@
               "src/favicon.ico",
               "src/assets",
               {
-                "glob": "favicon_v2.svg",
+                "glob": "favicon_v3.svg",
                 "input": "src/assets",
                 "output": "/"
               }
