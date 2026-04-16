@@ -7,6 +7,7 @@ import { CourseDetailComponent } from './features/course-detail/course-detail.co
 import { ExploreComponent } from './features/explore/explore.component';
 import { InterestsOnboardingComponent } from './features/onboarding/interests-onboarding/interests-onboarding.component';
 import { SettingsComponent } from './features/settings/settings.component';
+import { CoursePlayerComponent } from './features/course-player/course-player.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'auth', pathMatch: 'full' },
@@ -17,7 +18,8 @@ export const routes: Routes = [
   { path: 'plans', component: PlansComponent },
   { path: 'my-learning', component: UserPageComponent },
   { path: 'profile', component: UserPageComponent },
+  { path: 'courses/:id/learn', component: CoursePlayerComponent },
   { path: 'courses/:id', component: CourseDetailComponent },
-  { path: 'settings', component: SettingsComponent},
+  { path: 'settings', component: SettingsComponent },
   { path: '**', redirectTo: 'auth' }
 ];

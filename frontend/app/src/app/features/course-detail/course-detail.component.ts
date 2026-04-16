@@ -83,14 +83,14 @@ export class CourseDetailComponent implements OnInit {
     }
 
     if (this.isEnrolled === true) {
-      this.router.navigateByUrl('/my-learnings');
+      this.router.navigate(['/courses', this.course.id, 'learn']);
       return;
     }
 
     if (this.hasAccess === true) {
       this.enrollmentService.createEnrollment(this.currentUser.id, this.course.id);
       this.isEnrolled = true;
-      this.router.navigateByUrl('/my-learnings');
+      this.router.navigate(['/courses', this.course.id, 'learn']);
       return;
     }
 

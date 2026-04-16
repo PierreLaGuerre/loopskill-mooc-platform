@@ -16,10 +16,10 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'app' title`, () => {
+  it('should show the layout by default', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('app');
+    expect(app.hideLayout).toBeFalse();
   });
 
   it('should render the layout shell', () => {
@@ -27,7 +27,7 @@ describe('AppComponent', () => {
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('app-navbar')).not.toBeNull();
-    expect(compiled.querySelector('main')).not.toBeNull();
+    expect(compiled.querySelector('router-outlet')).not.toBeNull();
     expect(compiled.querySelector('app-footer')).not.toBeNull();
   });
 });

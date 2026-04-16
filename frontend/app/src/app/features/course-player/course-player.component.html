@@ -1,0 +1,83 @@
+<div class="course-player-page" *ngIf="course != null; else courseNotFound">
+  <div class="course-player-layout">
+    <section class="course-player-main">
+      <div class="course-player-video-card">
+        <div class="course-player-video-shell">
+          <video class="course-player-video" controls playsinline preload="metadata">
+            <source src="assets/videos/loopskill-class-placeholder.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+
+      <div class="course-player-info-card">
+        <p class="course-player-info-card__eyebrow">Now playing</p>
+        <h1 class="course-player-info-card__title">{{ activeLesson?.title }}</h1>
+
+        <div class="course-player-info-card__meta">
+          <span class="course-player-info-card__chip">{{ course.category }}</span>
+          <span class="course-player-info-card__chip">{{ course.level }}</span>
+        </div>
+
+        <p class="course-player-info-card__course-title">{{ course.title }}</p>
+
+        <p class="course-player-info-card__instructor">
+          <span class="course-player-info-card__instructor-label">Instructor</span>:
+          <span>{{ course.instructor }}</span>
+        </p>
+
+        <p class="course-player-info-card__description">
+          {{ course.description }}
+        </p>
+
+        <div class="course-player-info-card__actions">
+          <a class="course-player-info-card__back" [routerLink]="['/courses', course.id]">
+            Back to course details
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <aside class="course-player-sidebar">
+      <div class="course-player-sidebar__card">
+        <div class="course-player-sidebar__header">
+          <h2>Course content</h2>
+          <p>{{ lessons.length }} lessons</p>
+        </div>
+
+        <div class="course-player-sidebar__list">
+          <button
+            type="button"
+            class="course-player-lesson"
+            *ngFor="let lesson of lessons"
+            [class.course-player-lesson--active]="activeLesson?.id === lesson.id"
+            (click)="selectLesson(lesson)"
+          >
+            <div class="course-player-lesson__top">
+              <span
+                class="course-player-lesson__status"
+                [class.course-player-lesson__status--done]="lesson.isCompleted == true"
+              >
+                {{ lesson.isCompleted == true ? '✓' : '•' }}
+              </span>
+
+              <span class="course-player-lesson__duration">{{ lesson.duration }}</span>
+            </div>
+
+            <p class="course-player-lesson__title">{{ lesson.title }}</p>
+          </button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<ng-template #courseNotFound>
+  <div class="course-player-empty">
+    <h1>Course not found</h1>
+    <p>
+      We could not load this lesson right now. Please return to the course catalog and try again.
+    </p>
+    <a routerLink="/explore" class="course-player-empty__link">Go to Explore</a>
+  </div>
+</ng-template>
