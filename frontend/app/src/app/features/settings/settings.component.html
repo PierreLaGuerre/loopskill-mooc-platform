@@ -71,6 +71,14 @@
         >
           Admin panel
         </button>
+
+        <button
+          type="button"
+          class="settings-tab settings-tab--danger"
+          (click)="logoutAndRedirect()"
+        >
+          Logout
+        </button>
       </div>
 
       <section class="settings-section" *ngIf="activeTab === 'account'">

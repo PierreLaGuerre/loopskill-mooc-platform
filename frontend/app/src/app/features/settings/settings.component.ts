@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { User } from '../../core/models/user.model';
 import { Course } from '../../core/models/course.model';
 import { AuthService } from '../../core/services/auth.service';
@@ -21,6 +21,7 @@ type SettingsTab = 'account' | 'password' | 'interests' | 'admin';
 export class SettingsComponent implements OnInit {
   private authService = inject(AuthService);
   private courseService = inject(CourseService);
+  private router = inject(Router);
 
   currentUser: User | null = null;
   activeTab: SettingsTab = 'account';
@@ -280,6 +281,11 @@ export class SettingsComponent implements OnInit {
     this.authService.updateCurrentUserInterests(this.selectedInterests);
     this.interestsMessage = 'Your interests have been updated.';
     this.loadCurrentUser();
+  }
+
+  logoutAndRedirect(): void {
+    this.authService.logout();
+    this.router.navigateByUrl('/auth');
   }
 
   private resetNewCourseForm(): void {
