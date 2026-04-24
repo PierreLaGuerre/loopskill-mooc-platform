@@ -2,9 +2,15 @@ const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "secret_key";
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
 const SALT_ROUNDS = 10;
+const DEFAULT_USER_PLAN_ID = Number(process.env.DEFAULT_USER_PLAN_ID) || 1;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const NAME_MAX_LENGTH = 100;
+const EMAIL_MAX_LENGTH = 150;
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_MAX_LENGTH = 72;
 
 const CLIENT_TYPE_MAP = {
   student: "student",
@@ -48,6 +54,10 @@ function normalizeEmail(value) {
   return normalizeText(value).toLowerCase();
 }
 
+function isValidEmail(email) {
+  return EMAIL_REGEX.test(email);
+}
+
 function normalizeClientType(value) {
   const normalizedValue = normalizeText(value).toLowerCase();
   return CLIENT_TYPE_MAP[normalizedValue] || null;
@@ -75,6 +85,10 @@ function normalizeInterestNames(interests) {
 }
 
 function buildToken(user) {
+  if (typeof JWT_SECRET !== "string" || JWT_SECRET.trim() === "") {
+    throw new Error("JWT_SECRET is not configured");
+  }
+
   return jwt.sign(
     {
       id: user.id,
@@ -108,6 +122,90 @@ async function getUserInterests(userId) {
   return rows.map((row) => row.name);
 }
 
+function sendError(res, statusCode, message, details) {
+  const payload = {
+    success: false,
+    message
+  };
+
+  if (details != null) {
+    payload.details = details;
+  }
+
+  return res.status(statusCode).json(payload);
+}
+
+function sendAuthSuccess(res, statusCode, message, user, token) {
+  return res.status(statusCode).json({
+    success: true,
+    message,
+    token,
+    user
+  });
+}
+
+function validateRegisterInput({ name, email, password, clientType }) {
+  const details = {};
+
+  if (name === "") {
+    details.name = "Name is required";
+  } else if (name.length > NAME_MAX_LENGTH) {
+    details.name = `Name must be ${NAME_MAX_LENGTH} characters or fewer`;
+  }
+
+  if (email === "") {
+    details.email = "Email is required";
+  } else if (email.length > EMAIL_MAX_LENGTH) {
+    details.email = `Email must be ${EMAIL_MAX_LENGTH} characters or fewer`;
+  } else if (isValidEmail(email) === false) {
+    details.email = "Email format is invalid";
+  }
+
+  if (password === "") {
+    details.password = "Password is required";
+  } else if (password.length < PASSWORD_MIN_LENGTH) {
+    details.password = `Password must be at least ${PASSWORD_MIN_LENGTH} characters`;
+  } else if (password.length > PASSWORD_MAX_LENGTH) {
+    details.password = `Password must be ${PASSWORD_MAX_LENGTH} characters or fewer`;
+  }
+
+  if (clientType == null) {
+    details.clientType = "Client type is invalid";
+  }
+
+  return details;
+}
+
+function validateLoginInput({ email, password }) {
+  const details = {};
+
+  if (email === "") {
+    details.email = "Email is required";
+  } else if (isValidEmail(email) === false) {
+    details.email = "Email format is invalid";
+  }
+
+  if (password === "") {
+    details.password = "Password is required";
+  }
+
+  return details;
+}
+
+async function getInterestRowsByNames(connection, interests) {
+  if (interests.length === 0) {
+    return [];
+  }
+
+  const placeholders = interests.map(() => "?").join(", ");
+  const [rows] = await connection.query(
+    `SELECT id, name FROM tags WHERE LOWER(name) IN (${placeholders})`,
+    interests.map((interest) => interest.toLowerCase())
+  );
+
+  return rows;
+}
+
 function buildUserResponse(user, interests) {
   return {
     id: user.id,
@@ -125,15 +223,7 @@ async function insertUserInterests(connection, userId, interests) {
     return;
   }
 
-  const placeholders = interests.map(() => "?").join(", ");
-  const [tagRows] = await connection.query(
-    `SELECT id FROM tags WHERE LOWER(name) IN (${placeholders})`,
-    interests.map((interest) => interest.toLowerCase())
-  );
-
-  if (tagRows.length === 0) {
-    return;
-  }
+  const tagRows = await getInterestRowsByNames(connection, interests);
 
   const valuesPlaceholders = tagRows.map(() => "(?, ?)").join(", ");
   const params = tagRows.flatMap((tagRow) => [userId, tagRow.id]);
@@ -150,13 +240,10 @@ exports.register = async (req, res) => {
   const password = normalizeText(req.body.password);
   const clientType = normalizeClientType(req.body.clientType ?? req.body.client_type);
   const interests = normalizeInterestNames(req.body.interests);
+  const validationErrors = validateRegisterInput({ name, email, password, clientType });
 
-  if (name === "" || email === "" || password === "") {
-    return res.status(400).json({ message: "Name, email and password are required" });
-  }
-
-  if (clientType == null) {
-    return res.status(400).json({ message: "Invalid client type" });
+  if (Object.keys(validationErrors).length > 0) {
+    return sendError(res, 400, "Validation failed", validationErrors);
   }
 
   let connection;
@@ -172,15 +259,30 @@ exports.register = async (req, res) => {
 
     if (existingUsers.length > 0) {
       await connection.rollback();
-      return res.status(409).json({ message: "Email already in use" });
+      return sendError(res, 409, "Email already in use", {
+        email: "An account with this email already exists"
+      });
+    }
+
+    const tagRows = await getInterestRowsByNames(connection, interests);
+    const matchedInterestNames = new Set(tagRows.map((tagRow) => tagRow.name.toLowerCase()));
+    const invalidInterests = interests.filter(
+      (interest) => matchedInterestNames.has(interest.toLowerCase()) === false
+    );
+
+    if (invalidInterests.length > 0) {
+      await connection.rollback();
+      return sendError(res, 400, "Validation failed", {
+        interests: `Unknown interests: ${invalidInterests.join(", ")}`
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     const [insertResult] = await connection.query(
       `INSERT INTO users (name, email, password, role, client_type, plan_id)
-       VALUES (?, ?, ?, 'student', ?, 1)`,
-      [name, email, hashedPassword, clientType]
+       VALUES (?, ?, ?, 'student', ?, ?)`,
+      [name, email, hashedPassword, clientType, DEFAULT_USER_PLAN_ID]
     );
 
     await insertUserInterests(connection, insertResult.insertId, interests);
@@ -190,20 +292,19 @@ exports.register = async (req, res) => {
     const storedInterests = await getUserInterests(insertResult.insertId);
     const token = buildToken(user);
 
-    return res.status(201).json({
-      message: "User created successfully",
-      token,
-      user: buildUserResponse(user, storedInterests)
-    });
+    return sendAuthSuccess(
+      res,
+      201,
+      "User created successfully",
+      buildUserResponse(user, storedInterests),
+      token
+    );
   } catch (error) {
     if (connection != null) {
       await connection.rollback();
     }
 
-    return res.status(500).json({
-      message: "Could not register user",
-      error: error.message
-    });
+    return sendError(res, 500, "Could not register user");
   } finally {
     if (connection != null) {
       connection.release();
@@ -214,9 +315,10 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const email = normalizeEmail(req.body.email);
   const password = normalizeText(req.body.password);
+  const validationErrors = validateLoginInput({ email, password });
 
-  if (email === "" || password === "") {
-    return res.status(400).json({ message: "Email and password are required" });
+  if (Object.keys(validationErrors).length > 0) {
+    return sendError(res, 400, "Validation failed", validationErrors);
   }
 
   try {
@@ -226,27 +328,27 @@ exports.login = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return sendError(res, 401, "Invalid credentials");
     }
 
     const user = rows[0];
     const validPassword = await bcrypt.compare(password, user.password);
 
     if (validPassword === false) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return sendError(res, 401, "Invalid credentials");
     }
 
     const interests = await getUserInterests(user.id);
     const token = buildToken(user);
 
-    return res.json({
-      token,
-      user: buildUserResponse(user, interests)
-    });
+    return sendAuthSuccess(
+      res,
+      200,
+      "Login completed successfully",
+      buildUserResponse(user, interests),
+      token
+    );
   } catch (error) {
-    return res.status(500).json({
-      message: "Could not log in",
-      error: error.message
-    });
+    return sendError(res, 500, "Could not log in");
   }
 };

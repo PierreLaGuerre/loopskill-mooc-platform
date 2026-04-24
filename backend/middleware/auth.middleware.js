@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = process.env.JWT_SECRET || "secret_key";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization || "";
@@ -9,7 +9,17 @@ exports.verifyToken = (req, res, next) => {
     : authHeader.trim();
 
   if (!token) {
-    return res.status(403).json({ message: "Token required" });
+    return res.status(403).json({
+      success: false,
+      message: "Token required"
+    });
+  }
+
+  if (typeof JWT_SECRET !== "string" || JWT_SECRET.trim() === "") {
+    return res.status(500).json({
+      success: false,
+      message: "Authentication is not configured"
+    });
   }
 
   try {
@@ -17,6 +27,9 @@ exports.verifyToken = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Invalid token" });
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token"
+    });
   }
 };
