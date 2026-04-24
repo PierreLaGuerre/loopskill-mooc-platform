@@ -367,6 +367,18 @@ exports.getSession = (req, res) => {
   });
 };
 
+exports.getMe = async (req, res) => {
+  try {
+    const interests = await getUserInterests(req.authUser.id);
+
+    return sendSuccess(res, 200, "Authenticated user retrieved successfully", {
+      user: buildUserResponse(req.authUser, interests)
+    });
+  } catch (error) {
+    return sendError(res, 500, "Could not retrieve authenticated user");
+  }
+};
+
 exports.getAdminAccess = (req, res) => {
   return sendSuccess(res, 200, "Admin access granted", {
     auth: req.auth
