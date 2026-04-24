@@ -135,6 +135,14 @@ function sendError(res, statusCode, message, details) {
   return res.status(statusCode).json(payload);
 }
 
+function sendSuccess(res, statusCode, message, data) {
+  return res.status(statusCode).json({
+    success: true,
+    message,
+    data
+  });
+}
+
 function sendAuthSuccess(res, statusCode, message, user, token) {
   return res.status(statusCode).json({
     success: true,
@@ -351,4 +359,16 @@ exports.login = async (req, res) => {
   } catch (error) {
     return sendError(res, 500, "Could not log in");
   }
+};
+
+exports.getSession = (req, res) => {
+  return sendSuccess(res, 200, "Authenticated session retrieved successfully", {
+    auth: req.auth
+  });
+};
+
+exports.getAdminAccess = (req, res) => {
+  return sendSuccess(res, 200, "Admin access granted", {
+    auth: req.auth
+  });
 };
