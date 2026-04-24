@@ -200,6 +200,26 @@ function validateLoginInput({ email, password }) {
   return details;
 }
 
+function validateProfileUpdateInput({ name, email }) {
+  const details = {};
+
+  if (name === "") {
+    details.name = "Name is required";
+  } else if (name.length > NAME_MAX_LENGTH) {
+    details.name = `Name must be ${NAME_MAX_LENGTH} characters or fewer`;
+  }
+
+  if (email === "") {
+    details.email = "Email is required";
+  } else if (email.length > EMAIL_MAX_LENGTH) {
+    details.email = `Email must be ${EMAIL_MAX_LENGTH} characters or fewer`;
+  } else if (isValidEmail(email) === false) {
+    details.email = "Email format is invalid";
+  }
+
+  return details;
+}
+
 async function getInterestRowsByNames(connection, interests) {
   if (interests.length === 0) {
     return [];
@@ -376,6 +396,48 @@ exports.getMe = async (req, res) => {
     });
   } catch (error) {
     return sendError(res, 500, "Could not retrieve authenticated user");
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  const name = normalizeText(req.body.name);
+  const email = normalizeEmail(req.body.email);
+  const validationErrors = validateProfileUpdateInput({ name, email });
+
+  if (Object.keys(validationErrors).length > 0) {
+    return sendError(res, 400, "Validation failed", validationErrors);
+  }
+
+  try {
+    const [existingUsers] = await db.query(
+      "SELECT id FROM users WHERE LOWER(email) = ? AND id <> ? LIMIT 1",
+      [email, req.authUser.id]
+    );
+
+    if (existingUsers.length > 0) {
+      return sendError(res, 409, "Email already in use", {
+        email: "An account with this email already exists"
+      });
+    }
+
+    await db.query(
+      "UPDATE users SET name = ?, email = ? WHERE id = ?",
+      [name, email, req.authUser.id]
+    );
+
+    const updatedUser = await getUserById(req.authUser.id);
+    const interests = await getUserInterests(req.authUser.id);
+    const token = buildToken(updatedUser);
+
+    return sendAuthSuccess(
+      res,
+      200,
+      "Profile updated successfully",
+      buildUserResponse(updatedUser, interests),
+      token
+    );
+  } catch (error) {
+    return sendError(res, 500, "Could not update profile");
   }
 };
 
