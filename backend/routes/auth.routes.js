@@ -8,6 +8,7 @@ router.post("/register", authController.register);
 router.post("/login", authController.login);
 router.get("/me", verifyToken, authController.getMe);
 router.patch("/profile", verifyToken, authController.updateProfile);
+router.patch("/password", verifyToken, authController.changePassword);
 router.get("/session", verifyToken, authController.getSession);
 router.get("/admin-access", verifyToken, requireRole("admin"), authController.getAdminAccess);
 

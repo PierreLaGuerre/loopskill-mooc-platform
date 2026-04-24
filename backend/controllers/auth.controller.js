@@ -220,6 +220,32 @@ function validateProfileUpdateInput({ name, email }) {
   return details;
 }
 
+function validatePasswordChangeInput({ currentPassword, newPassword }) {
+  const details = {};
+
+  if (currentPassword === "") {
+    details.currentPassword = "Current password is required";
+  }
+
+  if (newPassword === "") {
+    details.newPassword = "New password is required";
+  } else if (newPassword.length < PASSWORD_MIN_LENGTH) {
+    details.newPassword = `New password must be at least ${PASSWORD_MIN_LENGTH} characters`;
+  } else if (newPassword.length > PASSWORD_MAX_LENGTH) {
+    details.newPassword = `New password must be ${PASSWORD_MAX_LENGTH} characters or fewer`;
+  }
+
+  if (
+    currentPassword !== "" &&
+    newPassword !== "" &&
+    currentPassword === newPassword
+  ) {
+    details.newPassword = "New password must be different from the current password";
+  }
+
+  return details;
+}
+
 async function getInterestRowsByNames(connection, interests) {
   if (interests.length === 0) {
     return [];
@@ -438,6 +464,50 @@ exports.updateProfile = async (req, res) => {
     );
   } catch (error) {
     return sendError(res, 500, "Could not update profile");
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  const currentPassword = normalizeText(req.body.currentPassword);
+  const newPassword = normalizeText(req.body.newPassword);
+  const validationErrors = validatePasswordChangeInput({
+    currentPassword,
+    newPassword
+  });
+
+  if (Object.keys(validationErrors).length > 0) {
+    return sendError(res, 400, "Validation failed", validationErrors);
+  }
+
+  try {
+    const [rows] = await db.query(
+      "SELECT id, password FROM users WHERE id = ? LIMIT 1",
+      [req.authUser.id]
+    );
+
+    if (rows.length === 0) {
+      return sendError(res, 404, "User not found");
+    }
+
+    const user = rows[0];
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+
+    if (isCurrentPasswordValid === false) {
+      return sendError(res, 401, "Current password is incorrect", {
+        currentPassword: "Current password is incorrect"
+      });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+    await db.query(
+      "UPDATE users SET password = ? WHERE id = ?",
+      [hashedNewPassword, req.authUser.id]
+    );
+
+    return sendSuccess(res, 200, "Password changed successfully", null);
+  } catch (error) {
+    return sendError(res, 500, "Could not change password");
   }
 };
 
