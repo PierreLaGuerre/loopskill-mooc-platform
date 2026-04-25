@@ -246,6 +246,16 @@ function validatePasswordChangeInput({ currentPassword, newPassword }) {
   return details;
 }
 
+function validateInterestsInput(interests) {
+  if (Array.isArray(interests) === false) {
+    return {
+      interests: "Interests must be an array"
+    };
+  }
+
+  return {};
+}
+
 async function getInterestRowsByNames(connection, interests) {
   if (interests.length === 0) {
     return [];
@@ -286,6 +296,15 @@ async function insertUserInterests(connection, userId, interests) {
     `INSERT INTO user_interests (user_id, tag_id) VALUES ${valuesPlaceholders}`,
     params
   );
+}
+
+async function replaceUserInterests(connection, userId, interests) {
+  await connection.query(
+    "DELETE FROM user_interests WHERE user_id = ?",
+    [userId]
+  );
+
+  await insertUserInterests(connection, userId, interests);
 }
 
 exports.register = async (req, res) => {
@@ -508,6 +527,56 @@ exports.changePassword = async (req, res) => {
     return sendSuccess(res, 200, "Password changed successfully", null);
   } catch (error) {
     return sendError(res, 500, "Could not change password");
+  }
+};
+
+exports.updateInterests = async (req, res) => {
+  const rawInterests = req.body.interests;
+  const validationErrors = validateInterestsInput(rawInterests);
+  const interests = normalizeInterestNames(rawInterests);
+
+  if (Object.keys(validationErrors).length > 0) {
+    return sendError(res, 400, "Validation failed", validationErrors);
+  }
+
+  let connection;
+
+  try {
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    const tagRows = await getInterestRowsByNames(connection, interests);
+    const matchedInterestNames = new Set(tagRows.map((tagRow) => tagRow.name.toLowerCase()));
+    const invalidInterests = interests.filter(
+      (interest) => matchedInterestNames.has(interest.toLowerCase()) === false
+    );
+
+    if (invalidInterests.length > 0) {
+      await connection.rollback();
+      return sendError(res, 400, "Validation failed", {
+        interests: `Unknown interests: ${invalidInterests.join(", ")}`
+      });
+    }
+
+    await replaceUserInterests(connection, req.authUser.id, interests);
+    await connection.commit();
+
+    const updatedUser = await getUserById(req.authUser.id);
+    const updatedInterests = await getUserInterests(req.authUser.id);
+
+    return sendSuccess(res, 200, "Interests updated successfully", {
+      user: buildUserResponse(updatedUser, updatedInterests)
+    });
+  } catch (error) {
+    if (connection != null) {
+      await connection.rollback();
+    }
+
+    return sendError(res, 500, "Could not update interests");
+  } finally {
+    if (connection != null) {
+      connection.release();
+    }
   }
 };
 
