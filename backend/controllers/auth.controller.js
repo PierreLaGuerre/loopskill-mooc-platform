@@ -122,6 +122,17 @@ async function getUserInterests(userId) {
   return rows.map((row) => row.name);
 }
 
+async function getAvailableTags() {
+  const [rows] = await db.query(
+    "SELECT id, name FROM tags ORDER BY name ASC"
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name
+  }));
+}
+
 function sendError(res, statusCode, message, details) {
   const payload = {
     success: false,
@@ -441,6 +452,18 @@ exports.getMe = async (req, res) => {
     });
   } catch (error) {
     return sendError(res, 500, "Could not retrieve authenticated user");
+  }
+};
+
+exports.getTags = async (req, res) => {
+  try {
+    const tags = await getAvailableTags();
+
+    return sendSuccess(res, 200, "Tags retrieved successfully", {
+      tags
+    });
+  } catch (error) {
+    return sendError(res, 500, "Could not retrieve tags");
   }
 };
 
