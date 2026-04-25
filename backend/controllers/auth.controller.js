@@ -2,6 +2,7 @@ const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { sendError, sendSuccess, sendUserResponse } = require("../utils/http");
+const { isDuplicateEntryError } = require("../utils/db-errors");
 const {
   addValidationError,
   createValidationErrors,
@@ -136,6 +137,27 @@ async function getAvailableTags() {
     id: row.id,
     name: row.name
   }));
+}
+
+async function getValidatedInterestNames(connection, interests) {
+  const tagRows = await getInterestRowsByNames(connection, interests);
+  const matchedInterestNames = new Set(tagRows.map((tagRow) => tagRow.name.toLowerCase()));
+
+  return interests.filter(
+    (interest) => matchedInterestNames.has(interest.toLowerCase()) === false
+  );
+}
+
+function sendDuplicateEmailError(res) {
+  return sendError(res, 409, "Email already in use", {
+    email: "An account with this email already exists"
+  });
+}
+
+function sendUnknownInterestsError(res, invalidInterests) {
+  return sendError(res, 400, "Validation failed", {
+    interests: `Unknown interests: ${invalidInterests.join(", ")}`
+  });
 }
 
 function validateRegisterInput({ name, email, password, clientType }) {
@@ -329,22 +351,14 @@ exports.register = async (req, res) => {
 
     if (existingUsers.length > 0) {
       await connection.rollback();
-      return sendError(res, 409, "Email already in use", {
-        email: "An account with this email already exists"
-      });
+      return sendDuplicateEmailError(res);
     }
 
-    const tagRows = await getInterestRowsByNames(connection, interests);
-    const matchedInterestNames = new Set(tagRows.map((tagRow) => tagRow.name.toLowerCase()));
-    const invalidInterests = interests.filter(
-      (interest) => matchedInterestNames.has(interest.toLowerCase()) === false
-    );
+    const invalidInterests = await getValidatedInterestNames(connection, interests);
 
     if (invalidInterests.length > 0) {
       await connection.rollback();
-      return sendError(res, 400, "Validation failed", {
-        interests: `Unknown interests: ${invalidInterests.join(", ")}`
-      });
+      return sendUnknownInterestsError(res, invalidInterests);
     }
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
@@ -372,6 +386,10 @@ exports.register = async (req, res) => {
   } catch (error) {
     if (connection != null) {
       await connection.rollback();
+    }
+
+    if (isDuplicateEntryError(error)) {
+      return sendDuplicateEmailError(res);
     }
 
     return sendError(res, 500, "Could not register user");
@@ -472,9 +490,7 @@ exports.updateProfile = async (req, res) => {
     );
 
     if (existingUsers.length > 0) {
-      return sendError(res, 409, "Email already in use", {
-        email: "An account with this email already exists"
-      });
+      return sendDuplicateEmailError(res);
     }
 
     await db.query(
@@ -494,6 +510,10 @@ exports.updateProfile = async (req, res) => {
       token
     );
   } catch (error) {
+    if (isDuplicateEntryError(error)) {
+      return sendDuplicateEmailError(res);
+    }
+
     return sendError(res, 500, "Could not update profile");
   }
 };
@@ -557,17 +577,11 @@ exports.updateInterests = async (req, res) => {
     connection = await db.getConnection();
     await connection.beginTransaction();
 
-    const tagRows = await getInterestRowsByNames(connection, interests);
-    const matchedInterestNames = new Set(tagRows.map((tagRow) => tagRow.name.toLowerCase()));
-    const invalidInterests = interests.filter(
-      (interest) => matchedInterestNames.has(interest.toLowerCase()) === false
-    );
+    const invalidInterests = await getValidatedInterestNames(connection, interests);
 
     if (invalidInterests.length > 0) {
       await connection.rollback();
-      return sendError(res, 400, "Validation failed", {
-        interests: `Unknown interests: ${invalidInterests.join(", ")}`
-      });
+      return sendUnknownInterestsError(res, invalidInterests);
     }
 
     await replaceUserInterests(connection, req.authUser.id, interests);

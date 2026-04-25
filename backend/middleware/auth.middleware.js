@@ -10,9 +10,15 @@ function getBearerToken(authHeader) {
     return null;
   }
 
-  const [scheme, token] = authHeader.trim().split(/\s+/);
+  const parts = authHeader.trim().split(/\s+/);
 
-  if (scheme !== "Bearer" || typeof token !== "string" || token.trim() === "") {
+  if (parts.length !== 2) {
+    return null;
+  }
+
+  const [scheme, token] = parts;
+
+  if (scheme.toLowerCase() !== "bearer" || typeof token !== "string" || token.trim() === "") {
     return null;
   }
 
