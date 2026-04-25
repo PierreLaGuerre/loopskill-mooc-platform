@@ -1,12 +1,21 @@
 const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { sendError, sendSuccess, sendUserResponse } = require("../utils/http");
+const {
+  addValidationError,
+  createValidationErrors,
+  hasValidationErrors,
+  validateEmail,
+  validateMaxLength,
+  validatePasswordLength,
+  validateRequiredString
+} = require("../utils/validation");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
 const SALT_ROUNDS = 10;
 const DEFAULT_USER_PLAN_ID = Number(process.env.DEFAULT_USER_PLAN_ID) || 1;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NAME_MAX_LENGTH = 100;
 const EMAIL_MAX_LENGTH = 150;
 const PASSWORD_MIN_LENGTH = 8;
@@ -52,10 +61,6 @@ function normalizeText(value) {
 
 function normalizeEmail(value) {
   return normalizeText(value).toLowerCase();
-}
-
-function isValidEmail(email) {
-  return EMAIL_REGEX.test(email);
 }
 
 function normalizeClientType(value) {
@@ -133,122 +138,94 @@ async function getAvailableTags() {
   }));
 }
 
-function sendError(res, statusCode, message, details) {
-  const payload = {
-    success: false,
-    message
-  };
-
-  if (details != null) {
-    payload.details = details;
-  }
-
-  return res.status(statusCode).json(payload);
-}
-
-function sendSuccess(res, statusCode, message, data) {
-  return res.status(statusCode).json({
-    success: true,
-    message,
-    data
-  });
-}
-
-function sendUserResponse(res, statusCode, message, user, token) {
-  const payload = {
-    success: true,
-    message,
-    user
-  };
-
-  if (token != null) {
-    payload.token = token;
-  }
-
-  return res.status(statusCode).json(payload);
-}
-
 function validateRegisterInput({ name, email, password, clientType }) {
-  const details = {};
+  const details = createValidationErrors();
 
-  if (name === "") {
-    details.name = "Name is required";
-  } else if (name.length > NAME_MAX_LENGTH) {
-    details.name = `Name must be ${NAME_MAX_LENGTH} characters or fewer`;
-  }
-
-  if (email === "") {
-    details.email = "Email is required";
-  } else if (email.length > EMAIL_MAX_LENGTH) {
-    details.email = `Email must be ${EMAIL_MAX_LENGTH} characters or fewer`;
-  } else if (isValidEmail(email) === false) {
-    details.email = "Email format is invalid";
-  }
-
-  if (password === "") {
-    details.password = "Password is required";
-  } else if (password.length < PASSWORD_MIN_LENGTH) {
-    details.password = `Password must be at least ${PASSWORD_MIN_LENGTH} characters`;
-  } else if (password.length > PASSWORD_MAX_LENGTH) {
-    details.password = `Password must be ${PASSWORD_MAX_LENGTH} characters or fewer`;
-  }
+  validateRequiredString(details, "name", name, "Name is required");
+  validateMaxLength(
+    details,
+    "name",
+    name,
+    NAME_MAX_LENGTH,
+    `Name must be ${NAME_MAX_LENGTH} characters or fewer`
+  );
+  validateRequiredString(details, "email", email, "Email is required");
+  validateMaxLength(
+    details,
+    "email",
+    email,
+    EMAIL_MAX_LENGTH,
+    `Email must be ${EMAIL_MAX_LENGTH} characters or fewer`
+  );
+  validateEmail(details, "email", email, "Email is required", "Email format is invalid");
+  validateRequiredString(details, "password", password, "Password is required");
+  validatePasswordLength(details, "password", password, PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH);
 
   if (clientType == null) {
-    details.clientType = "Client type is invalid";
+    addValidationError(details, "clientType", "Client type is invalid");
   }
 
   return details;
 }
 
 function validateLoginInput({ email, password }) {
-  const details = {};
+  const details = createValidationErrors();
 
-  if (email === "") {
-    details.email = "Email is required";
-  } else if (isValidEmail(email) === false) {
-    details.email = "Email format is invalid";
-  }
-
-  if (password === "") {
-    details.password = "Password is required";
-  }
+  validateEmail(details, "email", email, "Email is required", "Email format is invalid");
+  validateRequiredString(details, "password", password, "Password is required");
 
   return details;
 }
 
 function validateProfileUpdateInput({ name, email }) {
-  const details = {};
+  const details = createValidationErrors();
 
-  if (name === "") {
-    details.name = "Name is required";
-  } else if (name.length > NAME_MAX_LENGTH) {
-    details.name = `Name must be ${NAME_MAX_LENGTH} characters or fewer`;
-  }
-
-  if (email === "") {
-    details.email = "Email is required";
-  } else if (email.length > EMAIL_MAX_LENGTH) {
-    details.email = `Email must be ${EMAIL_MAX_LENGTH} characters or fewer`;
-  } else if (isValidEmail(email) === false) {
-    details.email = "Email format is invalid";
-  }
+  validateRequiredString(details, "name", name, "Name is required");
+  validateMaxLength(
+    details,
+    "name",
+    name,
+    NAME_MAX_LENGTH,
+    `Name must be ${NAME_MAX_LENGTH} characters or fewer`
+  );
+  validateRequiredString(details, "email", email, "Email is required");
+  validateMaxLength(
+    details,
+    "email",
+    email,
+    EMAIL_MAX_LENGTH,
+    `Email must be ${EMAIL_MAX_LENGTH} characters or fewer`
+  );
+  validateEmail(details, "email", email, "Email is required", "Email format is invalid");
 
   return details;
 }
 
 function validatePasswordChangeInput({ currentPassword, newPassword }) {
-  const details = {};
+  const details = createValidationErrors();
 
-  if (currentPassword === "") {
-    details.currentPassword = "Current password is required";
-  }
+  validateRequiredString(
+    details,
+    "currentPassword",
+    currentPassword,
+    "Current password is required"
+  );
+  validateRequiredString(details, "newPassword", newPassword, "New password is required");
 
-  if (newPassword === "") {
-    details.newPassword = "New password is required";
-  } else if (newPassword.length < PASSWORD_MIN_LENGTH) {
-    details.newPassword = `New password must be at least ${PASSWORD_MIN_LENGTH} characters`;
-  } else if (newPassword.length > PASSWORD_MAX_LENGTH) {
-    details.newPassword = `New password must be ${PASSWORD_MAX_LENGTH} characters or fewer`;
+  if (newPassword !== "") {
+    if (newPassword.length < PASSWORD_MIN_LENGTH) {
+      addValidationError(
+        details,
+        "newPassword",
+        `New password must be at least ${PASSWORD_MIN_LENGTH} characters`
+      );
+    } else if (newPassword.length > PASSWORD_MAX_LENGTH) {
+      addValidationError(
+        details,
+        "newPassword",
+        `New password must be ${PASSWORD_MAX_LENGTH} characters or fewer`
+      );
+    }
   }
 
   if (
@@ -256,7 +233,11 @@ function validatePasswordChangeInput({ currentPassword, newPassword }) {
     newPassword !== "" &&
     currentPassword === newPassword
   ) {
-    details.newPassword = "New password must be different from the current password";
+    addValidationError(
+      details,
+      "newPassword",
+      "New password must be different from the current password"
+    );
   }
 
   return details;
@@ -331,7 +312,7 @@ exports.register = async (req, res) => {
   const interests = normalizeInterestNames(req.body.interests);
   const validationErrors = validateRegisterInput({ name, email, password, clientType });
 
-  if (Object.keys(validationErrors).length > 0) {
+  if (hasValidationErrors(validationErrors)) {
     return sendError(res, 400, "Validation failed", validationErrors);
   }
 
@@ -406,7 +387,7 @@ exports.login = async (req, res) => {
   const password = normalizeText(req.body.password);
   const validationErrors = validateLoginInput({ email, password });
 
-  if (Object.keys(validationErrors).length > 0) {
+  if (hasValidationErrors(validationErrors)) {
     return sendError(res, 400, "Validation failed", validationErrors);
   }
 
@@ -480,7 +461,7 @@ exports.updateProfile = async (req, res) => {
   const email = normalizeEmail(req.body.email);
   const validationErrors = validateProfileUpdateInput({ name, email });
 
-  if (Object.keys(validationErrors).length > 0) {
+  if (hasValidationErrors(validationErrors)) {
     return sendError(res, 400, "Validation failed", validationErrors);
   }
 
@@ -525,7 +506,7 @@ exports.changePassword = async (req, res) => {
     newPassword
   });
 
-  if (Object.keys(validationErrors).length > 0) {
+  if (hasValidationErrors(validationErrors)) {
     return sendError(res, 400, "Validation failed", validationErrors);
   }
 
@@ -566,7 +547,7 @@ exports.updateInterests = async (req, res) => {
   const validationErrors = validateInterestsInput(rawInterests);
   const interests = normalizeInterestNames(rawInterests);
 
-  if (Object.keys(validationErrors).length > 0) {
+  if (hasValidationErrors(validationErrors)) {
     return sendError(res, 400, "Validation failed", validationErrors);
   }
 

@@ -1,15 +1,9 @@
 const jwt = require("jsonwebtoken");
 
 const db = require("../config/db");
+const { sendError } = require("../utils/http");
 
 const JWT_SECRET = process.env.JWT_SECRET;
-
-function sendAuthError(res, statusCode, message) {
-  return res.status(statusCode).json({
-    success: false,
-    message
-  });
-}
 
 function getBearerToken(authHeader) {
   if (typeof authHeader !== "string" || authHeader.trim() === "") {
@@ -38,11 +32,11 @@ exports.verifyToken = async (req, res, next) => {
   const token = getBearerToken(req.headers.authorization);
 
   if (!token) {
-    return sendAuthError(res, 401, "A valid Bearer token is required");
+    return sendError(res, 401, "A valid Bearer token is required");
   }
 
   if (typeof JWT_SECRET !== "string" || JWT_SECRET.trim() === "") {
-    return sendAuthError(res, 500, "Authentication is not configured");
+    return sendError(res, 500, "Authentication is not configured");
   }
 
   try {
@@ -50,7 +44,7 @@ exports.verifyToken = async (req, res, next) => {
     const authenticatedUser = await getAuthenticatedUser(decoded.id);
 
     if (authenticatedUser == null) {
-      return sendAuthError(res, 401, "Authenticated user no longer exists");
+      return sendError(res, 401, "Authenticated user no longer exists");
     }
 
     req.auth = {
@@ -64,10 +58,10 @@ exports.verifyToken = async (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      return sendAuthError(res, 401, "Token expired");
+      return sendError(res, 401, "Token expired");
     }
 
-    return sendAuthError(res, 401, "Invalid token");
+    return sendError(res, 401, "Invalid token");
   }
 };
 
@@ -76,11 +70,11 @@ exports.requireRole = (...allowedRoles) => {
     const currentRole = req.auth?.role;
 
     if (currentRole == null) {
-      return sendAuthError(res, 401, "Authentication is required");
+      return sendError(res, 401, "Authentication is required");
     }
 
     if (allowedRoles.includes(currentRole) === false) {
-      return sendAuthError(res, 403, "You do not have access to this resource");
+      return sendError(res, 403, "You do not have access to this resource");
     }
 
     next();
