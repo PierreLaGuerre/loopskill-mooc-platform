@@ -154,13 +154,18 @@ function sendSuccess(res, statusCode, message, data) {
   });
 }
 
-function sendAuthSuccess(res, statusCode, message, user, token) {
-  return res.status(statusCode).json({
+function sendUserResponse(res, statusCode, message, user, token) {
+  const payload = {
     success: true,
     message,
-    token,
     user
-  });
+  };
+
+  if (token != null) {
+    payload.token = token;
+  }
+
+  return res.status(statusCode).json(payload);
 }
 
 function validateRegisterInput({ name, email, password, clientType }) {
@@ -376,7 +381,7 @@ exports.register = async (req, res) => {
     const storedInterests = await getUserInterests(insertResult.insertId);
     const token = buildToken(user);
 
-    return sendAuthSuccess(
+    return sendUserResponse(
       res,
       201,
       "User created successfully",
@@ -425,7 +430,7 @@ exports.login = async (req, res) => {
     const interests = await getUserInterests(user.id);
     const token = buildToken(user);
 
-    return sendAuthSuccess(
+    return sendUserResponse(
       res,
       200,
       "Login completed successfully",
@@ -447,9 +452,12 @@ exports.getMe = async (req, res) => {
   try {
     const interests = await getUserInterests(req.authUser.id);
 
-    return sendSuccess(res, 200, "Authenticated user retrieved successfully", {
-      user: buildUserResponse(req.authUser, interests)
-    });
+    return sendUserResponse(
+      res,
+      200,
+      "Authenticated user retrieved successfully",
+      buildUserResponse(req.authUser, interests)
+    );
   } catch (error) {
     return sendError(res, 500, "Could not retrieve authenticated user");
   }
@@ -497,7 +505,7 @@ exports.updateProfile = async (req, res) => {
     const interests = await getUserInterests(req.authUser.id);
     const token = buildToken(updatedUser);
 
-    return sendAuthSuccess(
+    return sendUserResponse(
       res,
       200,
       "Profile updated successfully",
@@ -587,9 +595,12 @@ exports.updateInterests = async (req, res) => {
     const updatedUser = await getUserById(req.authUser.id);
     const updatedInterests = await getUserInterests(req.authUser.id);
 
-    return sendSuccess(res, 200, "Interests updated successfully", {
-      user: buildUserResponse(updatedUser, updatedInterests)
-    });
+    return sendUserResponse(
+      res,
+      200,
+      "Interests updated successfully",
+      buildUserResponse(updatedUser, updatedInterests)
+    );
   } catch (error) {
     if (connection != null) {
       await connection.rollback();
