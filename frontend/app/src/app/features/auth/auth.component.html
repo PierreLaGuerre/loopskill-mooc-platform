@@ -28,6 +28,7 @@
         type="button"
         [class.active]="mode === 'login'"
         (click)="setMode('login')"
+        [disabled]="isLoading"
       >
         Login
       </button>
@@ -36,6 +37,7 @@
         type="button"
         [class.active]="mode === 'register'"
         (click)="setMode('register')"
+        [disabled]="isLoading"
       >
         Register
       </button>
@@ -71,8 +73,8 @@
         />
       </div>
 
-      <button type="submit" class="auth-button">
-        Continue
+      <button type="submit" class="auth-button" [disabled]="isLoading">
+        {{ isLoading ? 'Loading...' : 'Continue' }}
       </button>
     </form>
 
@@ -108,7 +110,7 @@
           id="register-password"
           type="password"
           formControlName="password"
-          placeholder="Choose a password"
+          placeholder="Choose a password, minimum 8 characters"
         />
       </div>
 
@@ -124,8 +126,8 @@
         </p>
       </div>
 
-      <button type="submit" class="auth-button">
-        Continue
+      <button type="submit" class="auth-button" [disabled]="isLoading">
+        {{ isLoading ? 'Loading...' : 'Continue' }}
       </button>
     </form>
   </div>
