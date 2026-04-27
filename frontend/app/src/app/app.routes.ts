@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+
 import { HomeComponent } from './features/home/home.component';
 import { AuthComponent } from './features/auth/auth.component';
 import { PlansComponent } from './features/plans/plans.component';
@@ -8,18 +9,57 @@ import { ExploreComponent } from './features/explore/explore.component';
 import { InterestsOnboardingComponent } from './features/onboarding/interests-onboarding/interests-onboarding.component';
 import { SettingsComponent } from './features/settings/settings.component';
 import { CoursePlayerComponent } from './features/course-player/course-player.component';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'auth', pathMatch: 'full' },
   { path: 'auth', component: AuthComponent },
-  { path: 'onboarding/interests', component: InterestsOnboardingComponent },
-  { path: 'home', component: HomeComponent },
-  { path: 'explore', component: ExploreComponent },
-  { path: 'plans', component: PlansComponent },
-  { path: 'my-learning', component: UserPageComponent },
-  { path: 'profile', component: UserPageComponent },
-  { path: 'courses/:id/learn', component: CoursePlayerComponent },
-  { path: 'courses/:id', component: CourseDetailComponent },
-  { path: 'settings', component: SettingsComponent },
+
+  {
+    path: 'onboarding/interests',
+    component: InterestsOnboardingComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'home',
+    component: HomeComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'explore',
+    component: ExploreComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'plans',
+    component: PlansComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'my-learning',
+    component: UserPageComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'profile',
+    component: UserPageComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'courses/:id/learn',
+    component: CoursePlayerComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'courses/:id',
+    component: CourseDetailComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'settings',
+    component: SettingsComponent,
+    canActivate: [authGuard]
+  },
+
   { path: '**', redirectTo: 'auth' }
 ];
