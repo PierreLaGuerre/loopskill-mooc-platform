@@ -2,11 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+
 import { User } from '../../core/models/user.model';
 import { Course } from '../../core/models/course.model';
 import { AuthService } from '../../core/services/auth.service';
 import { CourseService } from '../../core/services/course.service';
-import { MOCK_INTERESTS } from '../../core/mocks/mock-interests';
 import { MOCK_PLANS } from '../../core/mocks/mock-plans';
 
 type SettingsTab = 'account' | 'password' | 'interests' | 'admin';
@@ -35,7 +35,7 @@ export class SettingsComponent implements OnInit {
   newPassword: string = '';
   confirmNewPassword: string = '';
 
-  availableInterests: string[] = MOCK_INTERESTS;
+  availableInterests: string[] = [];
   selectedInterests: string[] = [];
 
   courses: Course[] = [];
@@ -58,8 +58,13 @@ export class SettingsComponent implements OnInit {
   passwordMessage: string = '';
   interestsMessage: string = '';
 
+  accountLoading: boolean = false;
+  passwordLoading: boolean = false;
+  interestsLoading: boolean = false;
+
   ngOnInit(): void {
     this.loadCurrentUser();
+    this.loadAvailableInterests();
     this.loadCourses();
   }
 
@@ -89,6 +94,18 @@ export class SettingsComponent implements OnInit {
   loadCourses(): void {
     const loadedCourses = this.courseService.getCourses();
     this.courses = [...loadedCourses].sort((a, b) => a.title.localeCompare(b.title));
+  }
+
+  loadAvailableInterests(): void {
+    this.authService.getAvailableInterests().subscribe({
+      next: (interests) => {
+        this.availableInterests = interests;
+      },
+      error: () => {
+        this.availableInterests = [];
+        this.interestsMessage = 'Could not load available interests.';
+      }
+    });
   }
 
   setActiveTab(tab: SettingsTab): void {
@@ -241,19 +258,44 @@ export class SettingsComponent implements OnInit {
   }
 
   saveProfile(): void {
-    const ok = this.authService.updateCurrentUserProfile(this.name, this.email);
-
-    if (ok == true) {
-      this.accountMessage = 'Your account information has been updated.';
-      this.loadCurrentUser();
-    } else {
-      this.accountMessage = 'This email is already being used by another account.';
+    if (this.name.trim() === '' || this.email.trim() === '') {
+      this.accountMessage = 'Please complete name and email.';
+      return;
     }
+
+    this.accountLoading = true;
+    this.accountMessage = '';
+
+    this.authService.updateCurrentUserProfile(this.name, this.email).subscribe({
+      next: () => {
+        this.accountLoading = false;
+        this.accountMessage = 'Your account information has been updated.';
+        this.loadCurrentUser();
+      },
+      error: (error) => {
+        this.accountLoading = false;
+
+        if (error.status === 409) {
+          this.accountMessage = 'This email is already being used by another account.';
+        } else {
+          this.accountMessage = error.error?.message || 'Could not update your account.';
+        }
+      }
+    });
   }
 
   savePassword(): void {
-    if (this.newPassword.trim() === '' || this.confirmNewPassword.trim() === '') {
+    if (
+      this.currentPassword.trim() === '' ||
+      this.newPassword.trim() === '' ||
+      this.confirmNewPassword.trim() === ''
+    ) {
       this.passwordMessage = 'Please complete all password fields.';
+      return;
+    }
+
+    if (this.newPassword.trim().length < 8) {
+      this.passwordMessage = 'The new password must have at least 8 characters.';
       return;
     }
 
@@ -262,30 +304,50 @@ export class SettingsComponent implements OnInit {
       return;
     }
 
-    const ok = this.authService.updateCurrentUserPassword(
-      this.currentPassword,
-      this.newPassword
-    );
+    this.passwordLoading = true;
+    this.passwordMessage = '';
 
-    if (ok == true) {
-      this.passwordMessage = 'Your password has been updated.';
-      this.currentPassword = '';
-      this.newPassword = '';
-      this.confirmNewPassword = '';
-    } else {
-      this.passwordMessage = 'Your current password is incorrect.';
-    }
+    this.authService
+      .updateCurrentUserPassword(this.currentPassword, this.newPassword)
+      .subscribe({
+        next: () => {
+          this.passwordLoading = false;
+          this.passwordMessage = 'Your password has been updated.';
+          this.currentPassword = '';
+          this.newPassword = '';
+          this.confirmNewPassword = '';
+        },
+        error: (error) => {
+          this.passwordLoading = false;
+
+          if (error.status === 401) {
+            this.passwordMessage = 'Your current password is incorrect.';
+          } else {
+            this.passwordMessage = error.error?.message || 'Could not update your password.';
+          }
+        }
+      });
   }
 
   saveInterests(): void {
-    this.authService.updateCurrentUserInterests(this.selectedInterests);
-    this.interestsMessage = 'Your interests have been updated.';
-    this.loadCurrentUser();
+    this.interestsLoading = true;
+    this.interestsMessage = '';
+
+    this.authService.updateCurrentUserInterests(this.selectedInterests).subscribe({
+      next: () => {
+        this.interestsLoading = false;
+        this.interestsMessage = 'Your interests have been updated.';
+        this.loadCurrentUser();
+      },
+      error: (error) => {
+        this.interestsLoading = false;
+        this.interestsMessage = error.error?.message || 'Could not update your interests.';
+      }
+    });
   }
 
   logoutAndRedirect(): void {
     this.authService.logout();
-    this.router.navigateByUrl('/auth');
   }
 
   private resetNewCourseForm(): void {

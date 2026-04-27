@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { MOCK_INTERESTS } from '../../../core/mocks/mock-interests';
+
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -11,13 +11,18 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './interests-onboarding.component.html',
   styleUrl: './interests-onboarding.component.scss'
 })
-export class InterestsOnboardingComponent {
+export class InterestsOnboardingComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  availableInterests: string[] = MOCK_INTERESTS;
+  availableInterests: string[] = [];
   selectedInterests: string[] = [];
   errorMessage: string = '';
+  isLoading: boolean = false;
+
+  ngOnInit(): void {
+    this.loadAvailableInterests();
+  }
 
   toggleInterest(interest: string): void {
     const alreadySelected = this.selectedInterests.includes(interest);
@@ -34,11 +39,39 @@ export class InterestsOnboardingComponent {
   }
 
   finishOnboarding(): void {
-    this.authService.updateCurrentUserInterests(this.selectedInterests);
-    this.router.navigateByUrl('/home');
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.authService.updateCurrentUserInterests(this.selectedInterests).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.router.navigateByUrl('/home');
+      },
+      error: () => {
+        this.isLoading = false;
+        this.errorMessage = 'Could not save your interests. Please try again.';
+      }
+    });
   }
 
   skip(): void {
     this.router.navigateByUrl('/home');
+  }
+
+  private loadAvailableInterests(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.authService.getAvailableInterests().subscribe({
+      next: (interests) => {
+        this.availableInterests = interests;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.availableInterests = [];
+        this.isLoading = false;
+        this.errorMessage = 'Could not load interests. Please try again.';
+      }
+    });
   }
 }

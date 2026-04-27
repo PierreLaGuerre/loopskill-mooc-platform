@@ -16,19 +16,41 @@
       </p>
     </div>
 
-    <div class="interests-onboarding-list">
+    <p class="error-message" *ngIf="errorMessage != ''">
+      {{ errorMessage }}
+    </p>
+
+    <p class="interests-onboarding-hint" *ngIf="isLoading == true">
+      Loading interests...
+    </p>
+
+    <div
+      class="interests-onboarding-list"
+      *ngIf="isLoading == false && availableInterests.length > 0"
+    >
       <button
         type="button"
         class="interest-chip"
         *ngFor="let interest of availableInterests"
         [class.selected]="isInterestSelected(interest)"
         (click)="toggleInterest(interest)"
+        [disabled]="isLoading"
       >
         {{ interest }}
       </button>
     </div>
 
-    <p class="interests-onboarding-hint">
+    <p
+      class="interests-onboarding-hint"
+      *ngIf="isLoading == false && availableInterests.length === 0"
+    >
+      No interests available right now.
+    </p>
+
+    <p
+      class="interests-onboarding-hint"
+      *ngIf="isLoading == false && availableInterests.length > 0"
+    >
       You can select as many interests as you want.
     </p>
 
@@ -37,6 +59,7 @@
         type="button"
         class="interests-onboarding-skip"
         (click)="skip()"
+        [disabled]="isLoading"
       >
         Skip for now
       </button>
@@ -45,8 +68,9 @@
         type="button"
         class="interests-onboarding-finish"
         (click)="finishOnboarding()"
+        [disabled]="isLoading"
       >
-        Finish
+        {{ isLoading ? 'Saving...' : 'Finish' }}
       </button>
     </div>
   </div>

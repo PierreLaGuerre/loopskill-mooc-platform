@@ -90,12 +90,12 @@
         <div class="settings-form">
           <div class="settings-field">
             <label for="name">Name</label>
-            <input id="name" type="text" [(ngModel)]="name" />
+            <input id="name" type="text" [(ngModel)]="name" [disabled]="accountLoading" />
           </div>
 
           <div class="settings-field">
             <label for="email">Email</label>
-            <input id="email" type="email" [(ngModel)]="email" />
+            <input id="email" type="email" [(ngModel)]="email" [disabled]="accountLoading" />
           </div>
 
           <div class="settings-field">
@@ -113,8 +113,13 @@
         </div>
 
         <div class="settings-section__actions">
-          <button type="button" class="settings-button" (click)="saveProfile()">
-            Save account changes
+          <button
+            type="button"
+            class="settings-button"
+            (click)="saveProfile()"
+            [disabled]="accountLoading"
+          >
+            {{ accountLoading ? 'Saving...' : 'Save account changes' }}
           </button>
         </div>
 
@@ -132,23 +137,43 @@
         <div class="settings-form">
           <div class="settings-field">
             <label for="currentPassword">Current password</label>
-            <input id="currentPassword" type="password" [(ngModel)]="currentPassword" />
+            <input
+              id="currentPassword"
+              type="password"
+              [(ngModel)]="currentPassword"
+              [disabled]="passwordLoading"
+            />
           </div>
 
           <div class="settings-field">
             <label for="newPassword">New password</label>
-            <input id="newPassword" type="password" [(ngModel)]="newPassword" />
+            <input
+              id="newPassword"
+              type="password"
+              [(ngModel)]="newPassword"
+              [disabled]="passwordLoading"
+            />
           </div>
 
           <div class="settings-field">
             <label for="confirmNewPassword">Confirm new password</label>
-            <input id="confirmNewPassword" type="password" [(ngModel)]="confirmNewPassword" />
+            <input
+              id="confirmNewPassword"
+              type="password"
+              [(ngModel)]="confirmNewPassword"
+              [disabled]="passwordLoading"
+            />
           </div>
         </div>
 
         <div class="settings-section__actions">
-          <button type="button" class="settings-button" (click)="savePassword()">
-            Update password
+          <button
+            type="button"
+            class="settings-button"
+            (click)="savePassword()"
+            [disabled]="passwordLoading"
+          >
+            {{ passwordLoading ? 'Updating...' : 'Update password' }}
           </button>
         </div>
 
@@ -163,21 +188,31 @@
           <p>Select the topics you want LoopSkill to use for personalized recommendations.</p>
         </div>
 
-        <div class="settings-interests">
+        <div class="settings-interests" *ngIf="availableInterests.length > 0">
           <button
             type="button"
             class="settings-interest"
             *ngFor="let interest of availableInterests"
             [class.settings-interest--active]="isInterestSelected(interest) == true"
             (click)="toggleInterest(interest)"
+            [disabled]="interestsLoading"
           >
             {{ interest }}
           </button>
         </div>
 
+        <div class="settings-message" *ngIf="availableInterests.length === 0 && interestsMessage === ''">
+          No interests available right now.
+        </div>
+
         <div class="settings-section__actions">
-          <button type="button" class="settings-button" (click)="saveInterests()">
-            Save interests
+          <button
+            type="button"
+            class="settings-button"
+            (click)="saveInterests()"
+            [disabled]="interestsLoading"
+          >
+            {{ interestsLoading ? 'Saving...' : 'Save interests' }}
           </button>
         </div>
 
