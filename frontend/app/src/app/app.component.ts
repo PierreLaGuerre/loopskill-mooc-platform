@@ -1,9 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
+
 import { NavbarComponent } from './core/layout/navbar/navbar.component';
 import { FooterComponent } from './core/layout/footer/footer.component';
-import { CommonModule } from '@angular/common';
-import { filter } from 'rxjs';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -14,10 +16,12 @@ import { filter } from 'rxjs';
 })
 export class AppComponent {
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   hideLayout: boolean = false;
 
   constructor() {
+    this.restoreUserSession();
     this.updateLayoutVisibility(this.router.url);
 
     this.router.events
@@ -25,6 +29,17 @@ export class AppComponent {
       .subscribe(() => {
         this.updateLayoutVisibility(this.router.url);
       });
+  }
+
+  private restoreUserSession(): void {
+    if (this.authService.getToken() == null) {
+      return;
+    }
+
+    this.authService.loadCurrentUserFromToken().subscribe({
+      next: () => {},
+      error: () => {}
+    });
   }
 
   private updateLayoutVisibility(url: string): void {
