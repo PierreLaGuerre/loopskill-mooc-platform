@@ -1,98 +1,190 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { User } from '../models/user.model';
-import { MOCK_ADMIN_USER, MOCK_USER } from '../mocks/mock-user';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { BehaviorSubject, Observable, catchError, map, of, tap, throwError } from 'rxjs';
+
+import { environment } from '../../../environments/environment';
+import {
+  ApiSuccessResponse,
+  AuthUserResponse,
+  TagsResponse
+} from '../models/auth-api.model';
+import { ClientType, User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+
+  private readonly apiUrl = environment.apiUrl;
+
   private readonly STORAGE_CURRENT_USER_KEY = 'loopskill_current_user';
-  private readonly STORAGE_USERS_KEY = 'loopskill_users';
+  private readonly STORAGE_TOKEN_KEY = 'loopskill_auth_token';
 
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser$: Observable<User | null>;
 
   constructor() {
-    this.initializeUsers();
-
     const storedUser = this.getUserFromStorage();
     this.currentUserSubject = new BehaviorSubject<User | null>(storedUser);
     this.currentUser$ = this.currentUserSubject.asObservable();
   }
 
-  login(email: string, password: string): boolean {
-    const normalizedEmail = email.trim().toLowerCase();
-    const normalizedPassword = password.trim();
-
-    const users = this.getUsers();
-
-    const foundUser = users.find(
-      (user) =>
-        user.email.trim().toLowerCase() === normalizedEmail &&
-        user.password === normalizedPassword
-    );
-
-    if (foundUser != null) {
-      this.setCurrentUser(foundUser);
-      return true;
-    } else {
-      return false;
-    }
+  login(email: string, password: string): Observable<User> {
+    return this.http
+      .post<AuthUserResponse>(`${this.apiUrl}/auth/login`, {
+        email: email.trim().toLowerCase(),
+        password: password.trim()
+      })
+      .pipe(
+        tap((response) => {
+          this.storeSession(response);
+        }),
+        map((response) => response.user),
+        catchError((error) => {
+          return throwError(() => error);
+        })
+      );
   }
 
   register(
     name: string,
     email: string,
     password: string,
-    clientType: string
-  ): boolean {
-    const normalizedName = name.trim();
-    const normalizedEmail = email.trim().toLowerCase();
-    const normalizedPassword = password.trim();
-
-    const users = this.getUsers();
-
-    const existingUser = users.find(
-      (user) => user.email.trim().toLowerCase() === normalizedEmail
-    );
-
-    if (existingUser != null) {
-      return false;
-    }
-
-    const newUser: User = {
-      id: this.generateNextId(users),
-      name: normalizedName,
-      email: normalizedEmail,
-      password: normalizedPassword,
-      role: 'student',
-      clientType: clientType,
-      planId: 1,
-      interests: []
-    };
-
-    const updatedUsers: User[] = [...users, newUser];
-
-    localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(updatedUsers));
-    this.setCurrentUser(newUser);
-
-    return true;
+    clientType: ClientType,
+    interests: string[] = []
+  ): Observable<User> {
+    return this.http
+      .post<AuthUserResponse>(`${this.apiUrl}/auth/register`, {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        password: password.trim(),
+        clientType: clientType,
+        interests: interests
+      })
+      .pipe(
+        tap((response) => {
+          this.storeSession(response);
+        }),
+        map((response) => response.user),
+        catchError((error) => {
+          return throwError(() => error);
+        })
+      );
   }
 
-  updateCurrentUserInterests(interests: string[]): void {
-    const currentUser = this.getCurrentUser();
+  loadCurrentUserFromToken(): Observable<User | null> {
+    const token = this.getToken();
 
-    if (currentUser == null) {
-      return;
+    if (token == null) {
+      this.clearSession();
+      return of(null);
     }
 
-    const updatedUser: User = {
-      ...currentUser,
-      interests: interests
-    };
+    return this.http
+      .get<AuthUserResponse>(`${this.apiUrl}/auth/me`, {
+        headers: this.getAuthHeaders()
+      })
+      .pipe(
+        tap((response) => {
+          this.setCurrentUser(response.user);
 
-    this.persistUpdatedUser(updatedUser);
+          if (response.token != null) {
+            this.setToken(response.token);
+          }
+        }),
+        map((response) => response.user),
+        catchError((error) => {
+          this.clearSession();
+          return throwError(() => error);
+        })
+      );
+  }
+
+  updateCurrentUserProfile(name: string, email: string): Observable<User> {
+    return this.http
+      .patch<AuthUserResponse>(
+        `${this.apiUrl}/auth/profile`,
+        {
+          name: name.trim(),
+          email: email.trim().toLowerCase()
+        },
+        {
+          headers: this.getAuthHeaders()
+        }
+      )
+      .pipe(
+        tap((response) => {
+          this.setCurrentUser(response.user);
+
+          if (response.token != null) {
+            this.setToken(response.token);
+          }
+        }),
+        map((response) => response.user),
+        catchError((error) => {
+          return throwError(() => error);
+        })
+      );
+  }
+
+  updateCurrentUserPassword(
+    currentPassword: string,
+    newPassword: string
+  ): Observable<ApiSuccessResponse> {
+    return this.http
+      .patch<ApiSuccessResponse>(
+        `${this.apiUrl}/auth/password`,
+        {
+          currentPassword: currentPassword.trim(),
+          newPassword: newPassword.trim()
+        },
+        {
+          headers: this.getAuthHeaders()
+        }
+      )
+      .pipe(
+        catchError((error) => {
+          return throwError(() => error);
+        })
+      );
+  }
+
+  updateCurrentUserInterests(interests: string[]): Observable<User> {
+    return this.http
+      .patch<AuthUserResponse>(
+        `${this.apiUrl}/auth/interests`,
+        {
+          interests: interests
+        },
+        {
+          headers: this.getAuthHeaders()
+        }
+      )
+      .pipe(
+        tap((response) => {
+          this.setCurrentUser(response.user);
+        }),
+        map((response) => response.user),
+        catchError((error) => {
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getAvailableInterests(): Observable<string[]> {
+    return this.http
+      .get<TagsResponse>(`${this.apiUrl}/auth/tags`)
+      .pipe(
+        map((response) => {
+          return response.data.tags.map((tag) => tag.name);
+        }),
+        catchError((error) => {
+          return throwError(() => error);
+        })
+      );
   }
 
   updateCurrentUserPlan(planId: number): void {
@@ -107,67 +199,12 @@ export class AuthService {
       planId: planId
     };
 
-    this.persistUpdatedUser(updatedUser);
-  }
-
-  updateCurrentUserProfile(name: string, email: string): boolean {
-    const currentUser = this.getCurrentUser();
-
-    if (currentUser == null) {
-      return false;
-    }
-
-    const normalizedName = name.trim();
-    const normalizedEmail = email.trim().toLowerCase();
-
-    const users = this.getUsers();
-
-    const existingUser = users.find(
-      (user) =>
-        user.email.trim().toLowerCase() === normalizedEmail &&
-        user.id !== currentUser.id
-    );
-
-    if (existingUser != null) {
-      return false;
-    }
-
-    const updatedUser: User = {
-      ...currentUser,
-      name: normalizedName,
-      email: normalizedEmail
-    };
-
-    this.persistUpdatedUser(updatedUser);
-    return true;
-  }
-
-  updateCurrentUserPassword(currentPassword: string, newPassword: string): boolean {
-    const currentUser = this.getCurrentUser();
-
-    if (currentUser == null) {
-      return false;
-    }
-
-    const normalizedCurrentPassword = currentPassword.trim();
-    const normalizedNewPassword = newPassword.trim();
-
-    if (currentUser.password !== normalizedCurrentPassword) {
-      return false;
-    }
-
-    const updatedUser: User = {
-      ...currentUser,
-      password: normalizedNewPassword
-    };
-
-    this.persistUpdatedUser(updatedUser);
-    return true;
+    this.setCurrentUser(updatedUser);
   }
 
   logout(): void {
-    localStorage.removeItem(this.STORAGE_CURRENT_USER_KEY);
-    this.currentUserSubject.next(null);
+    this.clearSession();
+    this.router.navigateByUrl('/auth');
   }
 
   getCurrentUser(): User | null {
@@ -178,39 +215,53 @@ export class AuthService {
     return this.currentUser$;
   }
 
+  getToken(): string | null {
+    return localStorage.getItem(this.STORAGE_TOKEN_KEY);
+  }
+
   isLoggedIn(): boolean {
-    if (this.currentUserSubject.value != null) {
+    if (this.getToken() != null && this.currentUserSubject.value != null) {
       return true;
     } else {
       return false;
     }
   }
 
-  private initializeUsers(): void {
-    const storedUsers = localStorage.getItem(this.STORAGE_USERS_KEY);
-
-    if (storedUsers == null) {
-      const initialUsers: User[] = [MOCK_USER, MOCK_ADMIN_USER];
-      localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(initialUsers));
+  private storeSession(response: AuthUserResponse): void {
+    if (response.token != null) {
+      this.setToken(response.token);
     }
+
+    this.setCurrentUser(response.user);
   }
 
-  private getUsers(): User[] {
-    const usersJson = localStorage.getItem(this.STORAGE_USERS_KEY);
+  private setToken(token: string): void {
+    localStorage.setItem(this.STORAGE_TOKEN_KEY, token);
+  }
 
-    if (usersJson != null) {
-      return JSON.parse(usersJson) as User[];
-    } else {
-      return [];
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.getToken();
+
+    if (token == null) {
+      return new HttpHeaders();
     }
+
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
   }
 
   private getUserFromStorage(): User | null {
     const userJson = localStorage.getItem(this.STORAGE_CURRENT_USER_KEY);
 
-    if (userJson != null) {
+    if (userJson == null) {
+      return null;
+    }
+
+    try {
       return JSON.parse(userJson) as User;
-    } else {
+    } catch {
+      localStorage.removeItem(this.STORAGE_CURRENT_USER_KEY);
       return null;
     }
   }
@@ -220,27 +271,9 @@ export class AuthService {
     this.currentUserSubject.next(user);
   }
 
-  private persistUpdatedUser(updatedUser: User): void {
-    const users = this.getUsers();
-    const updatedUsers = users.map((user) => {
-      if (user.id === updatedUser.id) {
-        return updatedUser;
-      } else {
-        return user;
-      }
-    });
-
-    localStorage.setItem(this.STORAGE_USERS_KEY, JSON.stringify(updatedUsers));
-    localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(updatedUser));
-    this.currentUserSubject.next(updatedUser);
-  }
-
-  private generateNextId(users: User[]): number {
-    if (users.length === 0) {
-      return 1;
-    } else {
-      const ids = users.map((user) => user.id);
-      return Math.max(...ids) + 1;
-    }
+  private clearSession(): void {
+    localStorage.removeItem(this.STORAGE_CURRENT_USER_KEY);
+    localStorage.removeItem(this.STORAGE_TOKEN_KEY);
+    this.currentUserSubject.next(null);
   }
 }

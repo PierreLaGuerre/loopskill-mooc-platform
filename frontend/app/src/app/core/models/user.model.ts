@@ -1,10 +1,13 @@
+export type UserRole = 'student' | 'admin';
+
+export type ClientType = 'student' | 'professional' | 'company';
+
 export interface User {
   id: number;
   name: string;
   email: string;
-  password: string;
-  role: string;
-  clientType: string;
+  role: UserRole;
+  clientType: ClientType;
   planId: number;
   interests: string[];
 }
