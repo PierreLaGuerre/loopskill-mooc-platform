@@ -154,7 +154,7 @@ export class AuthService {
 
   updateCurrentUserInterests(interests: string[]): Observable<User> {
     return this.http
-      .patch<AuthUserResponse>(
+      .patch<AuthUserResponse | ApiSuccessResponse>(
         `${this.apiUrl}/auth/interests`,
         {
           interests: interests
@@ -165,9 +165,30 @@ export class AuthService {
       )
       .pipe(
         tap((response) => {
-          this.setCurrentUser(response.user);
+          const currentUser = this.getCurrentUser();
+
+          if ('user' in response) {
+            this.setCurrentUser(response.user);
+          } else if (currentUser != null) {
+            this.setCurrentUser({
+              ...currentUser,
+              interests: interests
+            });
+          }
         }),
-        map((response) => response.user),
+        map((response) => {
+          if ('user' in response) {
+            return response.user;
+          }
+
+          const currentUser = this.getCurrentUser();
+
+          if (currentUser == null) {
+            throw new Error('No authenticated user found');
+          }
+
+          return currentUser;
+        }),
         catchError((error) => {
           return throwError(() => error);
         })
@@ -267,8 +288,13 @@ export class AuthService {
   }
 
   private setCurrentUser(user: User): void {
-    localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(user));
-    this.currentUserSubject.next(user);
+    const normalizedUser: User = {
+      ...user,
+      interests: user.interests ?? []
+    };
+
+    localStorage.setItem(this.STORAGE_CURRENT_USER_KEY, JSON.stringify(normalizedUser));
+    this.currentUserSubject.next(normalizedUser);
   }
 
   private clearSession(): void {

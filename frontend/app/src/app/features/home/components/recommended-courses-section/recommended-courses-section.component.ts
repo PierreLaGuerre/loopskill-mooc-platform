@@ -33,12 +33,14 @@ export class RecommendedCoursesSectionComponent implements OnInit {
       return [];
     }
 
-    const userInterests = this.currentUser.interests;
+    const userInterests = this.currentUser.interests.map((interest) =>
+      this.normalizeTag(interest)
+    );
 
     return [...MOCK_COURSES]
       .map((course) => {
         const matchCount = course.tags.filter((tag) =>
-          userInterests.includes(tag)
+          userInterests.includes(this.normalizeTag(tag))
         ).length;
 
         return {
@@ -50,5 +52,9 @@ export class RecommendedCoursesSectionComponent implements OnInit {
       .sort((a, b) => b.matchCount - a.matchCount)
       .slice(0, 4)
       .map((item) => item.course);
+  }
+
+  private normalizeTag(tag: string): string {
+    return tag.trim().toLowerCase();
   }
 }
