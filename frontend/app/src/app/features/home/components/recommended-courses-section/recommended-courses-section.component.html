@@ -5,11 +5,34 @@
       Courses selected based on your interests
     </p>
 
-    <div class="courses-grid">
-      <app-course-card
-        *ngFor="let course of recommendedCourses"
-        [course]="course">
-      </app-course-card>
+    <div class="courses-carousel">
+      <button
+        class="courses-carousel__button courses-carousel__button--left"
+        type="button"
+        aria-label="Previous recommended courses"
+        [disabled]="canScrollLeft === false"
+        (click)="scrollCourses('left')">
+        &lsaquo;
+      </button>
+
+      <div
+        #coursesTrack
+        class="courses-track"
+        (scroll)="updateScrollButtons()">
+        <app-course-card
+          *ngFor="let course of recommendedCourses"
+          [course]="course">
+        </app-course-card>
+      </div>
+
+      <button
+        class="courses-carousel__button courses-carousel__button--right"
+        type="button"
+        aria-label="Next recommended courses"
+        [disabled]="canScrollRight === false"
+        (click)="scrollCourses('right')">
+        &rsaquo;
+      </button>
     </div>
   </div>
 </section>

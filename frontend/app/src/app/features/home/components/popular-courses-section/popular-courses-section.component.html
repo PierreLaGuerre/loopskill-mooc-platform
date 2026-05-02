@@ -4,9 +4,32 @@
     <p class="home-section__subtitle">
       Discover courses that match your interests.
     </p>
-    <div class="courses-grid">
-      <app-course-card *ngFor="let course of popularCourses" [course]="course">
-      </app-course-card>
+    <div class="courses-carousel">
+      <button
+        class="courses-carousel__button courses-carousel__button--left"
+        type="button"
+        aria-label="Previous popular courses"
+        [disabled]="canScrollLeft === false"
+        (click)="scrollCourses('left')">
+        &lsaquo;
+      </button>
+
+      <div
+        #coursesTrack
+        class="courses-track"
+        (scroll)="updateScrollButtons()">
+        <app-course-card *ngFor="let course of popularCourses" [course]="course">
+        </app-course-card>
+      </div>
+
+      <button
+        class="courses-carousel__button courses-carousel__button--right"
+        type="button"
+        aria-label="Next popular courses"
+        [disabled]="canScrollRight === false"
+        (click)="scrollCourses('right')">
+        &rsaquo;
+      </button>
     </div>
   </div>
 </section>

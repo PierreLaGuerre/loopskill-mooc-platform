@@ -22,16 +22,75 @@
   color: #6b7280;
 }
 
-.courses-grid {
+.courses-carousel {
+  position: relative;
+}
+
+.courses-track {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 4.5rem) / 4);
   gap: 1.5rem;
-  align-items: stretch;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding: 0.2rem 0.1rem 0.6rem;
+}
+
+.courses-track::-webkit-scrollbar {
+  display: none;
+}
+
+.courses-track app-course-card {
+  scroll-snap-align: start;
+  min-width: 0;
+}
+
+.courses-carousel__button {
+  position: absolute;
+  top: 54%;
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  background-color: #4FB343;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.14);
+  cursor: pointer;
+  font-size: 2rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  transition: opacity 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.courses-carousel__button:hover {
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.18);
+  transform: translateY(-50%) scale(1.04);
+}
+
+.courses-carousel__button:disabled {
+  opacity: 0.35;
+  cursor: default;
+  transform: translateY(-50%);
+}
+
+.courses-carousel__button--left {
+  left: -22px;
+}
+
+.courses-carousel__button--right {
+  right: -22px;
 }
 
 @media (max-width: 1100px) {
-  .courses-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .courses-track {
+    grid-auto-columns: calc((100% - 1.5rem) / 2);
   }
 }
 
@@ -40,7 +99,7 @@
     padding: 0 1rem;
   }
 
-    .home-section__title {
+  .home-section__title {
     font-size: 1.8rem;
     text-align: center;
   }
@@ -50,7 +109,21 @@
     text-align: center;
   }
 
-  .courses-grid {
-    grid-template-columns: 1fr;
+  .courses-track {
+    grid-auto-columns: minmax(0, 100%);
+  }
+
+  .courses-carousel__button {
+    width: 38px;
+    height: 38px;
+    font-size: 1.7rem;
+  }
+
+  .courses-carousel__button--left {
+    left: -8px;
+  }
+
+  .courses-carousel__button--right {
+    right: -8px;
   }
 }
