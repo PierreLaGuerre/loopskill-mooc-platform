@@ -7,6 +7,29 @@
     </p>
   </div>
 
+  <div class="explore-filters" aria-label="Course category filters">
+    <button
+      class="explore-filter"
+      type="button"
+      [class.explore-filter--active]="isCategorySelected(allCategoriesLabel)"
+      [attr.aria-pressed]="isCategorySelected(allCategoriesLabel)"
+      (click)="selectCategory(allCategoriesLabel)">
+      <span class="explore-filter__check"></span>
+      <span>{{ allCategoriesLabel }}</span>
+    </button>
+
+    <button
+      class="explore-filter"
+      type="button"
+      *ngFor="let category of categories"
+      [class.explore-filter--active]="isCategorySelected(category.name)"
+      [attr.aria-pressed]="isCategorySelected(category.name)"
+      (click)="selectCategory(category.name)">
+      <span class="explore-filter__check"></span>
+      <span>{{ category.name }}</span>
+    </button>
+  </div>
+
   <div class="explore-page__content" *ngIf="categoryGroups.length > 0; else noCourses">
     <section
       class="explore-category"
@@ -18,11 +41,35 @@
         </p>
       </div>
 
-      <div class="explore-category__grid" *ngIf="group.courses.length > 0">
-        <app-course-card
-          *ngFor="let course of group.courses"
-          [course]="course">
-        </app-course-card>
+      <div class="explore-carousel" *ngIf="group.courses.length > 0">
+        <button
+          class="explore-carousel__button explore-carousel__button--left"
+          type="button"
+          [attr.aria-label]="'Previous ' + group.category.name + ' courses'"
+          [disabled]="canScrollLeft(group.category.name) === false"
+          (click)="scrollCategoryCourses(group.category.name, 'left')">
+          &lsaquo;
+        </button>
+
+        <div
+          #coursesTrack
+          class="explore-courses-track"
+          [attr.data-category-name]="group.category.name"
+          (scroll)="updateCarouselButtons(coursesTrack, group.category.name)">
+          <app-course-card
+            *ngFor="let course of group.courses"
+            [course]="course">
+          </app-course-card>
+        </div>
+
+        <button
+          class="explore-carousel__button explore-carousel__button--right"
+          type="button"
+          [attr.aria-label]="'Next ' + group.category.name + ' courses'"
+          [disabled]="canScrollRight(group.category.name) === false"
+          (click)="scrollCategoryCourses(group.category.name, 'right')">
+          &rsaquo;
+        </button>
       </div>
     </section>
   </div>

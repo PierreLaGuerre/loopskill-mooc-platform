@@ -1,6 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  QueryList,
+  ViewChildren,
+  inject
+} from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { MOCK_CATEGORIES } from '../../core/mocks/mock-categories';
 import { MOCK_COURSES } from '../../core/mocks/mock-courses';
@@ -13,6 +22,11 @@ interface ExploreCategoryGroup {
   courses: Course[];
 }
 
+interface ExploreCarouselState {
+  canScrollLeft: boolean;
+  canScrollRight: boolean;
+}
+
 @Component({
   selector: 'app-explore',
   standalone: true,
@@ -20,22 +34,110 @@ interface ExploreCategoryGroup {
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.scss'
 })
-export class ExploreComponent implements OnInit {
+export class ExploreComponent implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
+  @ViewChildren('coursesTrack')
+  private courseTracks?: QueryList<ElementRef<HTMLElement>>;
+
+  readonly allCategoriesLabel = 'All categories';
+  categories: Category[] = MOCK_CATEGORIES;
+  selectedCategoryName = this.allCategoriesLabel;
   categoryGroups: ExploreCategoryGroup[] = [];
+  carouselStates: Record<string, ExploreCarouselState> = {};
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
-      const selectedCategory = params.get('category');
-      this.buildCategoryGroups(selectedCategory);
+      this.selectedCategoryName = this.getSelectedCategoryName(params.get('category'));
+      this.buildCategoryGroups();
+      this.updateCarouselButtonsSoon();
     });
   }
 
-  private buildCategoryGroups(selectedCategory: string | null): void {
-    const sortedCategories = this.getSortedCategories(selectedCategory);
+  ngAfterViewInit(): void {
+    this.courseTracks?.changes.subscribe(() => {
+      this.updateAllCarouselButtons();
+    });
 
-    this.categoryGroups = sortedCategories.map((category) => {
+    this.updateCarouselButtonsSoon();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateAllCarouselButtons();
+  }
+
+  selectCategory(categoryName: string): void {
+    this.selectedCategoryName = categoryName;
+    this.buildCategoryGroups();
+    this.updateCarouselButtonsSoon();
+
+    const queryParams = categoryName === this.allCategoriesLabel
+      ? { category: null }
+      : { category: categoryName };
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  isCategorySelected(categoryName: string): boolean {
+    return this.selectedCategoryName === categoryName;
+  }
+
+  scrollCategoryCourses(categoryName: string, direction: 'left' | 'right'): void {
+    const track = this.getCourseTrack(categoryName);
+
+    if (track == null) {
+      return;
+    }
+
+    const firstCourseCard = track.querySelector('app-course-card');
+    const cardWidth = firstCourseCard?.getBoundingClientRect().width ?? track.clientWidth;
+    const trackStyles = window.getComputedStyle(track);
+    const trackGap = Number.parseFloat(trackStyles.columnGap || trackStyles.gap) || 0;
+    const courseStep = cardWidth + trackGap;
+    const scrollAmount = direction === 'left' ? -courseStep : courseStep;
+
+    track.scrollBy({
+      left: scrollAmount,
+      behavior: 'smooth'
+    });
+
+    window.setTimeout(() => {
+      this.updateCarouselButtons(track, categoryName);
+    }, 250);
+  }
+
+  updateCarouselButtons(track: HTMLElement, categoryName: string): void {
+    const maxScrollLeft = track.scrollWidth - track.clientWidth;
+
+    this.carouselStates = {
+      ...this.carouselStates,
+      [categoryName]: {
+        canScrollLeft: track.scrollLeft > 0,
+        canScrollRight: track.scrollLeft < maxScrollLeft - 1
+      }
+    };
+  }
+
+  canScrollLeft(categoryName: string): boolean {
+    return this.carouselStates[categoryName]?.canScrollLeft ?? false;
+  }
+
+  canScrollRight(categoryName: string): boolean {
+    return this.carouselStates[categoryName]?.canScrollRight ?? false;
+  }
+
+  private buildCategoryGroups(): void {
+    const visibleCategories = this.selectedCategoryName === this.allCategoriesLabel
+      ? this.categories
+      : this.categories.filter((category) => category.name === this.selectedCategoryName);
+
+    this.categoryGroups = visibleCategories.map((category) => {
       const courses = MOCK_COURSES
         .filter((course) => course.category === category.name)
         .sort((a, b) => a.title.localeCompare(b.title));
@@ -47,28 +149,41 @@ export class ExploreComponent implements OnInit {
     });
   }
 
-  private getSortedCategories(selectedCategory: string | null): Category[] {
-    const categories = [...MOCK_CATEGORIES];
-
+  private getSelectedCategoryName(selectedCategory: string | null): string {
     if (selectedCategory == null || selectedCategory.trim() === '') {
-      return categories;
+      return this.allCategoriesLabel;
     }
 
     const normalizedSelectedCategory = selectedCategory.trim().toLowerCase();
+    const matchedCategory = this.categories.find(
+      (category) => category.name.toLowerCase() === normalizedSelectedCategory
+    );
 
-    return categories.sort((a, b) => {
-      const aMatches = a.name.toLowerCase() === normalizedSelectedCategory;
-      const bMatches = b.name.toLowerCase() === normalizedSelectedCategory;
+    return matchedCategory?.name ?? this.allCategoriesLabel;
+  }
 
-      if (aMatches === true && bMatches === false) {
-        return -1;
+  private updateAllCarouselButtons(): void {
+    this.courseTracks?.forEach((trackRef) => {
+      const track = trackRef.nativeElement;
+      const categoryName = track.dataset['categoryName'];
+
+      if (categoryName != null) {
+        this.updateCarouselButtons(track, categoryName);
       }
+    });
+  }
 
-      if (aMatches === false && bMatches === true) {
-        return 1;
-      }
+  private getCourseTrack(categoryName: string): HTMLElement | null {
+    const trackRef = this.courseTracks?.find(
+      (item) => item.nativeElement.dataset['categoryName'] === categoryName
+    );
 
-      return 0;
+    return trackRef?.nativeElement ?? null;
+  }
+
+  private updateCarouselButtonsSoon(): void {
+    window.setTimeout(() => {
+      this.updateAllCarouselButtons();
     });
   }
 }
