@@ -2,6 +2,11 @@ import { Injectable } from '@angular/core';
 import { Enrollment } from '../mocks/mock-enrollments';
 import { MOCK_ENROLLMENTS } from '../mocks/mock-enrollments';
 
+export interface CourseEnrollmentCount {
+  courseId: number;
+  enrollmentCount: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -24,6 +29,28 @@ export class EnrollmentService {
 
   getUserEnrollments(userId: number): Enrollment[] {
     return this.getEnrollments().filter((enrollment) => enrollment.userId === userId);
+  }
+
+  getPopularCoursesByEnrollmentCount(): CourseEnrollmentCount[] {
+    const enrollmentCounts = new Map<number, number>();
+
+    this.getEnrollments().forEach((enrollment) => {
+      const currentCount = enrollmentCounts.get(enrollment.courseId) ?? 0;
+      enrollmentCounts.set(enrollment.courseId, currentCount + 1);
+    });
+
+    return Array.from(enrollmentCounts.entries())
+      .map(([courseId, enrollmentCount]) => ({
+        courseId,
+        enrollmentCount
+      }))
+      .sort((a, b) => {
+        if (b.enrollmentCount !== a.enrollmentCount) {
+          return b.enrollmentCount - a.enrollmentCount;
+        }
+
+        return a.courseId - b.courseId;
+      });
   }
 
   isUserEnrolledInCourse(userId: number, courseId: number): boolean {
