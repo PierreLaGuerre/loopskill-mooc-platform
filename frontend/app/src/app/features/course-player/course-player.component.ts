@@ -2,12 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Course } from '../../core/models/course.model';
+import { Lesson } from '../../core/models/lesson.model';
+import { User } from '../../core/models/user.model';
+import { AuthService } from '../../core/services/auth.service';
 import { CourseService } from '../../core/services/course.service';
+import { EnrollmentService } from '../../core/services/enrollment.service';
 
-interface CourseLesson {
-  id: number;
-  title: string;
-  duration: string;
+export interface CoursePlayerLesson extends Lesson {
+  durationLabel: string;
   isCompleted: boolean;
 }
 
@@ -20,13 +22,21 @@ interface CourseLesson {
 })
 export class CoursePlayerComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
   private courseService = inject(CourseService);
+  private enrollmentService = inject(EnrollmentService);
+  private readonly fallbackVideoUrl = 'assets/videos/loopskill-class-placeholder.mp4';
 
+  user: User | null = null;
   course: Course | null = null;
-  lessons: CourseLesson[] = [];
-  activeLesson: CourseLesson | null = null;
+  lessons: CoursePlayerLesson[] = [];
+  activeLesson: CoursePlayerLesson | null = null;
+  activeVideoUrl = this.fallbackVideoUrl;
+  activeLessonTitle = '';
+  activeLessonDescription = '';
 
   ngOnInit(): void {
+    this.user = this.authService.getCurrentUser();
     const courseIdParam = this.route.snapshot.paramMap.get('id');
 
     if (courseIdParam != null) {
@@ -34,48 +44,80 @@ export class CoursePlayerComponent implements OnInit {
       this.course = this.courseService.getCourseById(courseId);
 
       if (this.course != null) {
-        this.lessons = this.buildPlaceholderLessons(this.course);
+        const courseLessons = this.courseService.getLessonsByCourseId(courseId);
+        const currentProgress = this.getCurrentEnrollmentProgress(courseId);
+
+        this.lessons = this.buildCoursePlayerLessons(courseLessons, currentProgress);
         this.activeLesson = this.lessons.length > 2 ? this.lessons[2] : this.lessons[0] ?? null;
+        this.updateActiveLessonView(this.activeLesson);
       }
     }
   }
 
-  selectLesson(lesson: CourseLesson): void {
+  public selectLesson(lesson: CoursePlayerLesson): void {
     this.activeLesson = lesson;
+    this.updateActiveLessonView(lesson);
   }
 
-  private buildPlaceholderLessons(course: Course): CourseLesson[] {
-    return [
-      {
-        id: 1,
-        title: `${course.title} - Welcome`,
-        duration: '05:12',
-        isCompleted: true
-      },
-      {
-        id: 2,
-        title: 'Core concepts and setup',
-        duration: '08:45',
-        isCompleted: true
-      },
-      {
-        id: 3,
-        title: 'Hands-on practice',
-        duration: '11:20',
-        isCompleted: false
-      },
-      {
-        id: 4,
-        title: 'Project walkthrough',
-        duration: '09:10',
-        isCompleted: false
-      },
-      {
-        id: 5,
-        title: 'Wrap-up and next steps',
-        duration: '06:30',
-        isCompleted: false
-      }
-    ];
+  public toggleLessonCompleted(lesson: CoursePlayerLesson, event: Event): void {
+    event.stopPropagation();
+    lesson.isCompleted = !lesson.isCompleted;
+    this.saveCurrentProgress();
+  }
+
+  private buildCoursePlayerLessons(lessons: Lesson[], progress: number): CoursePlayerLesson[] {
+    const completedLessonsCount = Math.floor(progress / 10);
+
+    return lessons.map((lesson) => ({
+      ...lesson,
+      durationLabel: this.formatDuration(lesson.duration),
+      isCompleted: lesson.displayOrder <= completedLessonsCount
+    }));
+  }
+
+  private formatDuration(duration: string | null): string {
+    if (duration == null) {
+      return '00:00';
+    }
+
+    const durationParts = duration.split(':');
+
+    if (durationParts.length === 3) {
+      return `${durationParts[1]}:${durationParts[2]}`;
+    }
+
+    return duration;
+  }
+
+  private getLessonVideoUrl(lesson: CoursePlayerLesson | null): string {
+    return lesson?.videoUrl ?? this.fallbackVideoUrl;
+  }
+
+  private updateActiveLessonView(lesson: CoursePlayerLesson | null): void {
+    this.activeLessonTitle = lesson?.title ?? '';
+    this.activeLessonDescription = lesson?.description ?? this.course?.description ?? '';
+    this.activeVideoUrl = this.getLessonVideoUrl(lesson);
+  }
+
+  private getCurrentEnrollmentProgress(courseId: number): number {
+    if (this.user == null) {
+      return 0;
+    }
+
+    const enrollment = this.enrollmentService
+      .getUserEnrollments(this.user.id)
+      .find((item) => item.courseId === courseId);
+
+    return enrollment?.progress ?? 0;
+  }
+
+  private saveCurrentProgress(): void {
+    if (this.user == null || this.course == null) {
+      return;
+    }
+
+    const completedLessonsCount = this.lessons.filter((lesson) => lesson.isCompleted).length;
+    const progress = Math.min(completedLessonsCount * 10, 100);
+    this.enrollmentService.updateEnrollmentProgress(this.user.id, this.course.id, progress);
   }
 }

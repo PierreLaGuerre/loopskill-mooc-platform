@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Course } from '../models/course.model';
+import { Lesson } from '../models/lesson.model';
 import { MOCK_COURSES } from '../mocks/mock-courses';
+import { MOCK_LESSONS } from '../mocks/mock-lessons';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +34,12 @@ export class CourseService {
     } else {
       return null;
     }
+  }
+
+  getLessonsByCourseId(courseId: number): Lesson[] {
+    return MOCK_LESSONS
+      .filter((lesson) => lesson.courseId === courseId)
+      .sort((firstLesson, secondLesson) => firstLesson.displayOrder - secondLesson.displayOrder);
   }
 
   createCourse(courseData: Omit<Course, 'id'>): Course {

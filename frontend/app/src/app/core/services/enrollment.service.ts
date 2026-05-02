@@ -90,6 +90,31 @@ export class EnrollmentService {
     return newEnrollment;
   }
 
+  updateEnrollmentProgress(userId: number, courseId: number, progress: number): boolean {
+    const enrollments = this.getEnrollments();
+    const normalizedProgress = Math.min(Math.max(progress, 0), 100);
+    let wasUpdated = false;
+
+    const updatedEnrollments = enrollments.map((enrollment) => {
+      if (enrollment.userId === userId && enrollment.courseId === courseId) {
+        wasUpdated = true;
+        return {
+          ...enrollment,
+          progress: normalizedProgress
+        };
+      }
+
+      return enrollment;
+    });
+
+    if (wasUpdated === false) {
+      return false;
+    }
+
+    localStorage.setItem(this.STORAGE_ENROLLMENTS_KEY, JSON.stringify(updatedEnrollments));
+    return true;
+  }
+
   private initializeEnrollments(): void {
     const storedEnrollments = localStorage.getItem(this.STORAGE_ENROLLMENTS_KEY);
 

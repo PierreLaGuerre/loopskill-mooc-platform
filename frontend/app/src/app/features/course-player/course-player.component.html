@@ -3,8 +3,7 @@
     <section class="course-player-main">
       <div class="course-player-video-card">
         <div class="course-player-video-shell">
-          <video class="course-player-video" controls playsinline preload="metadata">
-            <source src="assets/videos/loopskill-class-placeholder.mp4" type="video/mp4" />
+          <video class="course-player-video" controls playsinline preload="metadata" [src]="activeVideoUrl">
             Your browser does not support the video tag.
           </video>
         </div>
@@ -12,7 +11,7 @@
 
       <div class="course-player-info-card">
         <p class="course-player-info-card__eyebrow">Now playing</p>
-        <h1 class="course-player-info-card__title">{{ activeLesson?.title }}</h1>
+        <h1 class="course-player-info-card__title">{{ activeLessonTitle }}</h1>
 
         <div class="course-player-info-card__meta">
           <span class="course-player-info-card__chip">{{ course.category }}</span>
@@ -27,7 +26,7 @@
         </p>
 
         <p class="course-player-info-card__description">
-          {{ course.description }}
+          {{ activeLessonDescription }}
         </p>
 
         <div class="course-player-info-card__actions">
@@ -45,28 +44,31 @@
           <p>{{ lessons.length }} lessons</p>
         </div>
 
-        <div class="course-player-sidebar__list">
-          <button
-            type="button"
+        <div class="course-player-sidebar__list" *ngIf="lessons.length > 0; else noLessons">
+          <div
             class="course-player-lesson"
             *ngFor="let lesson of lessons"
+            role="button"
+            tabindex="0"
             [class.course-player-lesson--active]="activeLesson?.id === lesson.id"
+            [class.course-player-lesson--completed]="lesson.isCompleted == true"
             (click)="selectLesson(lesson)"
+            (keydown.enter)="selectLesson(lesson)"
           >
-            <div class="course-player-lesson__top">
-              <span
-                class="course-player-lesson__status"
-                [class.course-player-lesson__status--done]="lesson.isCompleted == true"
-              >
-                {{ lesson.isCompleted == true ? '✓' : '•' }}
-              </span>
-
-              <span class="course-player-lesson__duration">{{ lesson.duration }}</span>
-            </div>
-
-            <p class="course-player-lesson__title">{{ lesson.title }}</p>
-          </button>
+            <span class="course-player-lesson__title">{{ lesson.title }}</span>
+            <span class="course-player-lesson__duration">{{ lesson.durationLabel }}</span>
+            <input
+              type="checkbox"
+              class="course-player-lesson__checkbox"
+              [checked]="lesson.isCompleted == true"
+              (click)="toggleLessonCompleted(lesson, $event)"
+            />
+          </div>
         </div>
+
+        <ng-template #noLessons>
+          <p>No lessons available for this course yet.</p>
+        </ng-template>
       </div>
     </aside>
   </div>
