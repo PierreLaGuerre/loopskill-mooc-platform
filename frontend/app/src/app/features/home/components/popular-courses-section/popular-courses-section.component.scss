@@ -110,20 +110,15 @@
   }
 
   .courses-track {
-    grid-auto-columns: minmax(0, 100%);
+    grid-auto-flow: row;
+    grid-auto-columns: initial;
+    grid-template-columns: 1fr;
+    overflow: visible;
+    scroll-snap-type: none;
+    padding: 0;
   }
 
   .courses-carousel__button {
-    width: 38px;
-    height: 38px;
-    font-size: 1.7rem;
-  }
-
-  .courses-carousel__button--left {
-    left: -8px;
-  }
-
-  .courses-carousel__button--right {
-    right: -8px;
+    display: none;
   }
 }
