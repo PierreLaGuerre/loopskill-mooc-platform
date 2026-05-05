@@ -7,6 +7,9 @@ const app = express();
 const authRoutes = require("./routes/auth.routes");
 const coursesRoutes = require("./routes/courses.routes");
 
+// Uses open CORS in local development, and restricts allowed origins when
+// FRONTEND_ORIGIN is configured for deployment.
+
 function getAllowedOrigins() {
   const rawOrigins = process.env.FRONTEND_ORIGIN;
 
