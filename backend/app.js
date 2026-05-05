@@ -7,7 +7,34 @@ const app = express();
 const authRoutes = require("./routes/auth.routes");
 const coursesRoutes = require("./routes/courses.routes");
 
-app.use(cors());
+function getAllowedOrigins() {
+  const rawOrigins = process.env.FRONTEND_ORIGIN;
+
+  if (typeof rawOrigins !== "string" || rawOrigins.trim() === "") {
+    return null;
+  }
+
+  return rawOrigins
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter((origin) => origin !== "");
+}
+
+const allowedOrigins = getAllowedOrigins();
+
+if (allowedOrigins == null) {
+  app.use(cors());
+} else {
+  app.use(cors({
+    origin: (origin, callback) => {
+      if (origin == null || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    }
+  }));
+}
 app.use(express.json());
 
 app.get("/api/health", (req, res) => {res.json({ message: "Server is up and running" });});
