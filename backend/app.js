@@ -6,6 +6,7 @@ const app = express();
 
 const authRoutes = require("./routes/auth.routes");
 const coursesRoutes = require("./routes/courses.routes");
+const enrollmentsRoutes = require("./routes/enrollments.routes");
 
 // Uses open CORS in local development, and restricts allowed origins when
 // FRONTEND_ORIGIN is configured for deployment.
@@ -44,6 +45,7 @@ app.get("/api/health", (req, res) => {res.json({ message: "Server is up and runn
 
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", coursesRoutes);
+app.use("/api/enrollments", enrollmentsRoutes);
 
 app.use((req, res) => {
   return sendError(res, 404, "Route not found");
