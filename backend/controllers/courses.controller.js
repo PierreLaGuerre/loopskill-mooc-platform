@@ -2,6 +2,7 @@ const db = require("../config/db");
 const { sendError, sendSuccess } = require("../utils/http");
 
 const DEFAULT_COURSE_ORDER = "c.id ASC";
+const MIN_POPULAR_COURSE_RESULTS = 6;
 const POPULAR_COURSE_LIMIT = 8;
 
 function normalizeText(value) {
@@ -97,6 +98,62 @@ function buildCourseSelectQuery({ whereClauses = [], params = [], orderBy = DEFA
   };
 }
 
+async function getPopularCourseIds() {
+  const [popularRows] = await db.query(
+    `
+      SELECT
+        c.id,
+        COUNT(e.id) AS enrollmentsCount
+      FROM courses c
+      LEFT JOIN enrollments e
+        ON e.course_id = c.id
+      GROUP BY c.id
+      HAVING COUNT(e.id) > 0
+      ORDER BY enrollmentsCount DESC, c.id ASC
+      LIMIT ?
+    `,
+    [POPULAR_COURSE_LIMIT]
+  );
+
+  const selectedIds = popularRows.map((row) => row.id);
+
+  if (selectedIds.length >= MIN_POPULAR_COURSE_RESULTS) {
+    return selectedIds;
+  }
+
+  const excludedIds = selectedIds.length > 0 ? selectedIds : [0];
+  const placeholders = excludedIds.map(() => "?").join(", ");
+  const missingCount = POPULAR_COURSE_LIMIT - selectedIds.length;
+  const [fallbackRows] = await db.query(
+    `
+      SELECT c.id
+      FROM courses c
+      WHERE c.id NOT IN (${placeholders})
+      ORDER BY c.id ASC
+      LIMIT ?
+    `,
+    [...excludedIds, missingCount]
+  );
+
+  return selectedIds.concat(fallbackRows.map((row) => row.id));
+}
+
+async function getCoursesByIds(courseIds) {
+  if (courseIds.length === 0) {
+    return [];
+  }
+
+  const placeholders = courseIds.map(() => "?").join(", ");
+  const query = buildCourseSelectQuery({
+    whereClauses: [`c.id IN (${placeholders})`],
+    params: courseIds,
+    orderBy: `FIELD(c.id, ${placeholders})`
+  });
+  const [rows] = await db.query(query.sql, [...query.params, ...courseIds]);
+
+  return rows.map(mapCourseRow);
+}
+
 function mapCourseRow(row) {
   return {
     id: row.id,
@@ -171,5 +228,18 @@ exports.getCourses = async (req, res) => {
     });
   } catch (error) {
     return sendError(res, 500, "Could not retrieve courses");
+  }
+};
+
+exports.getPopularCourses = async (req, res) => {
+  try {
+    const popularCourseIds = await getPopularCourseIds();
+    const courses = await getCoursesByIds(popularCourseIds);
+
+    return sendSuccess(res, 200, "Popular courses retrieved successfully", {
+      courses
+    });
+  } catch (error) {
+    return sendError(res, 500, "Could not retrieve popular courses");
   }
 };
