@@ -4,6 +4,7 @@ const { sendError, sendSuccess } = require("../utils/http");
 const DEFAULT_COURSE_ORDER = "c.id ASC";
 const MIN_POPULAR_COURSE_RESULTS = 6;
 const POPULAR_COURSE_LIMIT = 8;
+const RECOMMENDED_COURSE_LIMIT = 8;
 
 function normalizeText(value) {
   return typeof value === "string" ? value.trim() : "";
@@ -220,6 +221,22 @@ async function getCourseLessons(courseId) {
   return rows;
 }
 
+async function getUserInterestNames(userId) {
+  const [rows] = await db.query(
+    `
+      SELECT t.name
+      FROM user_interests ui
+      INNER JOIN tags t
+        ON t.id = ui.tag_id
+      WHERE ui.user_id = ?
+      ORDER BY t.name ASC
+    `,
+    [userId]
+  );
+
+  return rows.map((row) => row.name);
+}
+
 async function getUserEnrollmentForCourse(userId, courseId) {
   const [rows] = await db.query(
     `
@@ -250,6 +267,81 @@ async function getUserEnrollmentForCourse(userId, courseId) {
     isCompleted: enrollment.progress === 100,
     enrolledAt: enrollment.enrolledAt
   };
+}
+
+async function getRecommendedCourseIdsByInterests(userId) {
+  const [rows] = await db.query(
+    `
+      SELECT
+        c.id,
+        COUNT(DISTINCT ui.tag_id) AS matchedInterestsCount
+      FROM courses c
+      INNER JOIN course_tags ct
+        ON ct.course_id = c.id
+      INNER JOIN user_interests ui
+        ON ui.tag_id = ct.tag_id
+      WHERE ui.user_id = ?
+      GROUP BY c.id
+      ORDER BY matchedInterestsCount DESC, c.id ASC
+      LIMIT ?
+    `,
+    [userId, RECOMMENDED_COURSE_LIMIT]
+  );
+
+  return rows.map((row) => row.id);
+}
+
+async function getRelatedCourseIdsByTags(tagNames, excludedIds, limit) {
+  if (tagNames.length === 0 || limit <= 0) {
+    return [];
+  }
+
+  const tagPlaceholders = tagNames.map(() => "?").join(", ");
+  const excludedCourseIds = excludedIds.length > 0 ? excludedIds : [0];
+  const excludedPlaceholders = excludedCourseIds.map(() => "?").join(", ");
+  const [rows] = await db.query(
+    `
+      SELECT
+        c.id,
+        COUNT(DISTINCT t.id) AS matchedTagsCount
+      FROM courses c
+      INNER JOIN course_tags ct
+        ON ct.course_id = c.id
+      INNER JOIN tags t
+        ON t.id = ct.tag_id
+      WHERE t.name IN (${tagPlaceholders})
+        AND c.id NOT IN (${excludedPlaceholders})
+      GROUP BY c.id
+      ORDER BY matchedTagsCount DESC, c.id ASC
+      LIMIT ?
+    `,
+    [...tagNames, ...excludedCourseIds, limit]
+  );
+
+  return rows.map((row) => row.id);
+}
+
+async function completeCourseIdsWithPopular(courseIds, limit) {
+  if (courseIds.length >= limit) {
+    return courseIds.slice(0, limit);
+  }
+
+  const popularCourseIds = await getPopularCourseIds();
+  const uniqueCourseIds = [...courseIds];
+
+  for (const popularCourseId of popularCourseIds) {
+    if (uniqueCourseIds.includes(popularCourseId)) {
+      continue;
+    }
+
+    uniqueCourseIds.push(popularCourseId);
+
+    if (uniqueCourseIds.length >= limit) {
+      break;
+    }
+  }
+
+  return uniqueCourseIds;
 }
 
 function mapCourseRow(row) {
@@ -396,5 +488,30 @@ exports.getCourseLessons = async (req, res) => {
     });
   } catch (error) {
     return sendError(res, 500, "Could not retrieve course lessons");
+  }
+};
+
+exports.getRecommendedCourses = async (req, res) => {
+  try {
+    const interestNames = await getUserInterestNames(req.authUser.id);
+    const recommendedCourseIds = await getRecommendedCourseIdsByInterests(req.authUser.id);
+    const missingCount = RECOMMENDED_COURSE_LIMIT - recommendedCourseIds.length;
+    const relatedCourseIds = await getRelatedCourseIdsByTags(
+      interestNames,
+      recommendedCourseIds,
+      missingCount
+    );
+    const completedCourseIds = await completeCourseIdsWithPopular(
+      recommendedCourseIds.concat(relatedCourseIds),
+      RECOMMENDED_COURSE_LIMIT
+    );
+    const courses = await getCoursesByIds(completedCourseIds);
+
+    return sendSuccess(res, 200, "Recommended courses retrieved successfully", {
+      courses,
+      matchedInterests: interestNames
+    });
+  } catch (error) {
+    return sendError(res, 500, "Could not retrieve recommended courses");
   }
 };
