@@ -6,6 +6,7 @@ const { attachAuthUserIfPresent } = require("../middleware/auth.middleware");
 const router = express.Router();
 
 router.get("/popular", coursesController.getPopularCourses);
+router.get("/:id/lessons", coursesController.getCourseLessons);
 router.get("/:id", attachAuthUserIfPresent, coursesController.getCourseById);
 router.get("/", coursesController.getCourses);
 

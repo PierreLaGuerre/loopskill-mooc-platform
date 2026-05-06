@@ -45,6 +45,17 @@ function normalizePositiveInteger(value) {
   return null;
 }
 
+function getRequestedCourseId(req, res) {
+  const courseId = normalizePositiveInteger(req.params.id);
+
+  if (courseId == null) {
+    sendError(res, 400, "Course id must be a positive integer");
+    return null;
+  }
+
+  return courseId;
+}
+
 function buildCourseSelectQuery({ whereClauses = [], params = [], orderBy = DEFAULT_COURSE_ORDER } = {}) {
   const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
@@ -332,10 +343,10 @@ exports.getPopularCourses = async (req, res) => {
 };
 
 exports.getCourseById = async (req, res) => {
-  const courseId = normalizePositiveInteger(req.params.id);
+  const courseId = getRequestedCourseId(req, res);
 
   if (courseId == null) {
-    return sendError(res, 400, "Course id must be a positive integer");
+    return;
   }
 
   try {
@@ -361,5 +372,29 @@ exports.getCourseById = async (req, res) => {
     });
   } catch (error) {
     return sendError(res, 500, "Could not retrieve course");
+  }
+};
+
+exports.getCourseLessons = async (req, res) => {
+  const courseId = getRequestedCourseId(req, res);
+
+  if (courseId == null) {
+    return;
+  }
+
+  try {
+    const course = await getCourseById(courseId);
+
+    if (course == null) {
+      return sendError(res, 404, "Course not found");
+    }
+
+    const lessons = await getCourseLessons(courseId);
+
+    return sendSuccess(res, 200, "Course lessons retrieved successfully", {
+      lessons
+    });
+  } catch (error) {
+    return sendError(res, 500, "Could not retrieve course lessons");
   }
 };
