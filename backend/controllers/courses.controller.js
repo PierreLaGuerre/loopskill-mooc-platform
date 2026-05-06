@@ -35,6 +35,16 @@ function buildCourseListFilters(query) {
   };
 }
 
+function normalizePositiveInteger(value) {
+  const parsedValue = Number(value);
+
+  if (Number.isInteger(parsedValue) && parsedValue > 0) {
+    return parsedValue;
+  }
+
+  return null;
+}
+
 function buildCourseSelectQuery({ whereClauses = [], params = [], orderBy = DEFAULT_COURSE_ORDER } = {}) {
   const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
@@ -154,6 +164,83 @@ async function getCoursesByIds(courseIds) {
   return rows.map(mapCourseRow);
 }
 
+async function getCourseById(courseId) {
+  const query = buildCourseSelectQuery({
+    whereClauses: ["c.id = ?"],
+    params: [courseId]
+  });
+  const [rows] = await db.query(query.sql, query.params);
+
+  return rows.length > 0 ? mapCourseRow(rows[0]) : null;
+}
+
+async function getCourseOutcomes(courseId) {
+  const [rows] = await db.query(
+    `
+      SELECT outcome_text
+      FROM course_outcomes
+      WHERE course_id = ?
+      ORDER BY display_order ASC, id ASC
+    `,
+    [courseId]
+  );
+
+  return rows.map((row) => row.outcome_text);
+}
+
+async function getCourseLessons(courseId) {
+  const [rows] = await db.query(
+    `
+      SELECT
+        id,
+        course_id AS courseId,
+        title,
+        description,
+        duration,
+        video_url AS videoUrl,
+        display_order AS displayOrder
+      FROM lessons
+      WHERE course_id = ?
+      ORDER BY display_order ASC, id ASC
+    `,
+    [courseId]
+  );
+
+  return rows;
+}
+
+async function getUserEnrollmentForCourse(userId, courseId) {
+  const [rows] = await db.query(
+    `
+      SELECT
+        id,
+        user_id AS userId,
+        course_id AS courseId,
+        progress,
+        enrolled_at AS enrolledAt
+      FROM enrollments
+      WHERE user_id = ? AND course_id = ?
+      LIMIT 1
+    `,
+    [userId, courseId]
+  );
+
+  if (rows.length === 0) {
+    return null;
+  }
+
+  const enrollment = rows[0];
+
+  return {
+    id: enrollment.id,
+    userId: enrollment.userId,
+    courseId: enrollment.courseId,
+    progress: enrollment.progress,
+    isCompleted: enrollment.progress === 100,
+    enrolledAt: enrollment.enrolledAt
+  };
+}
+
 function mapCourseRow(row) {
   return {
     id: row.id,
@@ -241,5 +328,38 @@ exports.getPopularCourses = async (req, res) => {
     });
   } catch (error) {
     return sendError(res, 500, "Could not retrieve popular courses");
+  }
+};
+
+exports.getCourseById = async (req, res) => {
+  const courseId = normalizePositiveInteger(req.params.id);
+
+  if (courseId == null) {
+    return sendError(res, 400, "Course id must be a positive integer");
+  }
+
+  try {
+    const course = await getCourseById(courseId);
+
+    if (course == null) {
+      return sendError(res, 404, "Course not found");
+    }
+
+    const [outcomes, lessons, enrollment] = await Promise.all([
+      getCourseOutcomes(courseId),
+      getCourseLessons(courseId),
+      req.authUser != null
+        ? getUserEnrollmentForCourse(req.authUser.id, courseId)
+        : Promise.resolve(null)
+    ]);
+
+    return sendSuccess(res, 200, "Course retrieved successfully", {
+      course,
+      outcomes,
+      lessons,
+      enrollment
+    });
+  } catch (error) {
+    return sendError(res, 500, "Could not retrieve course");
   }
 };

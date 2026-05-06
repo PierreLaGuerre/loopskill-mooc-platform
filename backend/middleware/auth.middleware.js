@@ -34,35 +34,90 @@ async function getAuthenticatedUser(userId) {
   return rows[0] || null;
 }
 
-exports.verifyToken = async (req, res, next) => {
+async function authenticateRequest(req) {
   const token = getBearerToken(req.headers.authorization);
 
   if (!token) {
-    return sendError(res, 401, "A valid Bearer token is required");
+    return {
+      token: null,
+      authenticatedUser: null
+    };
   }
 
   if (typeof JWT_SECRET !== "string" || JWT_SECRET.trim() === "") {
-    return sendError(res, 500, "Authentication is not configured");
+    throw new Error("Authentication is not configured");
   }
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const authenticatedUser = await getAuthenticatedUser(decoded.id);
+  const decoded = jwt.verify(token, JWT_SECRET);
+  const authenticatedUser = await getAuthenticatedUser(decoded.id);
 
-    if (authenticatedUser == null) {
+  if (authenticatedUser == null) {
+    const error = new Error("Authenticated user no longer exists");
+    error.name = "MissingAuthenticatedUserError";
+    throw error;
+  }
+
+  return {
+    token,
+    authenticatedUser
+  };
+}
+
+function assignAuthentication(req, token, authenticatedUser) {
+  req.auth = {
+    token,
+    userId: authenticatedUser.id,
+    email: authenticatedUser.email,
+    role: authenticatedUser.role
+  };
+  req.authUser = authenticatedUser;
+}
+
+exports.verifyToken = async (req, res, next) => {
+  try {
+    const { token, authenticatedUser } = await authenticateRequest(req);
+
+    if (!token || authenticatedUser == null) {
+      return sendError(res, 401, "A valid Bearer token is required");
+    }
+
+    assignAuthentication(req, token, authenticatedUser);
+    next();
+  } catch (error) {
+    if (error.message === "Authentication is not configured") {
+      return sendError(res, 500, "Authentication is not configured");
+    }
+
+    if (error.name === "MissingAuthenticatedUserError") {
       return sendError(res, 401, "Authenticated user no longer exists");
     }
 
-    req.auth = {
-      token,
-      userId: authenticatedUser.id,
-      email: authenticatedUser.email,
-      role: authenticatedUser.role
-    };
-    req.authUser = authenticatedUser;
+    if (error.name === "TokenExpiredError") {
+      return sendError(res, 401, "Token expired");
+    }
+
+    return sendError(res, 401, "Invalid token");
+  }
+};
+
+exports.attachAuthUserIfPresent = async (req, res, next) => {
+  try {
+    const { token, authenticatedUser } = await authenticateRequest(req);
+
+    if (token != null && authenticatedUser != null) {
+      assignAuthentication(req, token, authenticatedUser);
+    }
 
     next();
   } catch (error) {
+    if (error.message === "Authentication is not configured") {
+      return sendError(res, 500, "Authentication is not configured");
+    }
+
+    if (error.name === "MissingAuthenticatedUserError") {
+      return sendError(res, 401, "Authenticated user no longer exists");
+    }
+
     if (error.name === "TokenExpiredError") {
       return sendError(res, 401, "Token expired");
     }
