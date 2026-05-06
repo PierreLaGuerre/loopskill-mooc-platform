@@ -12,6 +12,20 @@ function normalizePositiveInteger(value) {
   return null;
 }
 
+function normalizeProgressValue(value) {
+  const parsedValue = Number(value);
+
+  if (
+    Number.isInteger(parsedValue) &&
+    parsedValue >= 0 &&
+    parsedValue <= 100
+  ) {
+    return parsedValue;
+  }
+
+  return null;
+}
+
 function buildEnrollmentResponse(row) {
   return {
     id: row.id,
@@ -156,6 +170,19 @@ async function getEnrollmentsByUser(userId, progressFilter) {
   }));
 }
 
+async function updateEnrollmentProgress(userId, courseId, progress) {
+  await db.query(
+    `
+      UPDATE enrollments
+      SET progress = ?
+      WHERE user_id = ? AND course_id = ?
+    `,
+    [progress, userId, courseId]
+  );
+
+  return getEnrollmentByUserAndCourse(userId, courseId);
+}
+
 exports.createEnrollment = async (req, res) => {
   const courseId = normalizePositiveInteger(req.body.courseId);
 
@@ -236,5 +263,48 @@ exports.getMyCompletedEnrollments = async (req, res) => {
     });
   } catch (error) {
     return sendError(res, 500, "Could not retrieve completed enrollments");
+  }
+};
+
+exports.updateEnrollmentProgress = async (req, res) => {
+  const courseId = normalizePositiveInteger(req.params.courseId);
+  const progress = normalizeProgressValue(req.body.progress);
+
+  if (courseId == null) {
+    return sendError(res, 400, "Validation failed", {
+      courseId: "Course id must be a positive integer"
+    });
+  }
+
+  if (progress == null) {
+    return sendError(res, 400, "Validation failed", {
+      progress: "Progress must be an integer between 0 and 100"
+    });
+  }
+
+  try {
+    const course = await getCourseById(courseId);
+
+    if (course == null) {
+      return sendError(res, 404, "Course not found");
+    }
+
+    const existingEnrollment = await getEnrollmentByUserAndCourse(req.authUser.id, courseId);
+
+    if (existingEnrollment == null) {
+      return sendError(res, 404, "Enrollment not found");
+    }
+
+    const updatedEnrollment = await updateEnrollmentProgress(
+      req.authUser.id,
+      courseId,
+      progress
+    );
+
+    return sendSuccess(res, 200, "Enrollment progress updated successfully", {
+      enrollment: buildEnrollmentResponse(updatedEnrollment)
+    });
+  } catch (error) {
+    return sendError(res, 500, "Could not update enrollment progress");
   }
 };
