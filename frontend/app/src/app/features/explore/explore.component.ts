@@ -50,6 +50,8 @@ export class ExploreComponent implements OnInit, AfterViewInit {
   carouselStates: Record<string, ExploreCarouselState> = {};
 
   ngOnInit(): void {
+    this.loadAvailableCategories();
+
     this.route.queryParamMap.subscribe((params) => {
       this.selectedCategoryName = this.getSelectedCategoryName(params.get('category'));
       const category = this.selectedCategoryName === this.allCategoriesLabel
@@ -59,7 +61,6 @@ export class ExploreComponent implements OnInit, AfterViewInit {
       this.courseService.getCourses({ category }).subscribe({
         next: (courses) => {
           this.courses = courses;
-          this.syncCategoriesFromCourses();
           this.buildCategoryGroups();
           this.updateCarouselButtonsSoon();
         },
@@ -176,8 +177,21 @@ export class ExploreComponent implements OnInit, AfterViewInit {
     return matchedCategory?.name ?? this.allCategoriesLabel;
   }
 
-  private syncCategoriesFromCourses(): void {
-    const categoryNames = new Set(this.courses.map((course) => course.category));
+  private loadAvailableCategories(): void {
+    this.courseService.getCourses().subscribe({
+      next: (courses) => {
+        this.syncCategoriesFromCourses(courses);
+        this.buildCategoryGroups();
+        this.updateCarouselButtonsSoon();
+      },
+      error: () => {
+        this.categories = MOCK_CATEGORIES;
+      }
+    });
+  }
+
+  private syncCategoriesFromCourses(courses: Course[]): void {
+    const categoryNames = new Set(courses.map((course) => course.category));
     const knownCategories = MOCK_CATEGORIES.filter((category) => categoryNames.has(category.name));
     const knownCategoryNames = new Set(knownCategories.map((category) => category.name));
     const dynamicCategories = Array.from(categoryNames)
