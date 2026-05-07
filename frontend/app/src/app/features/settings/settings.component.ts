@@ -92,7 +92,7 @@ export class SettingsComponent implements OnInit {
   }
 
   loadCourses(): void {
-    const loadedCourses = this.courseService.getCourses();
+    const loadedCourses = this.courseService.getAdminCourses();
     this.courses = [...loadedCourses].sort((a, b) => a.title.localeCompare(b.title));
   }
 
@@ -184,7 +184,7 @@ export class SettingsComponent implements OnInit {
       .filter((tag) => tag !== '');
 
     if (this.isEditingCourse() == true && this.editingCourseId != null) {
-      const existingCourse = this.courseService.getCourseById(this.editingCourseId);
+      const existingCourse = this.courseService.getAdminCourseById(this.editingCourseId);
 
       if (existingCourse == null) {
         this.adminMessage = 'The selected course could not be found.';

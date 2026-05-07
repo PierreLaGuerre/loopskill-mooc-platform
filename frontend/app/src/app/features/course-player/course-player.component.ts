@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Course } from '../../core/models/course.model';
 import { Lesson } from '../../core/models/lesson.model';
 import { User } from '../../core/models/user.model';
@@ -22,6 +22,7 @@ export interface CoursePlayerLesson extends Lesson {
 })
 export class CoursePlayerComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private authService = inject(AuthService);
   private courseService = inject(CourseService);
   private enrollmentService = inject(EnrollmentService);
@@ -41,16 +42,25 @@ export class CoursePlayerComponent implements OnInit {
 
     if (courseIdParam != null) {
       const courseId = Number(courseIdParam);
-      this.course = this.courseService.getCourseById(courseId);
+      this.courseService.getCourseDetail(courseId).subscribe({
+        next: (detail) => {
+          if (detail.enrollment == null) {
+            this.router.navigate(['/courses', courseId]);
+            return;
+          }
 
-      if (this.course != null) {
-        const courseLessons = this.courseService.getLessonsByCourseId(courseId);
-        const currentProgress = this.getCurrentEnrollmentProgress(courseId);
-
-        this.lessons = this.buildCoursePlayerLessons(courseLessons, currentProgress);
-        this.activeLesson = this.lessons.length > 2 ? this.lessons[2] : this.lessons[0] ?? null;
-        this.updateActiveLessonView(this.activeLesson);
-      }
+          this.course = detail.course;
+          this.lessons = this.buildCoursePlayerLessons(detail.lessons, detail.enrollment.progress);
+          this.activeLesson = this.lessons.find((lesson) => lesson.isCompleted === false)
+            ?? this.lessons[0]
+            ?? null;
+          this.updateActiveLessonView(this.activeLesson);
+        },
+        error: () => {
+          this.course = null;
+          this.lessons = [];
+        }
+      });
     }
   }
 
@@ -99,25 +109,16 @@ export class CoursePlayerComponent implements OnInit {
     this.activeVideoUrl = this.getLessonVideoUrl(lesson);
   }
 
-  private getCurrentEnrollmentProgress(courseId: number): number {
-    if (this.user == null) {
-      return 0;
-    }
-
-    const enrollment = this.enrollmentService
-      .getUserEnrollments(this.user.id)
-      .find((item) => item.courseId === courseId);
-
-    return enrollment?.progress ?? 0;
-  }
-
   private saveCurrentProgress(): void {
     if (this.user == null || this.course == null) {
       return;
     }
 
     const completedLessonsCount = this.lessons.filter((lesson) => lesson.isCompleted).length;
-    const progress = Math.min(completedLessonsCount * 10, 100);
-    this.enrollmentService.updateEnrollmentProgress(this.user.id, this.course.id, progress);
+    const progress = this.lessons.length === 0
+      ? 0
+      : Math.round((completedLessonsCount / this.lessons.length) * 100);
+
+    this.enrollmentService.updateEnrollmentProgress(this.course.id, progress).subscribe();
   }
 }

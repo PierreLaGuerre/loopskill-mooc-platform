@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { of } from 'rxjs';
 
 import { CoursePlayerComponent } from './course-player.component';
 import { AuthService } from '../../core/services/auth.service';
@@ -8,7 +9,7 @@ import { EnrollmentService } from '../../core/services/enrollment.service';
 import { Course } from '../../core/models/course.model';
 import { Lesson } from '../../core/models/lesson.model';
 import { User } from '../../core/models/user.model';
-import { Enrollment } from '../../core/mocks/mock-enrollments';
+import { EnrollmentWithCourse } from '../../core/models/enrollment.model';
 
 describe('CoursePlayerComponent', () => {
   let component: CoursePlayerComponent;
@@ -16,6 +17,7 @@ describe('CoursePlayerComponent', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let courseServiceSpy: jasmine.SpyObj<CourseService>;
   let enrollmentServiceSpy: jasmine.SpyObj<EnrollmentService>;
+  let routerSpy: jasmine.SpyObj<Router>;
 
   const mockUser: User = {
     id: 1,
@@ -72,30 +74,33 @@ describe('CoursePlayerComponent', () => {
     }
   ];
 
-  const mockEnrollment: Enrollment = {
+  const mockEnrollment: EnrollmentWithCourse = {
     id: 1,
     userId: mockUser.id,
     courseId: mockCourse.id,
     progress: 20,
-    enrolledAt: '2026-03-08T17:21:07'
+    enrolledAt: '2026-03-08T17:21:07',
+    course: mockCourse
   };
 
   beforeEach(async () => {
     authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['getCurrentUser']);
     courseServiceSpy = jasmine.createSpyObj<CourseService>('CourseService', [
-      'getCourseById',
-      'getLessonsByCourseId'
+      'getCourseDetail'
     ]);
     enrollmentServiceSpy = jasmine.createSpyObj<EnrollmentService>('EnrollmentService', [
-      'getUserEnrollments',
       'updateEnrollmentProgress'
     ]);
+    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
 
     authServiceSpy.getCurrentUser.and.returnValue(mockUser);
-    courseServiceSpy.getCourseById.and.returnValue(mockCourse);
-    courseServiceSpy.getLessonsByCourseId.and.returnValue(mockLessons);
-    enrollmentServiceSpy.getUserEnrollments.and.returnValue([mockEnrollment]);
-    enrollmentServiceSpy.updateEnrollmentProgress.and.returnValue(true);
+    courseServiceSpy.getCourseDetail.and.returnValue(of({
+      course: mockCourse,
+      outcomes: [],
+      lessons: mockLessons,
+      enrollment: mockEnrollment
+    }));
+    enrollmentServiceSpy.updateEnrollmentProgress.and.returnValue(of(mockEnrollment));
 
     await TestBed.configureTestingModule({
       imports: [CoursePlayerComponent],
@@ -119,6 +124,10 @@ describe('CoursePlayerComponent', () => {
         {
           provide: EnrollmentService,
           useValue: enrollmentServiceSpy
+        },
+        {
+          provide: Router,
+          useValue: routerSpy
         }
       ]
     }).compileComponents();
@@ -138,7 +147,7 @@ describe('CoursePlayerComponent', () => {
     expect(component.lessons[2].isCompleted).toBeFalse();
   });
 
-  it('should select the third lesson by default when available', () => {
+  it('should select the first incomplete lesson by default when available', () => {
     expect(component.activeLesson).toEqual(component.lessons[2]);
     expect(component.activeVideoUrl).toBe('assets/videos/lesson-3.mp4');
   });
@@ -152,9 +161,8 @@ describe('CoursePlayerComponent', () => {
     expect(event.stopPropagation).toHaveBeenCalled();
     expect(component.lessons[2].isCompleted).toBeTrue();
     expect(enrollmentServiceSpy.updateEnrollmentProgress).toHaveBeenCalledWith(
-      mockUser.id,
       mockCourse.id,
-      30
+      100
     );
   });
 
@@ -165,9 +173,8 @@ describe('CoursePlayerComponent', () => {
 
     expect(component.lessons[1].isCompleted).toBeFalse();
     expect(enrollmentServiceSpy.updateEnrollmentProgress).toHaveBeenCalledWith(
-      mockUser.id,
       mockCourse.id,
-      10
+      33
     );
   });
 
@@ -181,17 +188,27 @@ describe('CoursePlayerComponent', () => {
   });
 
   it('should handle courses without an enrollment', () => {
-    enrollmentServiceSpy.getUserEnrollments.and.returnValue([]);
+    courseServiceSpy.getCourseDetail.and.returnValue(of({
+      course: mockCourse,
+      outcomes: [],
+      lessons: mockLessons,
+      enrollment: null
+    }));
 
     fixture = TestBed.createComponent(CoursePlayerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(component.lessons.every((lesson) => lesson.isCompleted === false)).toBeTrue();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/courses', mockCourse.id]);
   });
 
   it('should handle courses without lessons', () => {
-    courseServiceSpy.getLessonsByCourseId.and.returnValue([]);
+    courseServiceSpy.getCourseDetail.and.returnValue(of({
+      course: mockCourse,
+      outcomes: [],
+      lessons: [],
+      enrollment: mockEnrollment
+    }));
 
     fixture = TestBed.createComponent(CoursePlayerComponent);
     component = fixture.componentInstance;

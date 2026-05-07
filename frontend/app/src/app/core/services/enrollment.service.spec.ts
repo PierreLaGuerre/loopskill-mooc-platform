@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 
 import { EnrollmentService } from './enrollment.service';
 
@@ -8,7 +9,9 @@ describe('EnrollmentService', () => {
   beforeEach(() => {
     localStorage.clear();
 
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient()]
+    });
     service = TestBed.inject(EnrollmentService);
   });
 
@@ -17,7 +20,7 @@ describe('EnrollmentService', () => {
   });
 
   it('should update enrollment progress for a user course', () => {
-    const wasUpdated = service.updateEnrollmentProgress(1, 21, 80);
+    const wasUpdated = service.updateMockEnrollmentProgress(1, 21, 80);
     const enrollment = service
       .getUserEnrollments(1)
       .find((item) => item.courseId === 21);
@@ -27,14 +30,14 @@ describe('EnrollmentService', () => {
   });
 
   it('should clamp progress between 0 and 100', () => {
-    service.updateEnrollmentProgress(1, 21, 140);
+    service.updateMockEnrollmentProgress(1, 21, 140);
     let enrollment = service
       .getUserEnrollments(1)
       .find((item) => item.courseId === 21);
 
     expect(enrollment?.progress).toBe(100);
 
-    service.updateEnrollmentProgress(1, 21, -20);
+    service.updateMockEnrollmentProgress(1, 21, -20);
     enrollment = service
       .getUserEnrollments(1)
       .find((item) => item.courseId === 21);
@@ -43,7 +46,7 @@ describe('EnrollmentService', () => {
   });
 
   it('should return false when the enrollment does not exist', () => {
-    const wasUpdated = service.updateEnrollmentProgress(999, 999, 50);
+    const wasUpdated = service.updateMockEnrollmentProgress(999, 999, 50);
 
     expect(wasUpdated).toBeFalse();
   });

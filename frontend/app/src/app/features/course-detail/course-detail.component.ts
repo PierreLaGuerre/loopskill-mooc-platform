@@ -4,13 +4,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { Course } from '../../core/models/course.model';
 import { User } from '../../core/models/user.model';
-import { MOCK_COURSES } from '../../core/mocks/mock-courses';
 import { AuthService } from '../../core/services/auth.service';
+import { CourseService } from '../../core/services/course.service';
 import { EnrollmentService } from '../../core/services/enrollment.service';
-import {
-  CourseOutcome,
-  MOCK_COURSE_OUTCOMES
-} from '../../core/mocks/mock-course-outcomes';
+import { CourseOutcome } from '../../core/models/course.model';
+import { EnrollmentWithCourse } from '../../core/models/enrollment.model';
 
 @Component({
   selector: 'app-course-detail',
@@ -23,6 +21,7 @@ export class CourseDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private courseService = inject(CourseService);
   private enrollmentService = inject(EnrollmentService);
 
   course: Course | null = null;
@@ -30,6 +29,7 @@ export class CourseDetailComponent implements OnInit {
   currentUser: User | null = null;
   isEnrolled: boolean = false;
   hasAccess: boolean = false;
+  enrollment: EnrollmentWithCourse | null = null;
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
@@ -44,20 +44,22 @@ export class CourseDetailComponent implements OnInit {
 
     const courseId = Number(courseIdParam);
 
-    this.course = MOCK_COURSES.find((course) => course.id === courseId) || null;
-
-    if (this.course != null) {
-      this.courseOutcomes = MOCK_COURSE_OUTCOMES
-        .filter((outcome) => outcome.courseId === this.course!.id)
-        .sort((a, b) => a.displayOrder - b.displayOrder);
-
-      this.isEnrolled = this.checkIfEnrolled(this.course.id);
-      this.hasAccess = this.checkIfHasAccess(this.course.requiredPlan);
-    } else {
-      this.courseOutcomes = [];
-      this.isEnrolled = false;
-      this.hasAccess = false;
-    }
+    this.courseService.getCourseDetail(courseId).subscribe({
+      next: (detail) => {
+        this.course = detail.course;
+        this.courseOutcomes = detail.outcomes.sort((a, b) => a.displayOrder - b.displayOrder);
+        this.enrollment = detail.enrollment;
+        this.isEnrolled = detail.enrollment != null;
+        this.hasAccess = this.checkIfHasAccess(detail.course.requiredPlan);
+      },
+      error: () => {
+        this.course = null;
+        this.courseOutcomes = [];
+        this.enrollment = null;
+        this.isEnrolled = false;
+        this.hasAccess = false;
+      }
+    });
   }
 
   get ctaLabel(): string {
@@ -88,21 +90,17 @@ export class CourseDetailComponent implements OnInit {
     }
 
     if (this.hasAccess === true) {
-      this.enrollmentService.createEnrollment(this.currentUser.id, this.course.id);
-      this.isEnrolled = true;
-      this.router.navigate(['/courses', this.course.id, 'learn']);
+      this.enrollmentService.createEnrollment(this.course.id).subscribe({
+        next: (enrollment) => {
+          this.enrollment = enrollment;
+          this.isEnrolled = true;
+          this.router.navigate(['/courses', this.course!.id, 'learn']);
+        }
+      });
       return;
     }
 
     this.router.navigateByUrl('/plans');
-  }
-
-  private checkIfEnrolled(courseId: number): boolean {
-    if (this.currentUser == null) {
-      return false;
-    }
-
-    return this.enrollmentService.isUserEnrolledInCourse(this.currentUser.id, courseId);
   }
 
   private checkIfHasAccess(requiredPlan: string): boolean {

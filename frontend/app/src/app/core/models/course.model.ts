@@ -1,3 +1,6 @@
+import { EnrollmentWithCourse } from './enrollment.model';
+import { Lesson } from './lesson.model';
+
 export interface Course {
   id: number;
   title: string;
@@ -11,4 +14,18 @@ export interface Course {
   instructor: string;
   durationHours: number;
   lessonsCount: number;
+}
+
+export interface CourseOutcome {
+  id: number;
+  courseId: number;
+  text: string;
+  displayOrder: number;
+}
+
+export interface CourseDetailResponse {
+  course: Course;
+  outcomes: CourseOutcome[];
+  lessons: Lesson[];
+  enrollment: EnrollmentWithCourse | null;
 }

@@ -12,9 +12,9 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { MOCK_CATEGORIES } from '../../core/mocks/mock-categories';
-import { MOCK_COURSES } from '../../core/mocks/mock-courses';
 import { Category } from '../../core/models/category.model';
 import { Course } from '../../core/models/course.model';
+import { CourseService } from '../../core/services/course.service';
 import { CourseCardComponent } from '../../shared/components/course-card/course-card.component';
 
 interface ExploreCategoryGroup {
@@ -37,12 +37,14 @@ interface ExploreCarouselState {
 export class ExploreComponent implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private courseService = inject(CourseService);
 
   @ViewChildren('coursesTrack')
   private courseTracks?: QueryList<ElementRef<HTMLElement>>;
 
   readonly allCategoriesLabel = 'All categories';
   categories: Category[] = MOCK_CATEGORIES;
+  courses: Course[] = [];
   selectedCategoryName = this.allCategoriesLabel;
   categoryGroups: ExploreCategoryGroup[] = [];
   carouselStates: Record<string, ExploreCarouselState> = {};
@@ -50,8 +52,22 @@ export class ExploreComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
       this.selectedCategoryName = this.getSelectedCategoryName(params.get('category'));
-      this.buildCategoryGroups();
-      this.updateCarouselButtonsSoon();
+      const category = this.selectedCategoryName === this.allCategoriesLabel
+        ? null
+        : this.selectedCategoryName;
+
+      this.courseService.getCourses({ category }).subscribe({
+        next: (courses) => {
+          this.courses = courses;
+          this.syncCategoriesFromCourses();
+          this.buildCategoryGroups();
+          this.updateCarouselButtonsSoon();
+        },
+        error: () => {
+          this.courses = [];
+          this.categoryGroups = [];
+        }
+      });
     });
   }
 
@@ -70,8 +86,6 @@ export class ExploreComponent implements OnInit, AfterViewInit {
 
   selectCategory(categoryName: string): void {
     this.selectedCategoryName = categoryName;
-    this.buildCategoryGroups();
-    this.updateCarouselButtonsSoon();
 
     const queryParams = categoryName === this.allCategoriesLabel
       ? { category: null }
@@ -138,7 +152,7 @@ export class ExploreComponent implements OnInit, AfterViewInit {
       : this.categories.filter((category) => category.name === this.selectedCategoryName);
 
     this.categoryGroups = visibleCategories.map((category) => {
-      const courses = MOCK_COURSES
+      const courses = this.courses
         .filter((course) => course.category === category.name)
         .sort((a, b) => a.title.localeCompare(b.title));
 
@@ -160,6 +174,23 @@ export class ExploreComponent implements OnInit, AfterViewInit {
     );
 
     return matchedCategory?.name ?? this.allCategoriesLabel;
+  }
+
+  private syncCategoriesFromCourses(): void {
+    const categoryNames = new Set(this.courses.map((course) => course.category));
+    const knownCategories = MOCK_CATEGORIES.filter((category) => categoryNames.has(category.name));
+    const knownCategoryNames = new Set(knownCategories.map((category) => category.name));
+    const dynamicCategories = Array.from(categoryNames)
+      .filter((categoryName) => knownCategoryNames.has(categoryName) === false)
+      .sort((a, b) => a.localeCompare(b))
+      .map((categoryName, index) => ({
+        id: MOCK_CATEGORIES.length + index + 1,
+        name: categoryName,
+        description: `Courses about ${categoryName}.`,
+        icon: 'assets/images/categories/programming.png'
+      } as Category));
+
+    this.categories = [...knownCategories, ...dynamicCategories];
   }
 
   private updateAllCarouselButtons(): void {

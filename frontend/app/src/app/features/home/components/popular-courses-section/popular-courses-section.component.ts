@@ -11,10 +11,6 @@ import { CommonModule } from '@angular/common';
 import { CourseCardComponent } from '../../../../shared/components/course-card/course-card.component';
 import { Course } from '../../../../core/models/course.model';
 import { CourseService } from '../../../../core/services/course.service';
-import { EnrollmentService } from '../../../../core/services/enrollment.service';
-
-const MIN_HOME_COURSES = 6;
-const MAX_HOME_COURSES = 8;
 
 @Component({
   selector: 'app-popular-courses-section',
@@ -25,7 +21,6 @@ const MAX_HOME_COURSES = 8;
 })
 export class PopularCoursesSectionComponent implements OnInit, AfterViewInit {
   private courseService = inject(CourseService);
-  private enrollmentService = inject(EnrollmentService);
 
   @ViewChild('coursesTrack')
   private coursesTrack?: ElementRef<HTMLElement>;
@@ -36,7 +31,15 @@ export class PopularCoursesSectionComponent implements OnInit, AfterViewInit {
   canScrollRight = false;
 
   ngOnInit(): void {
-    this.popularCourses = this.getPopularCourses();
+    this.courseService.getPopularCourses().subscribe({
+      next: (courses) => {
+        this.popularCourses = courses;
+        setTimeout(() => this.updateScrollButtons());
+      },
+      error: () => {
+        this.popularCourses = [];
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -83,32 +86,4 @@ export class PopularCoursesSectionComponent implements OnInit, AfterViewInit {
     this.canScrollRight = track.scrollLeft < maxScrollLeft - 1;
   }
 
-  private getPopularCourses(): Course[] {
-    const courses = this.courseService.getCourses();
-    const coursesById = new Map<number, Course>(
-      courses.map((course) => [course.id, course])
-    );
-    const selectedCourseIds = new Set<number>();
-
-    const rankedCourses = this.enrollmentService
-      .getPopularCoursesByEnrollmentCount()
-      .map((item) => coursesById.get(item.courseId) ?? null)
-      .filter((course): course is Course => course != null)
-      .slice(0, MAX_HOME_COURSES);
-
-    rankedCourses.forEach((course) => {
-      selectedCourseIds.add(course.id);
-    });
-
-    if (rankedCourses.length >= MIN_HOME_COURSES) {
-      return rankedCourses;
-    }
-
-    const fallbackCourses = courses
-      .filter((course) => selectedCourseIds.has(course.id) === false)
-      .sort((a, b) => a.id - b.id)
-      .slice(0, MIN_HOME_COURSES - rankedCourses.length);
-
-    return [...rankedCourses, ...fallbackCourses];
-  }
 }
