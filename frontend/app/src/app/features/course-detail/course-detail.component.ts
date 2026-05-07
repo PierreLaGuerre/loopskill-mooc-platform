@@ -7,7 +7,6 @@ import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
 import { CourseService } from '../../core/services/course.service';
 import { EnrollmentService } from '../../core/services/enrollment.service';
-import { CourseOutcome } from '../../core/models/course.model';
 import { EnrollmentWithCourse } from '../../core/models/enrollment.model';
 
 @Component({
@@ -25,7 +24,7 @@ export class CourseDetailComponent implements OnInit {
   private enrollmentService = inject(EnrollmentService);
 
   course: Course | null = null;
-  courseOutcomes: CourseOutcome[] = [];
+  courseOutcomes: string[] = [];
   currentUser: User | null = null;
   isEnrolled: boolean = false;
   hasAccess: boolean = false;
@@ -49,7 +48,7 @@ export class CourseDetailComponent implements OnInit {
     this.courseService.getCourseDetail(courseId).subscribe({
       next: (detail) => {
         this.course = detail.course;
-        this.courseOutcomes = detail.outcomes.sort((a, b) => a.displayOrder - b.displayOrder);
+        this.courseOutcomes = detail.outcomes;
         this.enrollment = detail.enrollment;
         this.isEnrolled = detail.enrollment != null;
         this.hasAccess = this.checkIfHasAccess(detail.course.requiredPlan);

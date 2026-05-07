@@ -16,16 +16,9 @@ export interface Course {
   lessonsCount: number;
 }
 
-export interface CourseOutcome {
-  id: number;
-  courseId: number;
-  text: string;
-  displayOrder: number;
-}
-
 export interface CourseDetailResponse {
   course: Course;
-  outcomes: CourseOutcome[];
+  outcomes: string[];
   lessons: Lesson[];
   enrollment: EnrollmentWithCourse | null;
 }
