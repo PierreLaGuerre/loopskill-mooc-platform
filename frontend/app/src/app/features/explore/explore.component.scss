@@ -283,6 +283,28 @@
     font-size: 1.8rem;
   }
 
+  .explore-filters {
+    width: 100%;
+    align-items: center;
+    flex-direction: column;
+    overflow: visible;
+    gap: 10px;
+    padding: 0;
+  }
+
+  .explore-filter {
+    width: min(100%, 260px);
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) 24px;
+    justify-content: initial;
+    padding: 0 16px;
+  }
+
+  .explore-filter__check {
+    grid-column: 1;
+    justify-self: center;
+  }
+
   .explore-courses-track {
     grid-auto-flow: row;
     grid-auto-columns: initial;

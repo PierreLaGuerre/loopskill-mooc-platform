@@ -85,15 +85,14 @@
   <div class="navbar__mobile-menu" *ngIf="isMobileMenuOpen">
     <div class="navbar__mobile-divider"></div>
 
-    <div class="navbar__mobile-user">
+    <a class="navbar__mobile-user" routerLink="/settings" (click)="closeMobileMenu()" aria-label="Open user settings">
       <div class="navbar__mobile-avatar">{{ userInitial }}</div>
       <span class="navbar__mobile-name">{{ user?.name }}</span>
-    </div>
+    </a>
 
     <nav class="navbar__mobile-nav">
-      <a routerLink="/my-learnings" (click)="closeMobileMenu()">My Learning</a>
+      <a routerLink="/my-learning" (click)="closeMobileMenu()">My Learning</a>
       <a routerLink="/explore" (click)="closeMobileMenu()">Explore courses</a>
-      <a routerLink="/" fragment="categories" (click)="closeMobileMenu()">Explore categories</a>
       <a routerLink="/plans" (click)="closeMobileMenu()">Plans</a>
     </nav>
   </div>
