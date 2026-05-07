@@ -35,6 +35,7 @@ export class CoursePlayerComponent implements OnInit {
   activeVideoUrl = this.fallbackVideoUrl;
   activeLessonTitle = '';
   activeLessonDescription = '';
+  isLoading: boolean = true;
 
   ngOnInit(): void {
     this.user = this.authService.getCurrentUser();
@@ -55,12 +56,16 @@ export class CoursePlayerComponent implements OnInit {
             ?? this.lessons[0]
             ?? null;
           this.updateActiveLessonView(this.activeLesson);
+          this.isLoading = false;
         },
         error: () => {
           this.course = null;
           this.lessons = [];
+          this.isLoading = false;
         }
       });
+    } else {
+      this.isLoading = false;
     }
   }
 

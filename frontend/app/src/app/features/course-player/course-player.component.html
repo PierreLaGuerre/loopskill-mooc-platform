@@ -1,4 +1,4 @@
-<div class="course-player-page" *ngIf="course != null; else courseNotFound">
+<div class="course-player-page" *ngIf="course != null">
   <div class="course-player-layout">
     <section class="course-player-main">
       <div class="course-player-video-card">
@@ -74,7 +74,42 @@
   </div>
 </div>
 
-<ng-template #courseNotFound>
+<div class="course-player-page" *ngIf="isLoading === true" aria-busy="true">
+  <div class="course-player-layout">
+    <section class="course-player-main">
+      <div class="course-player-video-card">
+        <div class="course-player-video-shell course-player-skeleton-video"></div>
+      </div>
+
+      <div class="course-player-info-card">
+        <span class="course-player-skeleton course-player-skeleton--eyebrow"></span>
+        <span class="course-player-skeleton course-player-skeleton--title"></span>
+        <span class="course-player-skeleton course-player-skeleton--title course-player-skeleton--title-short"></span>
+        <div class="course-player-skeleton-row">
+          <span class="course-player-skeleton course-player-skeleton--chip"></span>
+          <span class="course-player-skeleton course-player-skeleton--chip"></span>
+        </div>
+        <span class="course-player-skeleton course-player-skeleton--text"></span>
+        <span class="course-player-skeleton course-player-skeleton--text course-player-skeleton--text-short"></span>
+      </div>
+    </section>
+
+    <aside class="course-player-sidebar">
+      <div class="course-player-sidebar__card">
+        <span class="course-player-skeleton course-player-skeleton--sidebar-title"></span>
+        <span class="course-player-skeleton course-player-skeleton--sidebar-subtitle"></span>
+        <div class="course-player-sidebar__list">
+          <span class="course-player-skeleton course-player-skeleton--lesson"></span>
+          <span class="course-player-skeleton course-player-skeleton--lesson"></span>
+          <span class="course-player-skeleton course-player-skeleton--lesson"></span>
+          <span class="course-player-skeleton course-player-skeleton--lesson"></span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<ng-container *ngIf="isLoading === false && course == null">
   <div class="course-player-empty">
     <h1>Course not found</h1>
     <p>
@@ -82,4 +117,4 @@
     </p>
     <a routerLink="/explore" class="course-player-empty__link">Go to Explore</a>
   </div>
-</ng-template>
+</ng-container>

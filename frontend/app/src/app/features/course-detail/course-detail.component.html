@@ -1,4 +1,4 @@
-<section class="course-detail-page" *ngIf="course != null; else courseNotFound">
+<section class="course-detail-page" *ngIf="course != null">
   <div class="course-detail-hero">
     <div class="course-detail-hero__content">
       <p class="course-detail-hero__category">
@@ -100,10 +100,38 @@
   </div>
 </section>
 
-<ng-template #courseNotFound>
+<section class="course-detail-page course-detail-page--loading" *ngIf="isLoading === true" aria-busy="true">
+  <div class="course-detail-hero">
+    <div class="course-detail-hero__content">
+      <span class="course-detail-skeleton course-detail-skeleton--eyebrow"></span>
+      <span class="course-detail-skeleton course-detail-skeleton--title"></span>
+      <span class="course-detail-skeleton course-detail-skeleton--title course-detail-skeleton--title-short"></span>
+      <span class="course-detail-skeleton course-detail-skeleton--text"></span>
+      <span class="course-detail-skeleton course-detail-skeleton--text course-detail-skeleton--text-short"></span>
+      <div class="course-detail-skeleton-row">
+        <span class="course-detail-skeleton course-detail-skeleton--chip"></span>
+        <span class="course-detail-skeleton course-detail-skeleton--chip"></span>
+      </div>
+      <span class="course-detail-skeleton course-detail-skeleton--button"></span>
+    </div>
+  </div>
+
+  <div class="course-detail-body">
+    <section class="course-detail-section">
+      <span class="course-detail-skeleton course-detail-skeleton--section-title"></span>
+      <div class="course-detail-overview">
+        <span class="course-detail-skeleton course-detail-skeleton--overview"></span>
+        <span class="course-detail-skeleton course-detail-skeleton--overview"></span>
+        <span class="course-detail-skeleton course-detail-skeleton--overview"></span>
+      </div>
+    </section>
+  </div>
+</section>
+
+<ng-container *ngIf="isLoading === false && course == null">
   <section class="course-detail-empty">
     <h1>Course not found</h1>
     <p>The course you are trying to access does not exist or is no longer available.</p>
     <a routerLink="/home" class="course-detail-empty__link">Back to home</a>
   </section>
-</ng-template>
+</ng-container>

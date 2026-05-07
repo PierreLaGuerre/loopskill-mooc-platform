@@ -298,6 +298,90 @@
   transform: translateY(-1px);
 }
 
+.course-player-skeleton,
+.course-player-skeleton-video {
+  display: block;
+  background: linear-gradient(90deg, #e8eee8 0%, #f6faf6 48%, #e8eee8 100%);
+  background-size: 220% 100%;
+  animation: course-player-skeleton-pulse 1.25s ease-in-out infinite;
+}
+
+.course-player-skeleton-video {
+  width: 100%;
+}
+
+.course-player-skeleton {
+  border-radius: 999px;
+}
+
+.course-player-skeleton--eyebrow {
+  width: 140px;
+  height: 18px;
+  margin-bottom: 14px;
+}
+
+.course-player-skeleton--title {
+  width: min(620px, 86%);
+  height: 34px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+}
+
+.course-player-skeleton--title-short {
+  width: min(420px, 62%);
+  margin-bottom: 18px;
+}
+
+.course-player-skeleton-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.course-player-skeleton--chip {
+  width: 110px;
+  height: 36px;
+}
+
+.course-player-skeleton--text {
+  width: min(680px, 92%);
+  height: 18px;
+  margin-bottom: 12px;
+}
+
+.course-player-skeleton--text-short {
+  width: min(520px, 72%);
+}
+
+.course-player-skeleton--sidebar-title {
+  width: 180px;
+  height: 26px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+}
+
+.course-player-skeleton--sidebar-subtitle {
+  width: 100px;
+  height: 18px;
+  margin-bottom: 18px;
+}
+
+.course-player-skeleton--lesson {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+}
+
+@keyframes course-player-skeleton-pulse {
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
+  }
+}
+
 @media (max-width: 1024px) {
   .course-player-layout {
     grid-template-columns: 1fr;

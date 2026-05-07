@@ -22,6 +22,7 @@ export class HeroSectionComponent implements OnInit {
   user: User | null = null;
   currentEnrollment: EnrollmentWithCourse | null = null;
   currentCourse: Course | null = null;
+  isLoadingHeroData: boolean = true;
 
   ngOnInit(): void {
     this.authService.getCurrentUserObservable().subscribe((user) => {
@@ -34,18 +35,23 @@ export class HeroSectionComponent implements OnInit {
     if (this.user == null) {
       this.currentEnrollment = null;
       this.currentCourse = null;
+      this.isLoadingHeroData = false;
       return;
     }
+
+    this.isLoadingHeroData = true;
 
     this.enrollmentService.getMyInProgressEnrollments().subscribe({
       next: (enrollments) => {
         this.currentEnrollment = enrollments
           .sort((a, b) => b.progress - a.progress)[0] || null;
         this.currentCourse = this.currentEnrollment?.course ?? null;
+        this.isLoadingHeroData = false;
       },
       error: () => {
         this.currentEnrollment = null;
         this.currentCourse = null;
+        this.isLoadingHeroData = false;
       }
     });
   }

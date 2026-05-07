@@ -306,6 +306,88 @@
   transform: translateY(-1px);
 }
 
+.course-detail-page--loading {
+  .course-detail-hero__content {
+    justify-content: flex-start;
+  }
+}
+
+.course-detail-skeleton {
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e8eee8 0%, #f6faf6 48%, #e8eee8 100%);
+  background-size: 220% 100%;
+  animation: course-detail-skeleton-pulse 1.25s ease-in-out infinite;
+}
+
+.course-detail-skeleton--eyebrow {
+  width: 150px;
+  height: 18px;
+  margin-bottom: 18px;
+}
+
+.course-detail-skeleton--title {
+  width: min(620px, 82%);
+  height: 48px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+}
+
+.course-detail-skeleton--title-short {
+  width: min(440px, 62%);
+  margin-bottom: 22px;
+}
+
+.course-detail-skeleton--text {
+  width: min(620px, 86%);
+  height: 18px;
+  margin-bottom: 12px;
+}
+
+.course-detail-skeleton--text-short {
+  width: min(500px, 70%);
+  margin-bottom: 22px;
+}
+
+.course-detail-skeleton-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.course-detail-skeleton--chip {
+  width: 110px;
+  height: 38px;
+}
+
+.course-detail-skeleton--button {
+  width: 210px;
+  height: 54px;
+  border-radius: 16px;
+}
+
+.course-detail-skeleton--section-title {
+  width: 220px;
+  height: 26px;
+  margin-bottom: 18px;
+  border-radius: 10px;
+}
+
+.course-detail-skeleton--overview {
+  height: 98px;
+  border-radius: 18px;
+}
+
+@keyframes course-detail-skeleton-pulse {
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
+  }
+}
+
 @media (max-width: 1024px) {
   .course-detail-hero__content {
     background-size: cover, 110%;

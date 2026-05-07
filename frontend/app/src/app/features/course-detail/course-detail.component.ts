@@ -30,6 +30,7 @@ export class CourseDetailComponent implements OnInit {
   isEnrolled: boolean = false;
   hasAccess: boolean = false;
   enrollment: EnrollmentWithCourse | null = null;
+  isLoading: boolean = true;
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
@@ -39,6 +40,7 @@ export class CourseDetailComponent implements OnInit {
     if (courseIdParam == null) {
       this.course = null;
       this.courseOutcomes = [];
+      this.isLoading = false;
       return;
     }
 
@@ -51,6 +53,7 @@ export class CourseDetailComponent implements OnInit {
         this.enrollment = detail.enrollment;
         this.isEnrolled = detail.enrollment != null;
         this.hasAccess = this.checkIfHasAccess(detail.course.requiredPlan);
+        this.isLoading = false;
       },
       error: () => {
         this.course = null;
@@ -58,6 +61,7 @@ export class CourseDetailComponent implements OnInit {
         this.enrollment = null;
         this.isEnrolled = false;
         this.hasAccess = false;
+        this.isLoading = false;
       }
     });
   }

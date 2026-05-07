@@ -1,6 +1,21 @@
 <section class="hero-section">
   <div class="hero-section__container">
 
+    <div class="hero-section__content hero-section__content--skeleton" *ngIf="isLoadingHeroData === true" aria-busy="true">
+      <div class="hero-section__main">
+        <span class="hero-section__skeleton hero-section__skeleton--title"></span>
+        <span class="hero-section__skeleton hero-section__skeleton--title hero-section__skeleton--title-short"></span>
+        <span class="hero-section__skeleton hero-section__skeleton--text"></span>
+        <span class="hero-section__skeleton hero-section__skeleton--button"></span>
+      </div>
+
+      <div class="hero-section__side-card">
+        <span class="hero-section__skeleton hero-section__skeleton--cover"></span>
+        <span class="hero-section__skeleton hero-section__skeleton--progress"></span>
+      </div>
+    </div>
+
+    <ng-container *ngIf="isLoadingHeroData === false">
     <ng-container *ngIf="currentEnrollment; else onboardingHero">
       <div class="hero-section__content hero-section__content--learning">
         <div class="hero-section__main">
@@ -80,6 +95,7 @@
         </div>
       </div>
     </ng-template>
+    </ng-container>
 
   </div>
 </section>
