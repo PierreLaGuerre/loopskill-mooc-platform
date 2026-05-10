@@ -1,0 +1,394 @@
+.fake-facebook-page {
+  min-height: 100vh;
+  background: #eef0f3;
+  color: #050505;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.fake-facebook-topbar {
+  height: 56px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-bottom: 1px solid #dddfe2;
+}
+
+.fake-facebook-logo {
+  color: #1877f2;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.fake-facebook-login {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fake-facebook-input {
+  width: 190px;
+  height: 40px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccd0d5;
+  border-radius: 6px;
+  color: #606770;
+  font-size: 0.9rem;
+  background: #ffffff;
+}
+
+.fake-facebook-login-button,
+.fake-facebook-signup button {
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 6px;
+  background: #1877f2;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.fake-facebook-help {
+  color: #1877f2;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.fake-facebook-profile {
+  max-width: 940px;
+  margin: 0 auto;
+  background: #ffffff;
+}
+
+.fake-facebook-cover {
+  height: 350px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 8px 8px;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(12, 92, 45, 0.88) 0%, rgba(79, 179, 67, 0.78) 42%, rgba(233, 248, 232, 0.62) 100%),
+    url('/assets/images/course-detail-hero-bg.png');
+  background-size: cover, cover;
+  background-position: center, center;
+}
+
+.fake-facebook-cover__content {
+  position: absolute;
+  inset: 0;
+  padding: 54px 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.fake-facebook-cover h1 {
+  margin: 0 0 12px;
+  max-width: 560px;
+  font-family: 'Sora', Arial, sans-serif;
+  font-size: 3.2rem;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.fake-facebook-cover p {
+  margin: 0;
+  max-width: 500px;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.fake-facebook-identity {
+  min-height: 130px;
+  padding: 0 32px 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  border-bottom: 1px solid #dadde1;
+  position: relative;
+  z-index: 2;
+}
+
+.fake-facebook-avatar {
+  width: 168px;
+  height: 168px;
+  margin-top: -96px;
+  border: 5px solid #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(5, 5, 5, 0.16);
+  flex-shrink: 0;
+}
+
+.fake-facebook-avatar span {
+  color: #4fb343;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8.2rem;
+  font-weight: 700;
+  line-height: 0.8;
+}
+
+.fake-facebook-title-block h2 {
+  margin: 0 0 6px;
+  font-size: 2rem;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.fake-facebook-title-block p {
+  margin: 0;
+  color: #65676b;
+  font-weight: 600;
+}
+
+.fake-facebook-verified {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1877f2;
+  color: #ffffff;
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+
+.fake-facebook-tabs {
+  height: 60px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+}
+
+.fake-facebook-tab,
+.fake-facebook-more {
+  height: 46px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  color: #65676b;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.fake-facebook-tab--active {
+  color: #1877f2;
+  border-bottom: 3px solid #1877f2;
+  border-radius: 0;
+}
+
+.fake-facebook-more {
+  margin-left: auto;
+  background: #e4e6eb;
+  color: #050505;
+}
+
+.fake-facebook-feed {
+  padding: 16px 0 150px;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+  background: #eef0f3;
+}
+
+.fake-facebook-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+}
+
+.fake-facebook-details {
+  padding: 18px;
+}
+
+.fake-facebook-details h3 {
+  margin: 0 0 14px;
+  font-size: 1.25rem;
+}
+
+.fake-facebook-details p {
+  margin: 0 0 16px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.fake-facebook-detail-row {
+  padding: 12px 0;
+  border-top: 1px solid #dadde1;
+  color: #65676b;
+  font-weight: 600;
+}
+
+.fake-facebook-post {
+  padding: 12px;
+}
+
+.fake-facebook-post__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fake-facebook-post__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 2px solid #4fb343;
+}
+
+.fake-facebook-post__avatar span {
+  color: #4fb343;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 0.8;
+}
+
+.fake-facebook-post__header h3,
+.fake-facebook-post__header p {
+  margin: 0;
+}
+
+.fake-facebook-post__header h3 {
+  font-size: 0.95rem;
+}
+
+.fake-facebook-post__header p {
+  color: #65676b;
+  font-size: 0.85rem;
+}
+
+.fake-facebook-post__menu {
+  margin-left: auto;
+  color: #65676b;
+  font-weight: 700;
+}
+
+.fake-facebook-post__text {
+  margin: 18px 0;
+  font-size: 1.55rem;
+  line-height: 1.22;
+}
+
+.fake-facebook-post__stats,
+.fake-facebook-post__actions {
+  display: flex;
+  justify-content: space-between;
+  color: #65676b;
+  font-size: 0.9rem;
+}
+
+.fake-facebook-post__actions {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #dadde1;
+  font-weight: 700;
+}
+
+.fake-facebook-signup {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 22px 24px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.12);
+  text-align: center;
+  z-index: 5;
+}
+
+.fake-facebook-signup strong {
+  display: block;
+  margin-bottom: 16px;
+  font-size: 1.45rem;
+}
+
+.fake-facebook-signup__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.fake-facebook-signup__create {
+  background: #42b72a !important;
+}
+
+  @media (max-width: 800px) {
+  .fake-facebook-topbar {
+    height: auto;
+    padding: 14px 18px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .fake-facebook-login {
+    display: none;
+  }
+
+  .fake-facebook-profile {
+    max-width: 100%;
+  }
+
+  .fake-facebook-cover {
+    height: 280px;
+  }
+
+  .fake-facebook-cover__content {
+    padding: 36px 24px;
+  }
+
+  .fake-facebook-cover h1 {
+    font-size: 2.35rem;
+  }
+
+  .fake-facebook-identity {
+    padding: 0 18px 18px;
+    align-items: center;
+  }
+
+  .fake-facebook-avatar {
+    width: 112px;
+    height: 112px;
+    margin-top: -60px;
+  }
+
+  .fake-facebook-avatar span {
+    font-size: 5.4rem;
+  }
+
+  .fake-facebook-title-block h2 {
+    font-size: 1.55rem;
+  }
+
+  .fake-facebook-tabs {
+    padding: 0 12px;
+    overflow-x: auto;
+  }
+
+  .fake-facebook-feed {
+    grid-template-columns: 1fr;
+    padding: 12px 12px 170px;
+  }
+
+  .fake-facebook-signup strong {
+    font-size: 1.05rem;
+  }
+}

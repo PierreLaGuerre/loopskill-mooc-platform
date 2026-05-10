@@ -43,7 +43,15 @@ export class AppComponent {
   }
 
   private updateLayoutVisibility(url: string): void {
-    if (url.startsWith('/auth') || url.startsWith('/onboarding')) {
+    if (
+      url.startsWith('/auth') ||
+      url.startsWith('/onboarding') ||
+      url.startsWith('/loopskill-facebook') ||
+      url.startsWith('/loopskill-instagram') ||
+      url.startsWith('/loopskill-linkedin') ||
+      url.startsWith('/loopskill-x') ||
+      url.startsWith('/loopskill-youtube')
+    ) {
       this.hideLayout = true;
     } else {
       this.hideLayout = false;

@@ -9,11 +9,21 @@ import { ExploreComponent } from './features/explore/explore.component';
 import { InterestsOnboardingComponent } from './features/onboarding/interests-onboarding/interests-onboarding.component';
 import { SettingsComponent } from './features/settings/settings.component';
 import { CoursePlayerComponent } from './features/course-player/course-player.component';
+import { FakeFacebookComponent } from './features/fake-socials/fake-facebook/fake-facebook.component';
+import { FakeInstagramComponent } from './features/fake-socials/fake-instagram/fake-instagram.component';
+import { FakeLinkedinComponent } from './features/fake-socials/fake-linkedin/fake-linkedin.component';
+import { FakeXComponent } from './features/fake-socials/fake-x/fake-x.component';
+import { FakeYoutubeComponent } from './features/fake-socials/fake-youtube/fake-youtube.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'auth', pathMatch: 'full' },
   { path: 'auth', component: AuthComponent },
+  { path: 'loopskill-facebook', component: FakeFacebookComponent },
+  { path: 'loopskill-instagram', component: FakeInstagramComponent },
+  { path: 'loopskill-linkedin', component: FakeLinkedinComponent },
+  { path: 'loopskill-x', component: FakeXComponent },
+  { path: 'loopskill-youtube', component: FakeYoutubeComponent },
 
   {
     path: 'onboarding/interests',
