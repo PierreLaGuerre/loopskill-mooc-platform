@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 import { AuthService } from '../../core/services/auth.service';
 import { EnrollmentService } from '../../core/services/enrollment.service';
@@ -26,6 +28,7 @@ export class UserPageComponent implements OnInit {
 
   user: User | null = null;
   activeTab: 'in-progress' | 'completed' = 'in-progress';
+  isLoadingLearnings: boolean = true;
 
   inProgressCourses: UserLearningItem[] = [];
   completedCourses: UserLearningItem[] = [];
@@ -45,26 +48,24 @@ export class UserPageComponent implements OnInit {
     if (this.user == null) {
       this.inProgressCourses = [];
       this.completedCourses = [];
+      this.isLoadingLearnings = false;
       return;
     }
 
-    this.enrollmentService.getMyInProgressEnrollments().subscribe({
-      next: (enrollments) => {
-        this.inProgressCourses = this.toLearningItems(enrollments)
-          .sort((a, b) => b.enrollment.progress - a.enrollment.progress);
-      },
-      error: () => {
-        this.inProgressCourses = [];
-      }
-    });
+    this.isLoadingLearnings = true;
 
-    this.enrollmentService.getMyCompletedEnrollments().subscribe({
-      next: (enrollments) => {
-        this.completedCourses = this.toLearningItems(enrollments)
+    forkJoin({
+      inProgress: this.enrollmentService.getMyInProgressEnrollments().pipe(catchError(() => of([]))),
+      completed: this.enrollmentService.getMyCompletedEnrollments().pipe(catchError(() => of([])))
+    }).subscribe({
+      next: ({ inProgress, completed }) => {
+        this.inProgressCourses = this.toLearningItems(inProgress)
+          .sort((a, b) => b.enrollment.progress - a.enrollment.progress);
+        this.completedCourses = this.toLearningItems(completed)
           .sort((a, b) => b.enrollment.id - a.enrollment.id);
       },
-      error: () => {
-        this.completedCourses = [];
+      complete: () => {
+        this.isLoadingLearnings = false;
       }
     });
   }

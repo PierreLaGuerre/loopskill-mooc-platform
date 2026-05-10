@@ -20,7 +20,23 @@
             </button>
         </div>
 
-        <ng-container *ngIf="activeTab === 'in-progress'">
+        <div class="user-page__list" *ngIf="isLoadingLearnings === true" aria-busy="true">
+            <article class="learning-card learning-card--skeleton" *ngFor="let item of [1, 2, 3]">
+                <span class="learning-card__skeleton learning-card__skeleton--image"></span>
+
+                <div class="learning-card__content">
+                    <span class="learning-card__skeleton learning-card__skeleton--title"></span>
+                    <span class="learning-card__skeleton learning-card__skeleton--meta"></span>
+                    <span class="learning-card__skeleton learning-card__skeleton--meta learning-card__skeleton--short"></span>
+                </div>
+
+                <div class="learning-card__actions">
+                    <span class="learning-card__skeleton learning-card__skeleton--button"></span>
+                </div>
+            </article>
+        </div>
+
+        <ng-container *ngIf="isLoadingLearnings === false && activeTab === 'in-progress'">
             <div class="user-page__list" *ngIf="inProgressCourses.length > 0; else noInProgressCourses">
                 <article class="learning-card" *ngFor="let item of inProgressCourses">
                     <div class="learning-card__image-wrapper">
@@ -52,7 +68,7 @@
             </div>
         </ng-container>
 
-        <ng-container *ngIf="activeTab === 'completed'">
+        <ng-container *ngIf="isLoadingLearnings === false && activeTab === 'completed'">
             <div class="user-page__list" *ngIf="completedCourses.length > 0; else noCompletedCourses">
                 <article class="learning-card" *ngFor="let item of completedCourses">
                     <div class="learning-card__image-wrapper">

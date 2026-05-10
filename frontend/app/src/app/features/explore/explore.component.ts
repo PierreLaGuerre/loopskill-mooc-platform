@@ -43,6 +43,19 @@ export class ExploreComponent implements OnInit, AfterViewInit {
   private courseTracks?: QueryList<ElementRef<HTMLElement>>;
 
   readonly allCategoriesLabel = 'All categories';
+  private readonly courseLevelOrder: Record<string, number> = {
+    beginner: 1,
+    intermediate: 2,
+    advanced: 3
+  };
+  private readonly programmingFamilyOrder: Record<string, number> = {
+    python: 1,
+    react: 2,
+    angular: 3,
+    java: 4,
+    nodejs: 5
+  };
+
   categories: Category[] = MOCK_CATEGORIES;
   courses: Course[] = [];
   selectedCategoryName = this.allCategoriesLabel;
@@ -155,11 +168,11 @@ export class ExploreComponent implements OnInit, AfterViewInit {
     this.categoryGroups = visibleCategories.map((category) => {
       const courses = this.courses
         .filter((course) => course.category === category.name)
-        .sort((a, b) => a.title.localeCompare(b.title));
+        .sort((a, b) => this.compareCoursesForDisplay(a, b, category.name));
 
       return {
         category: category,
-        courses: courses
+        courses: this.separateRepeatedCourseFamilies(courses)
       };
     });
   }
@@ -175,6 +188,77 @@ export class ExploreComponent implements OnInit, AfterViewInit {
     );
 
     return matchedCategory?.name ?? this.allCategoriesLabel;
+  }
+
+  private compareCoursesForDisplay(
+    firstCourse: Course,
+    secondCourse: Course,
+    categoryName: string
+  ): number {
+    if (categoryName === 'Programming') {
+      const firstFamilyOrder = this.getProgrammingFamilyOrder(firstCourse);
+      const secondFamilyOrder = this.getProgrammingFamilyOrder(secondCourse);
+
+      if (firstFamilyOrder !== secondFamilyOrder) {
+        return firstFamilyOrder - secondFamilyOrder;
+      }
+    }
+
+    const firstLevelOrder = this.getCourseLevelOrder(firstCourse.level);
+    const secondLevelOrder = this.getCourseLevelOrder(secondCourse.level);
+
+    if (firstLevelOrder !== secondLevelOrder) {
+      return firstLevelOrder - secondLevelOrder;
+    }
+
+    return firstCourse.title.localeCompare(secondCourse.title);
+  }
+
+  private getProgrammingFamilyOrder(course: Course): number {
+    const family = this.getCourseFamily(course);
+
+    return this.programmingFamilyOrder[family] ?? Number.MAX_SAFE_INTEGER;
+  }
+
+  private separateRepeatedCourseFamilies(courses: Course[]): Course[] {
+    const reorderedCourses = [...courses];
+
+    for (let index = 1; index < reorderedCourses.length; index++) {
+      const currentFamily = this.getCourseFamily(reorderedCourses[index]);
+      const previousFamily = this.getCourseFamily(reorderedCourses[index - 1]);
+
+      if (currentFamily !== previousFamily) {
+        continue;
+      }
+
+      const replacementIndex = reorderedCourses.findIndex((course, candidateIndex) => (
+        candidateIndex > index &&
+        this.getCourseFamily(course) !== previousFamily &&
+        this.getCourseFamily(course) !== this.getCourseFamily(reorderedCourses[index + 1] ?? course)
+      ));
+
+      if (replacementIndex !== -1) {
+        const replacementCourse = reorderedCourses[replacementIndex];
+        reorderedCourses[replacementIndex] = reorderedCourses[index];
+        reorderedCourses[index] = replacementCourse;
+      }
+    }
+
+    return reorderedCourses;
+  }
+
+  private getCourseFamily(course: Course): string {
+    const firstTag = course.tags[0];
+
+    if (firstTag != null && firstTag.trim() !== '') {
+      return firstTag.trim().toLowerCase();
+    }
+
+    return course.title.split(' ')[0].trim().toLowerCase();
+  }
+
+  private getCourseLevelOrder(level: string): number {
+    return this.courseLevelOrder[level.trim().toLowerCase()] ?? Number.MAX_SAFE_INTEGER;
   }
 
   private loadAvailableCategories(): void {

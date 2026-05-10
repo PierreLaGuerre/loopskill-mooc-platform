@@ -2,7 +2,7 @@
   width: 100%;
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
-  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+  font-family: 'Sora', Arial, sans-serif;
   position: relative;
   z-index: 110;
 }
@@ -59,7 +59,7 @@
   outline: none;
   padding: 0.65rem 1rem;
   font-size: 0.92rem;
-  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+  font-family: 'Sora', Arial, sans-serif;
   color: #374151;
 }
 
@@ -100,7 +100,7 @@
   color: #374151;
   font-weight: 500;
   font-size: 1rem;
-  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+  font-family: 'Sora', Arial, sans-serif;
   white-space: nowrap;
   transition: color 0.2s ease;
 }
@@ -114,6 +114,7 @@
   display: flex;
   align-items: center;
   justify-self: end;
+  margin-right: -2rem;
 }
 
 .navbar__profile-avatar {
@@ -128,7 +129,7 @@
   justify-content: center;
   font-weight: 700;
   font-size: 1rem;
-  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+  font-family: 'Sora', Arial, sans-serif;
   line-height: 1;
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
@@ -196,7 +197,7 @@
   font-size: 1.1rem;
   font-weight: 700;
   color: #111827;
-  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+  font-family: 'Sora', Arial, sans-serif;
 }
 
 .search-modal__close {
@@ -211,7 +212,7 @@
   margin: 0;
   color: #6b7280;
   font-size: 0.95rem;
-  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+  font-family: 'Sora', Arial, sans-serif;
 }
 
 .search-results {
@@ -255,7 +256,7 @@
   font-size: 1rem;
   font-weight: 600;
   color: #111827;
-  font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+  font-family: 'Sora', Arial, sans-serif;
 }
 
 @media (max-width: 768px) {
@@ -325,14 +326,14 @@
     justify-content: center;
     font-weight: 700;
     font-size: 1rem;
-    font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+    font-family: 'Sora', Arial, sans-serif;
   }
 
   .navbar__mobile-name {
     font-size: 1rem;
     font-weight: 600;
     color: #111827;
-    font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+    font-family: 'Sora', Arial, sans-serif;
   }
 
   .navbar__mobile-nav {
@@ -345,7 +346,7 @@
     color: #1f2937;
     font-size: 1rem;
     font-weight: 500;
-    font-family: 'Montserrat', 'Poppins', Arial, sans-serif;
+    font-family: 'Sora', Arial, sans-serif;
     padding: 0.9rem 0;
     border-bottom: 1px solid #f1f5f9;
   }
