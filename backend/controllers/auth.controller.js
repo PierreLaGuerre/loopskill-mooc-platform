@@ -69,6 +69,16 @@ function normalizeClientType(value) {
   return CLIENT_TYPE_MAP[normalizedValue] || null;
 }
 
+function normalizePositiveInteger(value) {
+  const parsedValue = Number(value);
+
+  if (Number.isInteger(parsedValue) && parsedValue > 0) {
+    return parsedValue;
+  }
+
+  return null;
+}
+
 function normalizeInterestNames(interests) {
   if (Array.isArray(interests) === false) {
     return [];
@@ -108,8 +118,29 @@ function buildToken(user) {
 
 async function getUserById(userId) {
   const [rows] = await db.query(
-    "SELECT id, name, email, role, client_type, plan_id FROM users WHERE id = ? LIMIT 1",
+    `SELECT
+       u.id,
+       u.name,
+       u.email,
+       u.role,
+       u.client_type,
+       u.plan_id,
+       p.name AS plan_name
+     FROM users u
+     LEFT JOIN plans p
+       ON p.id = u.plan_id
+     WHERE u.id = ?
+     LIMIT 1`,
     [userId]
+  );
+
+  return rows[0] || null;
+}
+
+async function getPlanById(planId) {
+  const [rows] = await db.query(
+    "SELECT id, name, price, description FROM plans WHERE id = ? LIMIT 1",
+    [planId]
   );
 
   return rows[0] || null;
@@ -275,6 +306,16 @@ function validateInterestsInput(interests) {
   return {};
 }
 
+function validatePlanUpdateInput(planId) {
+  if (planId == null) {
+    return {
+      planId: "Plan id must be a positive integer"
+    };
+  }
+
+  return {};
+}
+
 async function getInterestRowsByNames(connection, interests) {
   if (interests.length === 0) {
     return [];
@@ -297,6 +338,12 @@ function buildUserResponse(user, interests) {
     role: user.role,
     clientType: user.client_type,
     planId: user.plan_id,
+    plan: user.plan_name == null
+      ? null
+      : {
+          id: user.plan_id,
+          name: user.plan_name
+        },
     interests
   };
 }
@@ -411,7 +458,14 @@ exports.login = async (req, res) => {
 
   try {
     const [rows] = await db.query(
-      "SELECT * FROM users WHERE LOWER(email) = ? LIMIT 1",
+      `SELECT
+         u.*,
+         p.name AS plan_name
+       FROM users u
+       LEFT JOIN plans p
+         ON p.id = u.plan_id
+       WHERE LOWER(u.email) = ?
+       LIMIT 1`,
       [email]
     );
 
@@ -449,13 +503,14 @@ exports.getSession = (req, res) => {
 
 exports.getMe = async (req, res) => {
   try {
+    const user = await getUserById(req.authUser.id);
     const interests = await getUserInterests(req.authUser.id);
 
     return sendUserResponse(
       res,
       200,
       "Authenticated user retrieved successfully",
-      buildUserResponse(req.authUser, interests)
+      buildUserResponse(user, interests)
     );
   } catch (error) {
     return sendError(res, 500, "Could not retrieve authenticated user");
@@ -606,6 +661,40 @@ exports.updateInterests = async (req, res) => {
     if (connection != null) {
       connection.release();
     }
+  }
+};
+
+exports.updatePlan = async (req, res) => {
+  const planId = normalizePositiveInteger(req.body.planId ?? req.body.plan_id);
+  const validationErrors = validatePlanUpdateInput(planId);
+
+  if (hasValidationErrors(validationErrors)) {
+    return sendError(res, 400, "Validation failed", validationErrors);
+  }
+
+  try {
+    const plan = await getPlanById(planId);
+
+    if (plan == null) {
+      return sendError(res, 404, "Plan not found");
+    }
+
+    await db.query(
+      "UPDATE users SET plan_id = ? WHERE id = ?",
+      [plan.id, req.authUser.id]
+    );
+
+    const updatedUser = await getUserById(req.authUser.id);
+    const interests = await getUserInterests(req.authUser.id);
+
+    return sendUserResponse(
+      res,
+      200,
+      "Plan updated successfully",
+      buildUserResponse(updatedUser, interests)
+    );
+  } catch (error) {
+    return sendError(res, 500, "Could not update plan");
   }
 };
 

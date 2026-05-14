@@ -11,6 +11,7 @@ router.get("/me", verifyToken, authController.getMe);
 router.patch("/profile", verifyToken, authController.updateProfile);
 router.patch("/password", verifyToken, authController.changePassword);
 router.patch("/interests", verifyToken, authController.updateInterests);
+router.patch("/plan", verifyToken, authController.updatePlan);
 router.get("/session", verifyToken, authController.getSession);
 router.get("/admin-access", verifyToken, requireRole("admin"), authController.getAdminAccess);
 
