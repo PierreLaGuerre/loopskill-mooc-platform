@@ -1,6 +1,7 @@
 const db = require("../config/db");
 const { sendError, sendSuccess } = require("../utils/http");
 const { isDuplicateEntryError } = require("../utils/db-errors");
+const { buildCourseAccess } = require("../utils/plan-access");
 
 function normalizePositiveInteger(value) {
   const parsedValue = Number(value);
@@ -44,6 +45,7 @@ function mapCourseFromEnrollmentRow(row) {
     description: row.courseDescription,
     category: row.courseCategory,
     level: row.courseLevel,
+    requiredPlanId: row.courseRequiredPlanId,
     requiredPlan: row.courseRequiredPlan,
     image: row.courseImage,
     tags: row.courseTags === "" ? [] : row.courseTags.split("|||"),
@@ -56,7 +58,15 @@ function mapCourseFromEnrollmentRow(row) {
 
 async function getCourseById(courseId) {
   const [rows] = await db.query(
-    "SELECT id FROM courses WHERE id = ? LIMIT 1",
+    `SELECT
+       c.id,
+       c.required_plan_id AS requiredPlanId,
+       p.name AS requiredPlan
+     FROM courses c
+     LEFT JOIN plans p
+       ON p.id = c.required_plan_id
+     WHERE c.id = ?
+     LIMIT 1`,
     [courseId]
   );
 
@@ -107,6 +117,7 @@ async function getEnrollmentsByUser(userId, progressFilter) {
         COALESCE(c.description, c.short_description) AS courseDescription,
         category.name AS courseCategory,
         c.level AS courseLevel,
+        c.required_plan_id AS courseRequiredPlanId,
         plan.name AS courseRequiredPlan,
         c.cover_image AS courseImage,
         COALESCE(
@@ -154,6 +165,7 @@ async function getEnrollmentsByUser(userId, progressFilter) {
         c.short_description,
         category.name,
         c.level,
+        c.required_plan_id,
         plan.name,
         c.cover_image,
         c.instructor_name,
@@ -183,6 +195,14 @@ async function updateEnrollmentProgress(userId, courseId, progress) {
   return getEnrollmentByUserAndCourse(userId, courseId);
 }
 
+function sendCoursePlanAccessError(res, access) {
+  return sendError(res, 403, "Your current plan does not include this course", {
+    requiredPlan: access.requiredPlan,
+    requiredPlanId: access.requiredPlanId,
+    currentPlanId: access.currentPlanId
+  });
+}
+
 exports.createEnrollment = async (req, res) => {
   const courseId = normalizePositiveInteger(req.body.courseId);
 
@@ -197,6 +217,12 @@ exports.createEnrollment = async (req, res) => {
 
     if (course == null) {
       return sendError(res, 404, "Course not found");
+    }
+
+    const access = buildCourseAccess(req.authUser, course);
+
+    if (access.hasAccess === false) {
+      return sendCoursePlanAccessError(res, access);
     }
 
     const existingEnrollment = await getEnrollmentByUserAndCourse(req.authUser.id, courseId);
@@ -287,6 +313,12 @@ exports.updateEnrollmentProgress = async (req, res) => {
 
     if (course == null) {
       return sendError(res, 404, "Course not found");
+    }
+
+    const access = buildCourseAccess(req.authUser, course);
+
+    if (access.hasAccess === false) {
+      return sendCoursePlanAccessError(res, access);
     }
 
     const existingEnrollment = await getEnrollmentByUserAndCourse(req.authUser.id, courseId);

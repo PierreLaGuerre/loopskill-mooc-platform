@@ -1,5 +1,6 @@
 const db = require("../config/db");
 const { sendError, sendSuccess } = require("../utils/http");
+const { buildCourseAccess } = require("../utils/plan-access");
 
 const DEFAULT_COURSE_ORDER = "c.id ASC";
 const MIN_POPULAR_COURSE_RESULTS = 6;
@@ -68,6 +69,7 @@ function buildCourseSelectQuery({ whereClauses = [], params = [], orderBy = DEFA
         COALESCE(c.description, c.short_description) AS description,
         category.name AS category,
         c.level,
+        c.required_plan_id AS requiredPlanId,
         plan.name AS requiredPlan,
         c.cover_image AS image,
         COALESCE(
@@ -109,6 +111,7 @@ function buildCourseSelectQuery({ whereClauses = [], params = [], orderBy = DEFA
         c.short_description,
         category.name,
         c.level,
+        c.required_plan_id,
         plan.name,
         c.cover_image,
         c.instructor_name,
@@ -351,6 +354,7 @@ function mapCourseRow(row) {
     description: row.description,
     category: row.category,
     level: row.level,
+    requiredPlanId: row.requiredPlanId,
     requiredPlan: row.requiredPlan,
     image: row.image,
     tags: row.tags === "" ? [] : row.tags.split("|||"),
@@ -448,9 +452,10 @@ exports.getCourseById = async (req, res) => {
       return sendError(res, 404, "Course not found");
     }
 
+    const access = buildCourseAccess(req.authUser, course);
     const [outcomes, lessons, enrollment] = await Promise.all([
       getCourseOutcomes(courseId),
-      getCourseLessons(courseId),
+      access.hasAccess ? getCourseLessons(courseId) : Promise.resolve([]),
       req.authUser != null
         ? getUserEnrollmentForCourse(req.authUser.id, courseId)
         : Promise.resolve(null)
@@ -460,7 +465,8 @@ exports.getCourseById = async (req, res) => {
       course,
       outcomes,
       lessons,
-      enrollment
+      enrollment,
+      access
     });
   } catch (error) {
     return sendError(res, 500, "Could not retrieve course");
@@ -481,10 +487,25 @@ exports.getCourseLessons = async (req, res) => {
       return sendError(res, 404, "Course not found");
     }
 
+    const access = buildCourseAccess(req.authUser, course);
+
+    if (access.hasAccess === false) {
+      if (req.authUser == null) {
+        return sendError(res, 401, "Authentication is required to access this course");
+      }
+
+      return sendError(res, 403, "Your current plan does not include this course", {
+        requiredPlan: access.requiredPlan,
+        requiredPlanId: access.requiredPlanId,
+        currentPlanId: access.currentPlanId
+      });
+    }
+
     const lessons = await getCourseLessons(courseId);
 
     return sendSuccess(res, 200, "Course lessons retrieved successfully", {
-      lessons
+      lessons,
+      access
     });
   } catch (error) {
     return sendError(res, 500, "Could not retrieve course lessons");
