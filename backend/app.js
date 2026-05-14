@@ -42,6 +42,13 @@ if (allowedOrigins == null) {
   }));
 }
 app.use(express.json());
+app.use((req, res, next) => {
+  if (req.body == null) {
+    req.body = {};
+  }
+
+  next();
+});
 
 app.get("/api/health", (req, res) => {res.json({ message: "Server is up and running" });});
 

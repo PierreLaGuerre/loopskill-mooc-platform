@@ -51,7 +51,9 @@ function getRequestedCourseId(req, res) {
   const courseId = normalizePositiveInteger(req.params.id);
 
   if (courseId == null) {
-    sendError(res, 400, "Course id must be a positive integer");
+    sendError(res, 400, "Validation failed", {
+      courseId: "Course id must be a positive integer"
+    });
     return null;
   }
 

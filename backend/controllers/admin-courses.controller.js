@@ -1,6 +1,6 @@
 const db = require("../config/db");
 const { sendError, sendSuccess } = require("../utils/http");
-const { isDuplicateEntryError } = require("../utils/db-errors");
+const { isDuplicateEntryError, isForeignKeyConstraintError } = require("../utils/db-errors");
 
 const COURSE_LEVELS = ["beginner", "intermediate", "advanced"];
 const TITLE_MAX_LENGTH = 200;
@@ -732,6 +732,12 @@ exports.deleteAdminCourse = async (req, res) => {
       courseId
     });
   } catch (error) {
+    if (isForeignKeyConstraintError(error)) {
+      return sendError(res, 409, "Course cannot be deleted while it has related records", {
+        courseId: "Remove related records before deleting this course"
+      });
+    }
+
     return sendError(res, 500, "Could not delete course");
   }
 };
