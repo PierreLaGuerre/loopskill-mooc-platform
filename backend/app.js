@@ -5,6 +5,7 @@ const { sendError } = require("./utils/http");
 const app = express();
 
 const authRoutes = require("./routes/auth.routes");
+const adminRoutes = require("./routes/admin.routes");
 const coursesRoutes = require("./routes/courses.routes");
 const enrollmentsRoutes = require("./routes/enrollments.routes");
 const plansRoutes = require("./routes/plans.routes");
@@ -44,6 +45,7 @@ app.use(express.json());
 
 app.get("/api/health", (req, res) => {res.json({ message: "Server is up and running" });});
 
+app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", coursesRoutes);
 app.use("/api/enrollments", enrollmentsRoutes);
