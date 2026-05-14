@@ -7,6 +7,8 @@ const router = express.Router();
 
 router.use(verifyToken, requireRole("admin"));
 
+router.get("/categories", adminCoursesController.getAdminCategories);
+router.get("/tags", adminCoursesController.getAdminTags);
 router.get("/courses", adminCoursesController.getAdminCourses);
 router.post("/courses", adminCoursesController.createAdminCourse);
 router.get("/courses/:id", adminCoursesController.getAdminCourseById);

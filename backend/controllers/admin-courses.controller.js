@@ -8,6 +8,8 @@ const SLUG_MAX_LENGTH = 220;
 const SHORT_DESCRIPTION_MAX_LENGTH = 255;
 const IMAGE_MAX_LENGTH = 255;
 const INSTRUCTOR_MAX_LENGTH = 150;
+const CATEGORY_MAX_LENGTH = 100;
+const TAG_MAX_LENGTH = 100;
 
 function normalizePositiveInteger(value) {
   const parsedValue = Number(value);
@@ -31,6 +33,34 @@ function normalizeNonNegativeInteger(value) {
 
 function normalizeText(value) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeTagInput(tags) {
+  if (Array.isArray(tags) === false) {
+    return [];
+  }
+
+  const tagsByKey = new Map();
+
+  for (const tag of tags) {
+    const tagId = typeof tag === "object" && tag != null
+      ? normalizePositiveInteger(tag.id)
+      : normalizePositiveInteger(tag);
+    const rawName = typeof tag === "object" && tag != null ? tag.name : tag;
+    const name = tagId == null ? normalizeText(rawName) : "";
+    const key = tagId == null ? name.toLowerCase() : `id:${tagId}`;
+
+    if (key === "" || tagsByKey.has(key)) {
+      continue;
+    }
+
+    tagsByKey.set(key, {
+      id: tagId,
+      name
+    });
+  }
+
+  return Array.from(tagsByKey.values());
 }
 
 function normalizeLevel(value) {
@@ -59,11 +89,15 @@ function normalizeCoursePayload(body) {
   const description = normalizeText(body.description);
   const level = normalizeLevel(body.level);
   const categoryId = normalizePositiveInteger(body.categoryId ?? body.category_id);
+  const categoryName = categoryId == null
+    ? normalizeText(body.category ?? body.categoryName ?? body.category_name)
+    : "";
   const requiredPlanId = normalizePositiveInteger(body.requiredPlanId ?? body.required_plan_id);
   const image = normalizeText(body.image ?? body.coverImage ?? body.cover_image);
   const instructor = normalizeText(body.instructor ?? body.instructorName ?? body.instructor_name);
   const durationHours = normalizeNonNegativeInteger(body.durationHours ?? body.duration_hours);
   const lessonsCount = normalizeNonNegativeInteger(body.lessonsCount ?? body.lessons_count);
+  const tags = normalizeTagInput(body.tags);
 
   return {
     title,
@@ -72,11 +106,13 @@ function normalizeCoursePayload(body) {
     description,
     level,
     categoryId,
+    categoryName,
     requiredPlanId,
     image,
     instructor,
     durationHours,
-    lessonsCount
+    lessonsCount,
+    tags
   };
 }
 
@@ -116,7 +152,15 @@ function validateCoursePayload(course) {
   }
 
   if (course.categoryId == null) {
-    addValidationError(errors, "categoryId", "Category id must be a positive integer");
+    if (course.categoryName === "") {
+      addValidationError(errors, "categoryId", "Category id or category name is required");
+    } else if (course.categoryName.length > CATEGORY_MAX_LENGTH) {
+      addValidationError(
+        errors,
+        "category",
+        `Category must be ${CATEGORY_MAX_LENGTH} characters or fewer`
+      );
+    }
   }
 
   if (course.requiredPlanId == null) {
@@ -145,6 +189,13 @@ function validateCoursePayload(course) {
     addValidationError(errors, "lessonsCount", "Lessons count must be a non-negative integer");
   }
 
+  for (const tag of course.tags) {
+    if (tag.id == null && tag.name.length > TAG_MAX_LENGTH) {
+      addValidationError(errors, "tags", `Tags must be ${TAG_MAX_LENGTH} characters or fewer`);
+      break;
+    }
+  }
+
   return errors;
 }
 
@@ -163,10 +214,13 @@ async function entityExists(tableName, id) {
 
 async function validateCourseRelations(course) {
   const errors = {};
-  const [categoryExists, planExists] = await Promise.all([
-    entityExists("categories", course.categoryId),
-    entityExists("plans", course.requiredPlanId)
-  ]);
+  const checks = [entityExists("plans", course.requiredPlanId)];
+
+  if (course.categoryId != null) {
+    checks.push(entityExists("categories", course.categoryId));
+  }
+
+  const [planExists, categoryExists = true] = await Promise.all(checks);
 
   if (categoryExists === false) {
     addValidationError(errors, "categoryId", "Category not found");
@@ -185,6 +239,18 @@ function sendDuplicateSlugError(res) {
   });
 }
 
+function sendDuplicateTagError(res) {
+  return sendError(res, 409, "Tag already exists", {
+    tags: "One of the provided tags already exists with a different casing"
+  });
+}
+
+function sendDuplicateCategoryError(res) {
+  return sendError(res, 409, "Category already exists", {
+    category: "A category with this name already exists"
+  });
+}
+
 async function hasEnrollments(courseId) {
   const [rows] = await db.query(
     "SELECT id FROM enrollments WHERE course_id = ? LIMIT 1",
@@ -192,6 +258,106 @@ async function hasEnrollments(courseId) {
   );
 
   return rows.length > 0;
+}
+
+async function getCategories() {
+  const [rows] = await db.query(
+    "SELECT id, name FROM categories ORDER BY name ASC"
+  );
+
+  return rows;
+}
+
+async function getTags() {
+  const [rows] = await db.query(
+    "SELECT id, name FROM tags ORDER BY name ASC"
+  );
+
+  return rows;
+}
+
+async function getOrCreateCategoryId(connection, course) {
+  if (course.categoryId != null) {
+    return course.categoryId;
+  }
+
+  const [existingRows] = await connection.query(
+    "SELECT id FROM categories WHERE LOWER(name) = LOWER(?) LIMIT 1",
+    [course.categoryName]
+  );
+
+  if (existingRows.length > 0) {
+    return existingRows[0].id;
+  }
+
+  const [insertResult] = await connection.query(
+    "INSERT INTO categories (name) VALUES (?)",
+    [course.categoryName]
+  );
+
+  return insertResult.insertId;
+}
+
+async function getOrCreateTagIds(connection, tags) {
+  const tagIds = [];
+
+  for (const tag of tags) {
+    if (tag.id != null) {
+      const [rows] = await connection.query(
+        "SELECT id FROM tags WHERE id = ? LIMIT 1",
+        [tag.id]
+      );
+
+      if (rows.length === 0) {
+        const error = new Error("Tag not found");
+        error.name = "TagNotFoundError";
+        throw error;
+      }
+
+      tagIds.push(tag.id);
+      continue;
+    }
+
+    const [existingRows] = await connection.query(
+      "SELECT id FROM tags WHERE LOWER(name) = LOWER(?) LIMIT 1",
+      [tag.name]
+    );
+
+    if (existingRows.length > 0) {
+      tagIds.push(existingRows[0].id);
+      continue;
+    }
+
+    const [insertResult] = await connection.query(
+      "INSERT INTO tags (name) VALUES (?)",
+      [tag.name]
+    );
+
+    tagIds.push(insertResult.insertId);
+  }
+
+  return tagIds;
+}
+
+async function replaceCourseTags(connection, courseId, tags) {
+  await connection.query(
+    "DELETE FROM course_tags WHERE course_id = ?",
+    [courseId]
+  );
+
+  if (tags.length === 0) {
+    return;
+  }
+
+  const tagIds = await getOrCreateTagIds(connection, tags);
+  const uniqueTagIds = Array.from(new Set(tagIds));
+  const valuesPlaceholders = uniqueTagIds.map(() => "(?, ?)").join(", ");
+  const params = uniqueTagIds.flatMap((tagId) => [courseId, tagId]);
+
+  await connection.query(
+    `INSERT INTO course_tags (course_id, tag_id) VALUES ${valuesPlaceholders}`,
+    params
+  );
 }
 
 function mapAdminCourseRow(row) {
@@ -312,6 +478,30 @@ exports.getAdminCourseById = async (req, res) => {
   }
 };
 
+exports.getAdminCategories = async (req, res) => {
+  try {
+    const categories = await getCategories();
+
+    return sendSuccess(res, 200, "Admin categories retrieved successfully", {
+      categories
+    });
+  } catch (error) {
+    return sendError(res, 500, "Could not retrieve admin categories");
+  }
+};
+
+exports.getAdminTags = async (req, res) => {
+  try {
+    const tags = await getTags();
+
+    return sendSuccess(res, 200, "Admin tags retrieved successfully", {
+      tags
+    });
+  } catch (error) {
+    return sendError(res, 500, "Could not retrieve admin tags");
+  }
+};
+
 exports.createAdminCourse = async (req, res) => {
   const course = normalizeCoursePayload(req.body);
   const validationErrors = validateCoursePayload(course);
@@ -320,6 +510,8 @@ exports.createAdminCourse = async (req, res) => {
     return sendError(res, 400, "Validation failed", validationErrors);
   }
 
+  let connection;
+
   try {
     const relationErrors = await validateCourseRelations(course);
 
@@ -327,7 +519,12 @@ exports.createAdminCourse = async (req, res) => {
       return sendError(res, 400, "Validation failed", relationErrors);
     }
 
-    const [insertResult] = await db.query(
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    const categoryId = await getOrCreateCategoryId(connection, course);
+
+    const [insertResult] = await connection.query(
       `INSERT INTO courses (
          title,
          slug,
@@ -348,7 +545,7 @@ exports.createAdminCourse = async (req, res) => {
         course.shortDescription,
         course.description || null,
         course.level,
-        course.categoryId,
+        categoryId,
         course.requiredPlanId,
         course.image || null,
         course.durationHours,
@@ -356,6 +553,9 @@ exports.createAdminCourse = async (req, res) => {
         course.instructor
       ]
     );
+
+    await replaceCourseTags(connection, insertResult.insertId, course.tags);
+    await connection.commit();
 
     const query = buildAdminCoursesQuery({
       whereClauses: ["c.id = ?"],
@@ -367,11 +567,33 @@ exports.createAdminCourse = async (req, res) => {
       course: mapAdminCourseRow(rows[0])
     });
   } catch (error) {
+    if (connection != null) {
+      await connection.rollback();
+    }
+
     if (isDuplicateEntryError(error)) {
+      if (error.sqlMessage?.includes("tags.name")) {
+        return sendDuplicateTagError(res);
+      }
+
+      if (error.sqlMessage?.includes("categories.name")) {
+        return sendDuplicateCategoryError(res);
+      }
+
       return sendDuplicateSlugError(res);
     }
 
+    if (error.name === "TagNotFoundError") {
+      return sendError(res, 400, "Validation failed", {
+        tags: "One or more tags were not found"
+      });
+    }
+
     return sendError(res, 500, "Could not create course");
+  } finally {
+    if (connection != null) {
+      connection.release();
+    }
   }
 };
 
@@ -388,6 +610,8 @@ exports.updateAdminCourse = async (req, res) => {
   if (hasValidationErrors(validationErrors)) {
     return sendError(res, 400, "Validation failed", validationErrors);
   }
+
+  let connection;
 
   try {
     const query = buildAdminCoursesQuery({
@@ -406,7 +630,12 @@ exports.updateAdminCourse = async (req, res) => {
       return sendError(res, 400, "Validation failed", relationErrors);
     }
 
-    await db.query(
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    const categoryId = await getOrCreateCategoryId(connection, course);
+
+    await connection.query(
       `UPDATE courses
        SET
          title = ?,
@@ -427,7 +656,7 @@ exports.updateAdminCourse = async (req, res) => {
         course.shortDescription,
         course.description || null,
         course.level,
-        course.categoryId,
+        categoryId,
         course.requiredPlanId,
         course.image || null,
         course.durationHours,
@@ -437,17 +666,42 @@ exports.updateAdminCourse = async (req, res) => {
       ]
     );
 
+    await replaceCourseTags(connection, courseId, course.tags);
+    await connection.commit();
+
     const [updatedRows] = await db.query(query.sql, query.params);
 
     return sendSuccess(res, 200, "Course updated successfully", {
       course: mapAdminCourseRow(updatedRows[0])
     });
   } catch (error) {
+    if (connection != null) {
+      await connection.rollback();
+    }
+
     if (isDuplicateEntryError(error)) {
+      if (error.sqlMessage?.includes("tags.name")) {
+        return sendDuplicateTagError(res);
+      }
+
+      if (error.sqlMessage?.includes("categories.name")) {
+        return sendDuplicateCategoryError(res);
+      }
+
       return sendDuplicateSlugError(res);
     }
 
+    if (error.name === "TagNotFoundError") {
+      return sendError(res, 400, "Validation failed", {
+        tags: "One or more tags were not found"
+      });
+    }
+
     return sendError(res, 500, "Could not update course");
+  } finally {
+    if (connection != null) {
+      connection.release();
+    }
   }
 };
 
