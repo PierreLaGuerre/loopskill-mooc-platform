@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { sendError, sendSuccess, sendUserResponse } = require("../utils/http");
 const { isDuplicateEntryError } = require("../utils/db-errors");
+const { getPlansWithFeatures } = require("../utils/plan-catalog");
 const {
   addValidationError,
   createValidationErrors,
@@ -125,7 +126,9 @@ async function getUserById(userId) {
        u.role,
        u.client_type,
        u.plan_id,
-       p.name AS plan_name
+       p.name AS plan_name,
+       p.price AS plan_price,
+       p.description AS plan_description
      FROM users u
      LEFT JOIN plans p
        ON p.id = u.plan_id
@@ -342,7 +345,9 @@ function buildUserResponse(user, interests) {
       ? null
       : {
           id: user.plan_id,
-          name: user.plan_name
+          name: user.plan_name,
+          price: Number(user.plan_price),
+          description: user.plan_description
         },
     interests
   };
@@ -460,7 +465,9 @@ exports.login = async (req, res) => {
     const [rows] = await db.query(
       `SELECT
          u.*,
-         p.name AS plan_name
+         p.name AS plan_name,
+         p.price AS plan_price,
+         p.description AS plan_description
        FROM users u
        LEFT JOIN plans p
          ON p.id = u.plan_id
@@ -514,6 +521,25 @@ exports.getMe = async (req, res) => {
     );
   } catch (error) {
     return sendError(res, 500, "Could not retrieve authenticated user");
+  }
+};
+
+exports.getSettings = async (req, res) => {
+  try {
+    const [user, interests, tags, plans] = await Promise.all([
+      getUserById(req.authUser.id),
+      getUserInterests(req.authUser.id),
+      getAvailableTags(),
+      getPlansWithFeatures()
+    ]);
+
+    return sendSuccess(res, 200, "Settings retrieved successfully", {
+      user: buildUserResponse(user, interests),
+      tags,
+      plans
+    });
+  } catch (error) {
+    return sendError(res, 500, "Could not retrieve settings");
   }
 };
 
