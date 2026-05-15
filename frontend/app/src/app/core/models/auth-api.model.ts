@@ -1,4 +1,5 @@
 import { User } from './user.model';
+import { Plan } from './plan.model';
 
 export interface AuthUserResponse {
   success: boolean;
@@ -22,6 +23,16 @@ export interface TagsResponse {
   message: string;
   data: {
     tags: TagDto[];
+  };
+}
+
+export interface SettingsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: User;
+    tags: TagDto[];
+    plans: Plan[];
   };
 }
 

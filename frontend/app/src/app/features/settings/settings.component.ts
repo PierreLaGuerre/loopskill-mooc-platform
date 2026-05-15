@@ -5,9 +5,9 @@ import { Router, RouterLink } from '@angular/router';
 
 import { User } from '../../core/models/user.model';
 import { Course } from '../../core/models/course.model';
+import { Plan } from '../../core/models/plan.model';
 import { AuthService } from '../../core/services/auth.service';
 import { CourseService } from '../../core/services/course.service';
-import { MOCK_PLANS } from '../../core/mocks/mock-plans';
 
 type SettingsTab = 'account' | 'password' | 'interests' | 'admin';
 
@@ -30,6 +30,9 @@ export class SettingsComponent implements OnInit {
   email: string = '';
   clientType: string = '';
   currentPlanName: string = '';
+  plans: Plan[] = [];
+  adminCategories: { id: number; name: string }[] = [];
+  adminTags: { id: number; name: string }[] = [];
 
   currentPassword: string = '';
   newPassword: string = '';
@@ -61,39 +64,55 @@ export class SettingsComponent implements OnInit {
   accountLoading: boolean = false;
   passwordLoading: boolean = false;
   interestsLoading: boolean = false;
+  adminLoading: boolean = false;
 
   ngOnInit(): void {
-    this.loadCurrentUser();
-    this.loadAvailableInterests();
-    this.loadCourses();
+    this.loadSettings();
+  }
+
+  loadSettings(): void {
+    this.authService.getSettings().subscribe({
+      next: (settings) => {
+        this.currentUser = settings.user;
+        this.availableInterests = settings.interests;
+        this.plans = settings.plans;
+        this.syncUserForm();
+
+        if (this.isAdmin() == true) {
+          this.loadAdminData();
+        }
+      },
+      error: () => {
+        this.loadCurrentUser();
+        this.loadAvailableInterests();
+      }
+    });
   }
 
   loadCurrentUser(): void {
     this.currentUser = this.authService.getCurrentUser();
 
     if (this.currentUser != null) {
-      this.name = this.currentUser.name;
-      this.email = this.currentUser.email;
-      this.clientType = this.currentUser.clientType;
-      this.selectedInterests = [...this.currentUser.interests];
-
-      const currentPlan = MOCK_PLANS.find((plan) => plan.id === this.currentUser!.planId);
-
-      if (currentPlan != null) {
-        this.currentPlanName = currentPlan.name;
-      } else {
-        this.currentPlanName = '';
-      }
-
-      if (this.isAdmin() == false && this.activeTab === 'admin') {
-        this.activeTab = 'account';
-      }
+      this.syncUserForm();
     }
   }
 
   loadCourses(): void {
-    const loadedCourses = this.courseService.getAdminCourses();
-    this.courses = [...loadedCourses].sort((a, b) => a.title.localeCompare(b.title));
+    this.adminLoading = true;
+
+    this.courseService.getAdminCourses().subscribe({
+      next: (loadedCourses) => {
+        this.courses = [...loadedCourses].sort((a, b) => a.title.localeCompare(b.title));
+        this.adminLoading = false;
+      },
+      error: (error) => {
+        this.courses = [];
+        this.adminLoading = false;
+        this.adminMessage = error.status === 403
+          ? 'You do not have access to the admin panel.'
+          : 'Could not load admin courses.';
+      }
+    });
   }
 
   loadAvailableInterests(): void {
@@ -152,7 +171,7 @@ export class SettingsComponent implements OnInit {
     this.newCourseTitle = course.title;
     this.newCourseDescription = course.description;
     this.newCourseCategory = course.category;
-    this.newCourseLevel = course.level;
+    this.newCourseLevel = this.toTitleCase(course.level);
     this.newCourseRequiredPlan = course.requiredPlan;
     this.newCourseImage = course.image;
     this.newCourseInstructor = course.instructor;
@@ -184,55 +203,36 @@ export class SettingsComponent implements OnInit {
       .filter((tag) => tag !== '');
 
     if (this.isEditingCourse() == true && this.editingCourseId != null) {
-      const existingCourse = this.courseService.getAdminCourseById(this.editingCourseId);
+      const updatedCourse = this.buildAdminCoursePayload(this.editingCourseId, tags);
 
-      if (existingCourse == null) {
-        this.adminMessage = 'The selected course could not be found.';
-        return;
-      }
-
-      const updatedCourse: Course = {
-        ...existingCourse,
-        title: this.newCourseTitle.trim(),
-        description: this.newCourseDescription.trim(),
-        category: this.newCourseCategory,
-        level: this.newCourseLevel,
-        requiredPlan: this.newCourseRequiredPlan,
-        image: this.newCourseImage.trim(),
-        tags: tags,
-        instructor: this.newCourseInstructor.trim(),
-        durationHours: this.newCourseDurationHours,
-        lessonsCount: this.newCourseLessonsCount
-      };
-
-      const ok = this.courseService.updateCourse(updatedCourse);
-
-      if (ok == true) {
-        this.editingCourseId = null;
-        this.resetNewCourseForm();
-        this.loadCourses();
-        this.adminMessage = 'Course updated successfully.';
-      } else {
-        this.adminMessage = 'The course could not be updated.';
-      }
-    } else {
-      this.courseService.createCourse({
-        title: this.newCourseTitle.trim(),
-        description: this.newCourseDescription.trim(),
-        category: this.newCourseCategory,
-        level: this.newCourseLevel,
-        requiredPlan: this.newCourseRequiredPlan,
-        image: this.newCourseImage.trim(),
-        tags: tags,
-        isPopular: false,
-        instructor: this.newCourseInstructor.trim(),
-        durationHours: this.newCourseDurationHours,
-        lessonsCount: this.newCourseLessonsCount
+      this.adminLoading = true;
+      this.courseService.updateCourse(updatedCourse).subscribe({
+        next: () => {
+          this.adminLoading = false;
+          this.editingCourseId = null;
+          this.resetNewCourseForm();
+          this.loadCourses();
+          this.adminMessage = 'Course updated successfully.';
+        },
+        error: (error) => {
+          this.adminLoading = false;
+          this.adminMessage = error.error?.message || 'The course could not be updated.';
+        }
       });
-
-      this.resetNewCourseForm();
-      this.loadCourses();
-      this.adminMessage = 'Course created successfully.';
+    } else {
+      this.adminLoading = true;
+      this.courseService.createCourse(this.buildAdminCoursePayload(null, tags)).subscribe({
+        next: () => {
+          this.adminLoading = false;
+          this.resetNewCourseForm();
+          this.loadCourses();
+          this.adminMessage = 'Course created successfully.';
+        },
+        error: (error) => {
+          this.adminLoading = false;
+          this.adminMessage = error.error?.message || 'The course could not be created.';
+        }
+      });
     }
   }
 
@@ -243,18 +243,24 @@ export class SettingsComponent implements OnInit {
       return;
     }
 
-    const ok = this.courseService.deleteCourse(courseId);
+    this.adminLoading = true;
 
-    if (ok == true) {
-      if (this.editingCourseId === courseId) {
-        this.cancelEditCourse();
+    this.courseService.deleteCourse(courseId).subscribe({
+      next: () => {
+        this.adminLoading = false;
+
+        if (this.editingCourseId === courseId) {
+          this.cancelEditCourse();
+        }
+
+        this.adminMessage = 'Course deleted successfully.';
+        this.loadCourses();
+      },
+      error: (error) => {
+        this.adminLoading = false;
+        this.adminMessage = error.error?.message || 'The course could not be deleted.';
       }
-
-      this.adminMessage = 'Course deleted successfully.';
-      this.loadCourses();
-    } else {
-      this.adminMessage = 'The course could not be deleted.';
-    }
+    });
   }
 
   saveProfile(): void {
@@ -270,7 +276,7 @@ export class SettingsComponent implements OnInit {
       next: () => {
         this.accountLoading = false;
         this.accountMessage = 'Your account information has been updated.';
-        this.loadCurrentUser();
+        this.loadSettings();
       },
       error: (error) => {
         this.accountLoading = false;
@@ -337,7 +343,7 @@ export class SettingsComponent implements OnInit {
       next: () => {
         this.interestsLoading = false;
         this.interestsMessage = 'Your interests have been updated.';
-        this.loadCurrentUser();
+        this.loadSettings();
       },
       error: (error) => {
         this.interestsLoading = false;
@@ -368,5 +374,74 @@ export class SettingsComponent implements OnInit {
     this.passwordMessage = '';
     this.interestsMessage = '';
     this.adminMessage = '';
+  }
+
+  private syncUserForm(): void {
+    if (this.currentUser == null) {
+      return;
+    }
+
+    this.name = this.currentUser.name;
+    this.email = this.currentUser.email;
+    this.clientType = this.currentUser.clientType;
+    this.selectedInterests = [...this.currentUser.interests];
+    this.currentPlanName = this.currentUser.plan?.name
+      ?? this.plans.find((plan) => plan.id === this.currentUser!.planId)?.name
+      ?? '';
+
+    if (this.isAdmin() == false && this.activeTab === 'admin') {
+      this.activeTab = 'account';
+    }
+  }
+
+  private loadAdminData(): void {
+    this.loadCourses();
+
+    this.courseService.getAdminCategories().subscribe({
+      next: (categories) => {
+        this.adminCategories = categories;
+      },
+      error: () => {
+        this.adminCategories = [];
+      }
+    });
+
+    this.courseService.getAdminTags().subscribe({
+      next: (tags) => {
+        this.adminTags = tags;
+      },
+      error: () => {
+        this.adminTags = [];
+      }
+    });
+  }
+
+  private buildAdminCoursePayload(courseId: number | null, tags: string[]): Course {
+    return {
+      id: courseId ?? 0,
+      title: this.newCourseTitle.trim(),
+      shortDescription: this.newCourseDescription.trim(),
+      description: this.newCourseDescription.trim(),
+      category: this.newCourseCategory,
+      level: this.newCourseLevel.toLowerCase(),
+      requiredPlanId: this.getPlanIdByName(this.newCourseRequiredPlan),
+      requiredPlan: this.newCourseRequiredPlan,
+      image: this.newCourseImage.trim(),
+      tags: tags,
+      isPopular: false,
+      instructor: this.newCourseInstructor.trim(),
+      durationHours: this.newCourseDurationHours,
+      lessonsCount: this.newCourseLessonsCount
+    };
+  }
+
+  private getPlanIdByName(planName: string): number {
+    return this.plans.find((plan) => plan.name === planName)?.id ?? 1;
+  }
+
+  private toTitleCase(value: string): string {
+    const normalizedValue = value.trim().toLowerCase();
+
+    return normalizedValue.charAt(0).toUpperCase() + normalizedValue.slice(1);
   }
 }

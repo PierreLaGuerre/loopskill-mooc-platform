@@ -5,6 +5,7 @@ export interface Enrollment {
   userId: number;
   courseId: number;
   progress: number;
+  isCompleted?: boolean;
   enrolledAt: string;
   completedAt?: string | null;
 }

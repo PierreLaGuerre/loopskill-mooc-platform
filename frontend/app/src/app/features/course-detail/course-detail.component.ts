@@ -51,7 +51,7 @@ export class CourseDetailComponent implements OnInit {
         this.courseOutcomes = detail.outcomes;
         this.enrollment = detail.enrollment;
         this.isEnrolled = detail.enrollment != null;
-        this.hasAccess = this.checkIfHasAccess(detail.course.requiredPlan);
+        this.hasAccess = detail.access?.hasAccess ?? false;
         this.isLoading = false;
       },
       error: () => {
@@ -104,54 +104,5 @@ export class CourseDetailComponent implements OnInit {
     }
 
     this.router.navigateByUrl('/plans');
-  }
-
-  private checkIfHasAccess(requiredPlan: string): boolean {
-    if (this.currentUser == null) {
-      return false;
-    }
-
-    const userPlanRank = this.getPlanRankByPlanId(this.currentUser.planId);
-    const requiredPlanRank = this.getPlanRankByName(requiredPlan);
-
-    if (userPlanRank >= requiredPlanRank) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  private getPlanRankByPlanId(planId: number): number {
-    if (planId === 1) {
-      return 1;
-    }
-
-    if (planId === 2) {
-      return 2;
-    }
-
-    if (planId === 3) {
-      return 3;
-    }
-
-    return 0;
-  }
-
-  private getPlanRankByName(planName: string): number {
-    const normalizedPlanName = planName.trim().toLowerCase();
-
-    if (normalizedPlanName === 'free') {
-      return 1;
-    }
-
-    if (normalizedPlanName === 'pro') {
-      return 2;
-    }
-
-    if (normalizedPlanName === 'premium') {
-      return 3;
-    }
-
-    return 0;
   }
 }

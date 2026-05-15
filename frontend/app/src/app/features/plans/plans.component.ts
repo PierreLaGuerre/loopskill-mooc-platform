@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { Plan } from '../../core/models/plan.model';
 import { User } from '../../core/models/user.model';
-import { MOCK_PLANS } from '../../core/mocks/mock-plans';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -15,13 +14,16 @@ import { AuthService } from '../../core/services/auth.service';
 export class PlansComponent implements OnInit {
   private authService = inject(AuthService);
 
-  plans: Plan[] = MOCK_PLANS;
+  plans: Plan[] = [];
   currentUser: User | null = null;
   currentPlanId: number | null = null;
   upgradeMessage: string = '';
+  isLoading: boolean = true;
+  isUpdatingPlan: boolean = false;
 
   ngOnInit(): void {
     this.loadCurrentUser();
+    this.loadPlans();
   }
 
   loadCurrentUser(): void {
@@ -51,22 +53,33 @@ export class PlansComponent implements OnInit {
   }
 
   upgradePlan(planId: number): void {
-    if (this.canUpgradeTo(planId) == false) {
+    if (this.canUpgradeTo(planId) == false || this.isUpdatingPlan == true) {
       return;
-    } else {
-      this.authService.updateCurrentUserPlan(planId);
-      this.loadCurrentUser();
-
-      const updatedPlan = this.plans.find(function(plan: Plan): boolean {
-        return plan.id === planId;
-      });
-
-      if (updatedPlan != null) {
-        this.upgradeMessage = `Your plan has been updated to ${updatedPlan.name}.`;
-      } else {
-        this.upgradeMessage = 'Your plan has been updated.';
-      }
     }
+
+    this.isUpdatingPlan = true;
+    this.upgradeMessage = '';
+
+    this.authService.updateCurrentUserPlan(planId).subscribe({
+      next: () => {
+        this.isUpdatingPlan = false;
+        this.loadCurrentUser();
+
+        const updatedPlan = this.plans.find(function(plan: Plan): boolean {
+          return plan.id === planId;
+        });
+
+        if (updatedPlan != null) {
+          this.upgradeMessage = `Your plan has been updated to ${updatedPlan.name}.`;
+        } else {
+          this.upgradeMessage = 'Your plan has been updated.';
+        }
+      },
+      error: (error) => {
+        this.isUpdatingPlan = false;
+        this.upgradeMessage = error.error?.message || 'Could not update your plan.';
+      }
+    });
   }
 
   getPlanButtonLabel(planId: number): string {
@@ -81,5 +94,25 @@ export class PlansComponent implements OnInit {
     } else {
       return 'Not available';
     }
+  }
+
+  getCurrentPlanName(): string {
+    return this.plans.find((plan) => plan.id === this.currentPlanId)?.name ?? '';
+  }
+
+  private loadPlans(): void {
+    this.isLoading = true;
+
+    this.authService.getPlans().subscribe({
+      next: (plans) => {
+        this.plans = plans;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.plans = [];
+        this.isLoading = false;
+        this.upgradeMessage = 'Could not load plans.';
+      }
+    });
   }
 }

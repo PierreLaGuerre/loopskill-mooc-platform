@@ -1,53 +1,116 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
+import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
 import { EnrollmentService } from './enrollment.service';
 
 describe('EnrollmentService', () => {
   let service: EnrollmentService;
+  let httpMock: HttpTestingController;
 
   beforeEach(() => {
-    localStorage.clear();
-
     TestBed.configureTestingModule({
-      providers: [provideHttpClient()]
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: AuthService,
+          useValue: {
+            getToken: () => 'test-token'
+          }
+        }
+      ]
     });
+
     service = TestBed.inject(EnrollmentService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
-    localStorage.clear();
+    httpMock.verify();
   });
 
-  it('should update enrollment progress for a user course', () => {
-    const wasUpdated = service.updateMockEnrollmentProgress(1, 21, 80);
-    const enrollment = service
-      .getUserEnrollments(1)
-      .find((item) => item.courseId === 21);
+  it('should create an enrollment through the backend API', () => {
+    service.createEnrollment(21).subscribe((enrollment) => {
+      expect(enrollment.courseId).toBe(21);
+      expect(enrollment.progress).toBe(0);
+    });
 
-    expect(wasUpdated).toBeTrue();
-    expect(enrollment?.progress).toBe(80);
+    const request = httpMock.expectOne(`${environment.apiUrl}/enrollments`);
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ courseId: 21 });
+    expect(request.request.headers.get('Authorization')).toBe('Bearer test-token');
+
+    request.flush({
+      success: true,
+      message: 'Enrollment created successfully',
+      data: {
+        enrollment: {
+          id: 1,
+          userId: 1,
+          courseId: 21,
+          progress: 0,
+          isCompleted: false,
+          enrolledAt: '2026-05-15T00:00:00.000Z'
+        }
+      }
+    });
   });
 
-  it('should clamp progress between 0 and 100', () => {
-    service.updateMockEnrollmentProgress(1, 21, 140);
-    let enrollment = service
-      .getUserEnrollments(1)
-      .find((item) => item.courseId === 21);
+  it('should clamp progress before sending it to the backend', () => {
+    service.updateEnrollmentProgress(21, 140).subscribe((enrollment) => {
+      expect(enrollment.progress).toBe(100);
+    });
 
-    expect(enrollment?.progress).toBe(100);
+    const request = httpMock.expectOne(`${environment.apiUrl}/enrollments/21/progress`);
 
-    service.updateMockEnrollmentProgress(1, 21, -20);
-    enrollment = service
-      .getUserEnrollments(1)
-      .find((item) => item.courseId === 21);
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ progress: 100 });
 
-    expect(enrollment?.progress).toBe(0);
+    request.flush({
+      success: true,
+      message: 'Enrollment progress updated successfully',
+      data: {
+        enrollment: {
+          id: 1,
+          userId: 1,
+          courseId: 21,
+          progress: 100,
+          isCompleted: true,
+          enrolledAt: '2026-05-15T00:00:00.000Z'
+        }
+      }
+    });
   });
 
-  it('should return false when the enrollment does not exist', () => {
-    const wasUpdated = service.updateMockEnrollmentProgress(999, 999, 50);
+  it('should load completed enrollments from the backend', () => {
+    service.getMyCompletedEnrollments().subscribe((enrollments) => {
+      expect(enrollments.length).toBe(1);
+      expect(enrollments[0].isCompleted).toBeTrue();
+    });
 
-    expect(wasUpdated).toBeFalse();
+    const request = httpMock.expectOne(`${environment.apiUrl}/enrollments/me/completed`);
+
+    expect(request.request.method).toBe('GET');
+
+    request.flush({
+      success: true,
+      message: 'Completed enrollments retrieved successfully',
+      data: {
+        enrollments: [
+          {
+            id: 1,
+            userId: 1,
+            courseId: 21,
+            progress: 100,
+            isCompleted: true,
+            enrolledAt: '2026-05-15T00:00:00.000Z'
+          }
+        ]
+      }
+    });
   });
 });

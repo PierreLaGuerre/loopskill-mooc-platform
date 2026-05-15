@@ -254,11 +254,12 @@
             <div class="settings-field">
               <label for="newCourseCategory">Category</label>
               <select id="newCourseCategory" [(ngModel)]="newCourseCategory">
-                <option value="Programming">Programming</option>
-                <option value="Databases">Databases</option>
-                <option value="Cloud">Cloud</option>
-                <option value="Data Science">Data Science</option>
-                <option value="DevOps">DevOps</option>
+                <option
+                  *ngFor="let category of adminCategories"
+                  [value]="category.name"
+                >
+                  {{ category.name }}
+                </option>
               </select>
             </div>
 
@@ -274,9 +275,12 @@
             <div class="settings-field">
               <label for="newCourseRequiredPlan">Required plan</label>
               <select id="newCourseRequiredPlan" [(ngModel)]="newCourseRequiredPlan">
-                <option value="Free">Free</option>
-                <option value="Pro">Pro</option>
-                <option value="Premium">Premium</option>
+                <option
+                  *ngFor="let plan of plans"
+                  [value]="plan.name"
+                >
+                  {{ plan.name }}
+                </option>
               </select>
             </div>
 
@@ -302,8 +306,13 @@
           </div>
 
           <div class="settings-section__actions">
-            <button type="button" class="settings-button" (click)="saveCourse()">
-              {{ isEditingCourse() == true ? 'Save changes' : 'Add course' }}
+            <button
+              type="button"
+              class="settings-button"
+              (click)="saveCourse()"
+              [disabled]="adminLoading"
+            >
+              {{ adminLoading ? 'Saving...' : (isEditingCourse() == true ? 'Save changes' : 'Add course') }}
             </button>
 
             <button
@@ -322,6 +331,10 @@
             <span class="settings-admin-toolbar__label">Total courses</span>
             <span class="settings-admin-toolbar__value">{{ courses.length }}</span>
           </div>
+        </div>
+
+        <div class="settings-message" *ngIf="adminLoading == true">
+          Loading admin data...
         </div>
 
         <div class="settings-admin-list" *ngIf="courses.length > 0; else emptyAdminCourses">

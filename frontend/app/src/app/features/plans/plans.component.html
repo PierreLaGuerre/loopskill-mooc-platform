@@ -13,7 +13,7 @@
       <div class="plans-hero__status" *ngIf="currentUser != null">
         <span class="plans-hero__status-label">Your current plan</span>
         <span class="plans-hero__status-value">
-          {{ plans[currentPlanId! - 1].name }}
+          {{ getCurrentPlanName() }}
         </span>
       </div>
     </div>
@@ -156,8 +156,8 @@
         <article class="plans-faq__item">
           <h3>Does this page already process payments?</h3>
           <p>
-            Not yet. In this version, plan changes are simulated to keep the frontend ready
-            for future backend integration.
+            Not yet. In this version, plan changes are saved in your account, while payment
+            processing remains outside the TFG scope.
           </p>
         </article>
       </div>

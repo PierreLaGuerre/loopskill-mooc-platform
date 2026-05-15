@@ -6,8 +6,6 @@ import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
 import { Course, CourseDetailResponse } from '../models/course.model';
 import { Lesson } from '../models/lesson.model';
-import { MOCK_COURSES } from '../mocks/mock-courses';
-import { MOCK_LESSONS } from '../mocks/mock-lessons';
 import { AuthService } from './auth.service';
 
 export interface CourseFilters {
@@ -17,19 +15,20 @@ export interface CourseFilters {
   search?: string | null;
 }
 
+export type AdminCoursePayload = Omit<Course, 'id' | 'isPopular' | 'createdAt'> & {
+  id?: number;
+};
+
 @Injectable({
   providedIn: 'root'
 })
 export class CourseService {
-  private readonly STORAGE_COURSES_KEY = 'loopskill_courses';
   private readonly apiUrl = environment.apiUrl;
 
   constructor(
     private http: HttpClient,
     private authService: AuthService
-  ) {
-    this.initializeCourses();
-  }
+  ) {}
 
   getCourses(filters: CourseFilters = {}): Observable<Course[]> {
     let params = new HttpParams();
@@ -73,7 +72,9 @@ export class CourseService {
 
   getLessonsByCourseId(courseId: number): Observable<Lesson[]> {
     return this.http
-      .get<ApiResponse<{ lessons: Lesson[] }>>(`${this.apiUrl}/courses/${courseId}/lessons`)
+      .get<ApiResponse<{ lessons: Lesson[] }>>(`${this.apiUrl}/courses/${courseId}/lessons`, {
+        headers: this.getAuthHeaders()
+      })
       .pipe(map((response) => response.data.lessons));
   }
 
@@ -91,99 +92,65 @@ export class CourseService {
       .pipe(map((response) => response.data.courses));
   }
 
-  getAdminCourses(): Course[] {
-    const coursesJson = localStorage.getItem(this.STORAGE_COURSES_KEY);
-
-    if (coursesJson != null) {
-      return JSON.parse(coursesJson) as Course[];
-    } else {
-      return [];
-    }
+  getAdminCourses(): Observable<Course[]> {
+    return this.http
+      .get<ApiResponse<{ courses: Course[] }>>(`${this.apiUrl}/admin/courses`, {
+        headers: this.getAuthHeaders()
+      })
+      .pipe(map((response) => response.data.courses));
   }
 
-  getAdminCourseById(id: number): Course | null {
-    const courses = this.getAdminCourses();
-
-    const foundCourse = courses.find((course) => course.id === id);
-
-    if (foundCourse != null) {
-      return foundCourse;
-    } else {
-      return null;
-    }
+  getAdminCourseById(id: number): Observable<Course> {
+    return this.http
+      .get<ApiResponse<{ course: Course }>>(`${this.apiUrl}/admin/courses/${id}`, {
+        headers: this.getAuthHeaders()
+      })
+      .pipe(map((response) => response.data.course));
   }
 
-  getMockLessonsByCourseId(courseId: number): Lesson[] {
-    return MOCK_LESSONS
-      .filter((lesson) => lesson.courseId === courseId)
-      .sort((firstLesson, secondLesson) => firstLesson.displayOrder - secondLesson.displayOrder);
+  getAdminCategories(): Observable<{ id: number; name: string }[]> {
+    return this.http
+      .get<ApiResponse<{ categories: { id: number; name: string }[] }>>(
+        `${this.apiUrl}/admin/categories`,
+        { headers: this.getAuthHeaders() }
+      )
+      .pipe(map((response) => response.data.categories));
   }
 
-  createCourse(courseData: Omit<Course, 'id'>): Course {
-    const courses = this.getAdminCourses();
-
-    const newCourse: Course = {
-      id: this.generateNextId(courses),
-      ...courseData
-    };
-
-    const updatedCourses: Course[] = [...courses, newCourse];
-    localStorage.setItem(this.STORAGE_COURSES_KEY, JSON.stringify(updatedCourses));
-
-    return newCourse;
+  getAdminTags(): Observable<{ id: number; name: string }[]> {
+    return this.http
+      .get<ApiResponse<{ tags: { id: number; name: string }[] }>>(`${this.apiUrl}/admin/tags`, {
+        headers: this.getAuthHeaders()
+      })
+      .pipe(map((response) => response.data.tags));
   }
 
-  updateCourse(updatedCourse: Course): boolean {
-    const courses = this.getAdminCourses();
-
-    const exists = courses.some((course) => course.id === updatedCourse.id);
-
-    if (exists == false) {
-      return false;
-    }
-
-    const updatedCourses = courses.map((course) => {
-      if (course.id === updatedCourse.id) {
-        return updatedCourse;
-      } else {
-        return course;
-      }
-    });
-
-    localStorage.setItem(this.STORAGE_COURSES_KEY, JSON.stringify(updatedCourses));
-    return true;
+  createCourse(courseData: AdminCoursePayload): Observable<Course> {
+    return this.http
+      .post<ApiResponse<{ course: Course }>>(
+        `${this.apiUrl}/admin/courses`,
+        this.toAdminPayload(courseData),
+        { headers: this.getAuthHeaders() }
+      )
+      .pipe(map((response) => response.data.course));
   }
 
-  deleteCourse(id: number): boolean {
-    const courses = this.getAdminCourses();
-
-    const exists = courses.some((course) => course.id === id);
-
-    if (exists == false) {
-      return false;
-    }
-
-    const updatedCourses = courses.filter((course) => course.id !== id);
-    localStorage.setItem(this.STORAGE_COURSES_KEY, JSON.stringify(updatedCourses));
-
-    return true;
+  updateCourse(updatedCourse: Course): Observable<Course> {
+    return this.http
+      .patch<ApiResponse<{ course: Course }>>(
+        `${this.apiUrl}/admin/courses/${updatedCourse.id}`,
+        this.toAdminPayload(updatedCourse),
+        { headers: this.getAuthHeaders() }
+      )
+      .pipe(map((response) => response.data.course));
   }
 
-  private initializeCourses(): void {
-    const storedCourses = localStorage.getItem(this.STORAGE_COURSES_KEY);
-
-    if (storedCourses == null) {
-      localStorage.setItem(this.STORAGE_COURSES_KEY, JSON.stringify(MOCK_COURSES));
-    }
-  }
-
-  private generateNextId(courses: Course[]): number {
-    if (courses.length === 0) {
-      return 1;
-    } else {
-      const ids = courses.map((course) => course.id);
-      return Math.max(...ids) + 1;
-    }
+  deleteCourse(id: number): Observable<number> {
+    return this.http
+      .delete<ApiResponse<{ courseId: number }>>(`${this.apiUrl}/admin/courses/${id}`, {
+        headers: this.getAuthHeaders()
+      })
+      .pipe(map((response) => response.data.courseId));
   }
 
   private getAuthHeaders(): HttpHeaders {
@@ -196,5 +163,37 @@ export class CourseService {
     return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
+  }
+
+  private toAdminPayload(course: AdminCoursePayload): Record<string, unknown> {
+    return {
+      title: course.title,
+      slug: course.slug,
+      shortDescription: course.shortDescription ?? course.description,
+      description: course.description,
+      level: course.level.toLowerCase(),
+      categoryId: course.categoryId,
+      category: course.category,
+      requiredPlanId: course.requiredPlanId ?? this.getPlanIdByName(course.requiredPlan),
+      image: course.image,
+      instructor: course.instructor,
+      durationHours: course.durationHours,
+      lessonsCount: course.lessonsCount,
+      tags: course.tags
+    };
+  }
+
+  private getPlanIdByName(planName: string): number {
+    const normalizedPlanName = planName.trim().toLowerCase();
+
+    if (normalizedPlanName === 'pro') {
+      return 2;
+    }
+
+    if (normalizedPlanName === 'premium') {
+      return 3;
+    }
+
+    return 1;
   }
 }

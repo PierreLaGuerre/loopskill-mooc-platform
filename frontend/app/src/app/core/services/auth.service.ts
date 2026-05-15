@@ -7,8 +7,10 @@ import { environment } from '../../../environments/environment';
 import {
   ApiSuccessResponse,
   AuthUserResponse,
+  SettingsResponse,
   TagsResponse
 } from '../models/auth-api.model';
+import { Plan } from '../models/plan.model';
 import { ClientType, User } from '../models/user.model';
 
 @Injectable({
@@ -208,19 +210,50 @@ export class AuthService {
       );
   }
 
-  updateCurrentUserPlan(planId: number): void {
-    const currentUser = this.getCurrentUser();
+  getSettings(): Observable<{ user: User; interests: string[]; plans: Plan[] }> {
+    return this.http
+      .get<SettingsResponse>(`${this.apiUrl}/auth/settings`, {
+        headers: this.getAuthHeaders()
+      })
+      .pipe(
+        tap((response) => {
+          this.setCurrentUser(response.data.user);
+        }),
+        map((response) => ({
+          user: response.data.user,
+          interests: response.data.tags.map((tag) => tag.name),
+          plans: response.data.plans
+        })),
+        catchError((error) => {
+          return throwError(() => error);
+        })
+      );
+  }
 
-    if (currentUser == null) {
-      return;
-    }
+  getPlans(): Observable<Plan[]> {
+    return this.http
+      .get<{ success: boolean; message: string; data: { plans: Plan[] } }>(`${this.apiUrl}/plans`)
+      .pipe(map((response) => response.data.plans));
+  }
 
-    const updatedUser: User = {
-      ...currentUser,
-      planId: planId
-    };
-
-    this.setCurrentUser(updatedUser);
+  updateCurrentUserPlan(planId: number): Observable<User> {
+    return this.http
+      .patch<AuthUserResponse>(
+        `${this.apiUrl}/auth/plan`,
+        { planId },
+        {
+          headers: this.getAuthHeaders()
+        }
+      )
+      .pipe(
+        tap((response) => {
+          this.setCurrentUser(response.user);
+        }),
+        map((response) => response.user),
+        catchError((error) => {
+          return throwError(() => error);
+        })
+      );
   }
 
   logout(): void {

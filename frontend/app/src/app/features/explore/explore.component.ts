@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { MOCK_CATEGORIES } from '../../core/mocks/mock-categories';
 import { Category } from '../../core/models/category.model';
 import { Course } from '../../core/models/course.model';
 import { CourseService } from '../../core/services/course.service';
@@ -56,7 +55,7 @@ export class ExploreComponent implements OnInit, AfterViewInit {
     nodejs: 5
   };
 
-  categories: Category[] = MOCK_CATEGORIES;
+  categories: Category[] = [];
   courses: Course[] = [];
   selectedCategoryName = this.allCategoriesLabel;
   categoryGroups: ExploreCategoryGroup[] = [];
@@ -269,26 +268,45 @@ export class ExploreComponent implements OnInit, AfterViewInit {
         this.updateCarouselButtonsSoon();
       },
       error: () => {
-        this.categories = MOCK_CATEGORIES;
+        this.categories = [];
       }
     });
   }
 
   private syncCategoriesFromCourses(courses: Course[]): void {
     const categoryNames = new Set(courses.map((course) => course.category));
-    const knownCategories = MOCK_CATEGORIES.filter((category) => categoryNames.has(category.name));
-    const knownCategoryNames = new Set(knownCategories.map((category) => category.name));
-    const dynamicCategories = Array.from(categoryNames)
-      .filter((categoryName) => knownCategoryNames.has(categoryName) === false)
+    const categories = Array.from(categoryNames)
       .sort((a, b) => a.localeCompare(b))
       .map((categoryName, index) => ({
-        id: MOCK_CATEGORIES.length + index + 1,
+        id: index + 1,
         name: categoryName,
         description: `Courses about ${categoryName}.`,
-        icon: 'assets/images/categories/programming.png'
+        icon: this.getCategoryIcon(categoryName)
       } as Category));
 
-    this.categories = [...knownCategories, ...dynamicCategories];
+    this.categories = categories;
+  }
+
+  private getCategoryIcon(categoryName: string): string {
+    const normalizedCategory = categoryName.trim().toLowerCase();
+
+    if (normalizedCategory === 'cloud') {
+      return 'assets/images/categories/cloud.png';
+    }
+
+    if (normalizedCategory === 'databases') {
+      return 'assets/images/categories/databases.png';
+    }
+
+    if (normalizedCategory === 'data science') {
+      return 'assets/images/categories/datascience.png';
+    }
+
+    if (normalizedCategory === 'devops') {
+      return 'assets/images/categories/devops.png';
+    }
+
+    return 'assets/images/categories/programming.png';
   }
 
   private updateAllCarouselButtons(): void {
