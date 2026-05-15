@@ -374,11 +374,13 @@
 .settings-interests {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  justify-content: center;
+  gap: 12px 10px;
 }
 
 .settings-interest {
   min-height: 40px;
+  min-width: 106px;
   padding: 0 16px;
   border-radius: 999px;
   border: 1px solid #d8e2d8;
@@ -640,7 +642,8 @@
   }
 
   .settings-interest {
-    width: 100%;
+    width: auto;
+    min-width: 0;
     justify-content: center;
   }
 
