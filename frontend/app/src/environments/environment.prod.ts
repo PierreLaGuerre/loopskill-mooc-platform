@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://loopskill-api.us-east-1.elasticbeanstalk.com/api'
+  apiUrl: 'https://loopskill-api.tfg-project.workers.dev/api'
 };
