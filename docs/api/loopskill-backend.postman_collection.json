@@ -1,0 +1,423 @@
+{
+  "info": {
+    "name": "LoopSkill Backend API",
+    "description": "Basic endpoint coverage for the LoopSkill backend delivery. Import this collection in Postman, set baseUrl, run Register or Login to save token, and set adminToken with an admin user token before running the admin protected requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET health",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('register returns success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('token', body.token);",
+                  "  pm.collectionVariables.set('userId', body.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"LoopSkill Test User\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\",\n  \"clientType\": \"student\",\n  \"interests\": [\"Python\", \"Docker\"]\n}"
+            },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "POST login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('login succeeds', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('token', body.token);",
+                  "pm.collectionVariables.set('userId', body.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "GET me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        },
+        {
+          "name": "GET settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/settings"
+          }
+        },
+        {
+          "name": "PATCH update plan",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planId\": 2\n}"
+            },
+            "url": "{{baseUrl}}/auth/plan"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plans",
+      "item": [
+        {
+          "name": "GET plans with features",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/plans"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Courses and Access",
+      "item": [
+        {
+          "name": "GET course list",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/courses"
+          }
+        },
+        {
+          "name": "GET course detail with optional access",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/courses/{{courseId}}"
+          }
+        },
+        {
+          "name": "GET course lessons checks plan access",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/courses/{{courseId}}/lessons"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enrollments",
+      "item": [
+        {
+          "name": "POST create enrollment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"courseId\": {{courseId}}\n}"
+            },
+            "url": "{{baseUrl}}/enrollments"
+          }
+        },
+        {
+          "name": "GET my enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/enrollments/me"
+          }
+        },
+        {
+          "name": "PATCH progress",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"progress\": 50\n}"
+            },
+            "url": "{{baseUrl}}/enrollments/{{courseId}}/progress"
+          }
+        },
+        {
+          "name": "GET completed enrollments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/enrollments/me/completed"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Protected CRUD",
+      "item": [
+        {
+          "name": "GET admin access with student token should be 403",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/admin-access"
+          }
+        },
+        {
+          "name": "GET admin courses",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/courses"
+          }
+        },
+        {
+          "name": "GET admin categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/categories"
+          }
+        },
+        {
+          "name": "GET admin tags",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/tags"
+          }
+        },
+        {
+          "name": "POST admin create course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('create course succeeds or slug already exists', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('adminCourseId', body.data.course.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman API Coverage Course\",\n  \"slug\": \"postman-api-coverage-course\",\n  \"shortDescription\": \"Course created from the API coverage collection.\",\n  \"description\": \"Temporary course used to validate protected admin CRUD endpoints.\",\n  \"level\": \"beginner\",\n  \"category\": \"Testing\",\n  \"requiredPlanId\": 1,\n  \"image\": \"assets/images/courses/angular.png\",\n  \"instructor\": \"LoopSkill QA\",\n  \"durationHours\": 1,\n  \"lessonsCount\": 1,\n  \"tags\": [\"Testing\", \"API\"]\n}"
+            },
+            "url": "{{baseUrl}}/admin/courses"
+          }
+        },
+        {
+          "name": "PATCH admin update course",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman API Coverage Course Updated\",\n  \"slug\": \"postman-api-coverage-course\",\n  \"shortDescription\": \"Updated from the API coverage collection.\",\n  \"description\": \"Temporary course used to validate update permissions and tag replacement.\",\n  \"level\": \"intermediate\",\n  \"category\": \"Testing\",\n  \"requiredPlanId\": 2,\n  \"image\": \"assets/images/courses/angular.png\",\n  \"instructor\": \"LoopSkill QA\",\n  \"durationHours\": 2,\n  \"lessonsCount\": 2,\n  \"tags\": [\"Testing\", \"Postman\"]\n}"
+            },
+            "url": "{{baseUrl}}/admin/courses/{{adminCourseId}}"
+          }
+        },
+        {
+          "name": "DELETE admin course",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/courses/{{adminCourseId}}"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "userEmail",
+      "value": "loopskill.test@example.com"
+    },
+    {
+      "key": "userPassword",
+      "value": "Password123"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "courseId",
+      "value": "1"
+    },
+    {
+      "key": "adminCourseId",
+      "value": ""
+    }
+  ]
+}
