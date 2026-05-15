@@ -1,7 +1,7 @@
 # AWS Deployment Guide
 
 This guide describes the planned AWS deployment flow for the current LoopSkill
-state: Angular frontend, minimum Express backend and MySQL/MariaDB database.
+state: Angular frontend, Express backend and MySQL/MariaDB database.
 
 ## 1. Frontend Build
 
@@ -86,6 +86,7 @@ Configure these variables in Elastic Beanstalk:
 
 ```env
 PORT=3000
+NODE_ENV=production
 JWT_SECRET=replace-with-secure-secret
 JWT_EXPIRES_IN=1h
 
@@ -93,6 +94,9 @@ DB_HOST=replace-with-rds-endpoint
 DB_USER=replace-with-db-user
 DB_PASSWORD=replace-with-db-password
 DB_NAME=mooc_db
+DB_SSL=true
+DB_SSL_REJECT_UNAUTHORIZED=true
+DB_SSL_CA_PATH=
 
 DEFAULT_USER_PLAN_ID=1
 FRONTEND_ORIGIN=https://replace-with-frontend-url
@@ -130,22 +134,29 @@ After deployment, verify:
 - `GET /api/health` responds from the backend public URL.
 - `GET /api/auth/tags` returns interest tags from RDS.
 - `GET /api/courses` returns course data from RDS.
+- `GET /api/plans` returns plans with features.
 - Registration and login work against the deployed backend.
 - The JWT token allows `GET /api/auth/me`.
-- Mock-based frontend sections still work with `LocalStorage`.
+- `PATCH /api/auth/plan` updates the authenticated user's plan.
+- `GET /api/courses/:id` returns access information for the user's plan.
+- `POST /api/enrollments` creates an enrollment when the plan allows it.
+- Admin routes return `403` for student users.
+- Admin routes work with an admin token.
+- The Postman collection in `docs/api` runs against the deployed `baseUrl`.
 
 ## 8. Current Deployment Scope
 
-This deployment phase is partial and intentional. The backend already supports
-authentication, tags and course listing, while some frontend sections still use mock
-data.
+This backend deployment includes authentication, settings, plans, course listing,
+course detail, plan-based access, enrollments, progress updates and protected
+admin course CRUD.
 
-Pending backend work for full integration:
+Before considering production ready, complete this checklist:
 
-- Course detail.
-- Course lessons.
-- Course outcomes.
-- Plans and plan features.
-- Enrollments.
-- Progress updates.
-- Full admin course CRUD.
+- Use a strong `JWT_SECRET`.
+- Use a dedicated database user instead of root.
+- Set `FRONTEND_ORIGIN` to the real frontend URL.
+- Enable database SSL if required by RDS.
+- Verify that `.env` is not committed.
+- Import the latest SQL dump into RDS.
+- Run the API collection against the deployed backend.
+- Update `frontend/app/src/environments/environment.prod.ts` with the deployed API URL.

@@ -1,7 +1,7 @@
 # Backend API Status
 
-This document summarizes the current backend API surface that can already be
-used during the first deployment phase of LoopSkill.
+This document summarizes the current backend API surface for the LoopSkill
+backend delivery.
 
 ## Available Endpoints
 
@@ -37,8 +37,25 @@ used during the first deployment phase of LoopSkill.
   - Requires a Bearer token.
   - Replaces the authenticated user's selected interests.
 
+- `PATCH /api/auth/plan`
+  - Requires a Bearer token.
+  - Updates the authenticated user's plan.
+
+- `GET /api/auth/settings`
+  - Requires a Bearer token.
+  - Returns the user profile, interests, tags and available plans.
+
+- `GET /api/auth/admin-access`
+  - Requires a Bearer token with `role: admin`.
+  - Confirms that the user has admin permissions.
+
 - `GET /api/auth/tags`
   - Returns the available interest tags.
+
+### Plans
+
+- `GET /api/plans`
+  - Returns Free, Pro and Premium plans with their features.
 
 ### Courses
 
@@ -49,6 +66,53 @@ used during the first deployment phase of LoopSkill.
     - `level`
     - `tags`
     - `search`
+
+- `GET /api/courses/:id`
+  - Returns course detail, outcomes, optional lessons and access information.
+
+- `GET /api/courses/:id/lessons`
+  - Returns course lessons only when the authenticated user's plan allows access.
+
+- `GET /api/courses/popular`
+  - Returns popular courses.
+
+- `GET /api/courses/recommended`
+  - Requires a Bearer token.
+  - Returns recommendations based on user interests.
+
+### Enrollments
+
+- `POST /api/enrollments`
+  - Requires a Bearer token.
+  - Creates an enrollment when the user's plan allows access to the course.
+
+- `GET /api/enrollments/me`
+  - Requires a Bearer token.
+  - Returns the authenticated user's enrollments.
+
+- `GET /api/enrollments/me/in-progress`
+  - Requires a Bearer token.
+  - Returns enrollments with progress below 100.
+
+- `GET /api/enrollments/me/completed`
+  - Requires a Bearer token.
+  - Returns completed enrollments.
+
+- `PATCH /api/enrollments/:courseId/progress`
+  - Requires a Bearer token.
+  - Updates progress from 0 to 100.
+
+### Admin
+
+All admin endpoints require a Bearer token with `role: admin`.
+
+- `GET /api/admin/categories`
+- `GET /api/admin/tags`
+- `GET /api/admin/courses`
+- `POST /api/admin/courses`
+- `GET /api/admin/courses/:id`
+- `PATCH /api/admin/courses/:id`
+- `DELETE /api/admin/courses/:id`
 
 ## Required Environment Variables
 
@@ -65,21 +129,20 @@ environment.
 - `DB_NAME`
 - `DEFAULT_USER_PLAN_ID`
 - `FRONTEND_ORIGIN`
+- `NODE_ENV`
+- `DB_SSL`
+- `DB_SSL_REJECT_UNAUTHORIZED`
+- `DB_SSL_CA_PATH`
 
 See `backend/.env.example` for a safe template without real secrets.
 
-## Pending For Full Frontend Integration
+## API Coverage
 
-The current backend is deployable as a minimum API, but the complete frontend
-integration still needs additional endpoints for:
+Manual endpoint coverage is available in:
 
-- Course detail.
-- Course lessons.
-- Course outcomes.
-- Plans and plan features.
-- Enrollments.
-- Progress updates.
-- Full admin course CRUD.
+```text
+docs/api/loopskill-backend.postman_collection.json
+```
 
-Until those endpoints are implemented, part of the Angular frontend will continue
-to use mock data and `LocalStorage`.
+The collection covers authentication, plans, update plan, course access,
+enrollments and protected admin CRUD.
