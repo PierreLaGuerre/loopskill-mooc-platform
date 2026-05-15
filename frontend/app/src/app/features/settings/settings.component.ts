@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
@@ -22,6 +22,9 @@ export class SettingsComponent implements OnInit {
   private authService = inject(AuthService);
   private courseService = inject(CourseService);
   private router = inject(Router);
+
+  @ViewChild('adminCourseForm')
+  private adminCourseForm?: ElementRef<HTMLElement>;
 
   currentUser: User | null = null;
   activeTab: SettingsTab = 'account';
@@ -179,6 +182,7 @@ export class SettingsComponent implements OnInit {
     this.newCourseLessonsCount = course.lessonsCount;
     this.newCourseTagsText = course.tags.join(', ');
     this.adminMessage = '';
+    this.scrollToAdminCourseForm();
   }
 
   cancelEditCourse(): void {
@@ -443,5 +447,14 @@ export class SettingsComponent implements OnInit {
     const normalizedValue = value.trim().toLowerCase();
 
     return normalizedValue.charAt(0).toUpperCase() + normalizedValue.slice(1);
+  }
+
+  private scrollToAdminCourseForm(): void {
+    window.setTimeout(() => {
+      this.adminCourseForm?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    });
   }
 }
