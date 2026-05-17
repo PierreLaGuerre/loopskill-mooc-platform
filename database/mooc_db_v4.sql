@@ -26,18 +26,20 @@ USE `mooc_db`;
 --
 CREATE TABLE `categories` (
   `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL
+  `name` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `display_order` int(11) NOT NULL DEFAULT 999
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `categories`
 --
-INSERT INTO `categories` (`id`, `name`) VALUES
-(1, 'Programming'),
-(2, 'Databases'),
-(3, 'Cloud'),
-(4, 'Data Science'),
-(5, 'DevOps');
+INSERT INTO `categories` (`id`, `name`, `description`, `display_order`) VALUES
+(1, 'Programming', 'Build strong coding foundations with modern development skills.', 1),
+(2, 'Databases', 'Learn to design, query and manage structured data efficiently.', 2),
+(3, 'Cloud', 'Explore cloud platforms, deployment basics and scalable services.', 3),
+(4, 'Data Science', 'Work with data, discover patterns and create useful analytical insights.', 4),
+(5, 'DevOps', 'Understand automation, delivery workflows and infrastructure practices.', 5);
 
 -- --------------------------------------------------------
 --
