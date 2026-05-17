@@ -21,7 +21,6 @@ export class PlansComponent implements OnInit {
   plans: Plan[] = [];
   currentUser: User | null = null;
   currentPlanId: number | null = null;
-  upgradeMessage: string = '';
   isLoading: boolean = true;
   isUpdatingPlan: boolean = false;
 
@@ -63,15 +62,13 @@ export class PlansComponent implements OnInit {
     }
 
     this.isUpdatingPlan = true;
-    this.upgradeMessage = '';
 
     this.paymentService.createPlanCheckout(planId).subscribe({
       next: (checkout) => {
         this.paymentService.redirectToCheckout(checkout.checkoutUrl);
       },
-      error: (error) => {
+      error: () => {
         this.isUpdatingPlan = false;
-        this.upgradeMessage = error.error?.message || 'Could not start Stripe checkout.';
       }
     });
   }
@@ -105,7 +102,6 @@ export class PlansComponent implements OnInit {
       error: () => {
         this.plans = [];
         this.isLoading = false;
-        this.upgradeMessage = 'Could not load plans.';
       }
     });
   }
@@ -114,8 +110,6 @@ export class PlansComponent implements OnInit {
     const paymentStatus = this.route.snapshot.queryParamMap.get('payment');
 
     if (paymentStatus === 'success') {
-      this.upgradeMessage = 'Payment completed. Your plan will update as soon as the Stripe webhook is processed.';
-
       this.authService.loadCurrentUserFromToken().subscribe({
         next: () => {
           this.loadCurrentUser();
@@ -124,10 +118,6 @@ export class PlansComponent implements OnInit {
           this.loadCurrentUser();
         }
       });
-    }
-
-    if (paymentStatus === 'cancelled') {
-      this.upgradeMessage = 'Stripe checkout was cancelled. Your plan has not changed.';
     }
   }
 }

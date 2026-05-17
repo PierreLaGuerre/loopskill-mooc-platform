@@ -34,13 +34,10 @@ export class CourseDetailComponent implements OnInit, OnDestroy {
   enrollment: EnrollmentWithCourse | null = null;
   isLoading: boolean = true;
   isStartingCheckout: boolean = false;
-  paymentMessage: string = '';
   private routeParamsSubscription: Subscription | null = null;
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
-    this.handlePaymentReturn();
-
     this.routeParamsSubscription = this.route.paramMap.subscribe((paramMap) => {
       const courseIdParam = paramMap.get('id');
 
@@ -137,15 +134,13 @@ export class CourseDetailComponent implements OnInit, OnDestroy {
     }
 
     this.isStartingCheckout = true;
-    this.paymentMessage = '';
 
     this.paymentService.createCourseCheckout(this.course.id).subscribe({
       next: (checkout) => {
         this.paymentService.redirectToCheckout(checkout.checkoutUrl);
       },
-      error: (error) => {
+      error: () => {
         this.isStartingCheckout = false;
-        this.paymentMessage = error.error?.message || 'Could not start Stripe checkout.';
       }
     });
   }
@@ -160,17 +155,5 @@ export class CourseDetailComponent implements OnInit, OnDestroy {
     }
 
     return '';
-  }
-
-  private handlePaymentReturn(): void {
-    const paymentStatus = this.route.snapshot.queryParamMap.get('payment');
-
-    if (paymentStatus === 'success') {
-      this.paymentMessage = 'Payment completed. Access will unlock as soon as the Stripe webhook is processed.';
-    }
-
-    if (paymentStatus === 'cancelled') {
-      this.paymentMessage = 'Stripe checkout was cancelled. The course has not been purchased.';
-    }
   }
 }
