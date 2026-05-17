@@ -2,6 +2,7 @@ const db = require("../config/db");
 const { sendError, sendSuccess } = require("../utils/http");
 const { isDuplicateEntryError } = require("../utils/db-errors");
 const { buildCourseAccess } = require("../utils/plan-access");
+const { hasPurchasedCourse } = require("../utils/course-purchases");
 
 function normalizePositiveInteger(value) {
   const parsedValue = Number(value);
@@ -219,7 +220,11 @@ exports.createEnrollment = async (req, res) => {
       return sendError(res, 404, "Course not found");
     }
 
-    const access = buildCourseAccess(req.authUser, course);
+    const userHasPurchasedCourse = await hasPurchasedCourse(req.authUser.id, courseId);
+    const access = buildCourseAccess(req.authUser, {
+      ...course,
+      hasPurchasedCourse: userHasPurchasedCourse
+    });
 
     if (access.hasAccess === false) {
       return sendCoursePlanAccessError(res, access);
@@ -315,7 +320,11 @@ exports.updateEnrollmentProgress = async (req, res) => {
       return sendError(res, 404, "Course not found");
     }
 
-    const access = buildCourseAccess(req.authUser, course);
+    const userHasPurchasedCourse = await hasPurchasedCourse(req.authUser.id, courseId);
+    const access = buildCourseAccess(req.authUser, {
+      ...course,
+      hasPurchasedCourse: userHasPurchasedCourse
+    });
 
     if (access.hasAccess === false) {
       return sendCoursePlanAccessError(res, access);

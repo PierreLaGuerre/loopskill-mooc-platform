@@ -27,14 +27,19 @@ function canAccessRequiredPlan(userPlanId, requiredPlanId) {
 function buildCourseAccess(user, course) {
   const requiredPlanId = normalizePlanId(course?.requiredPlanId);
   const userPlanId = normalizePlanId(user?.plan_id ?? user?.planId);
-  const hasAccess = canAccessRequiredPlan(userPlanId, requiredPlanId);
+  const hasPlanAccess = canAccessRequiredPlan(userPlanId, requiredPlanId);
+  const hasPurchasedCourse = Boolean(course?.hasPurchasedCourse);
+  const hasAccess = hasPlanAccess || hasPurchasedCourse;
   const isAuthenticated = user != null;
 
   return {
     hasAccess,
+    hasPlanAccess,
+    hasPurchasedCourse,
     isAuthenticated,
     requiresAuthentication: isAuthenticated === false && hasAccess === false,
     requiresUpgrade: isAuthenticated && hasAccess === false,
+    requiresPayment: isAuthenticated && hasAccess === false,
     currentPlanId: userPlanId,
     requiredPlanId,
     requiredPlan: course?.requiredPlan ?? null

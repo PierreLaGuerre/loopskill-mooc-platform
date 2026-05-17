@@ -9,6 +9,8 @@ const adminRoutes = require("./routes/admin.routes");
 const coursesRoutes = require("./routes/courses.routes");
 const enrollmentsRoutes = require("./routes/enrollments.routes");
 const plansRoutes = require("./routes/plans.routes");
+const paymentsRoutes = require("./routes/payments.routes");
+const paymentsController = require("./controllers/payments.controller");
 
 // Uses open CORS in local development, and restricts allowed origins when
 // FRONTEND_ORIGIN is configured for deployment.
@@ -41,6 +43,12 @@ if (allowedOrigins == null) {
     }
   }));
 }
+app.post(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  paymentsController.handleWebhook
+);
+
 app.use(express.json());
 app.use((req, res, next) => {
   if (req.body == null) {
@@ -57,6 +65,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/courses", coursesRoutes);
 app.use("/api/enrollments", enrollmentsRoutes);
 app.use("/api/plans", plansRoutes);
+app.use("/api/payments", paymentsRoutes);
 
 app.use((req, res) => {
   return sendError(res, 404, "Route not found");

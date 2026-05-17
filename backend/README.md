@@ -9,6 +9,7 @@ REST API for the LoopSkill MOOC platform. It handles authentication, user settin
 - MySQL / MariaDB
 - JWT authentication
 - bcrypt password hashing
+- Stripe Checkout test mode
 
 ## Local Setup
 
@@ -57,6 +58,10 @@ Use `backend/.env.example` as the template.
 | `DB_SSL_REJECT_UNAUTHORIZED` | Controls certificate validation for SSL connections. |
 | `DB_SSL_CA_PATH` | Optional CA certificate path for SSL database connections. |
 | `DEFAULT_USER_PLAN_ID` | Plan assigned to new users. |
+| `FRONTEND_URL` | Frontend URL used in Stripe Checkout return redirects. |
+| `STRIPE_SECRET_KEY` | Stripe test secret key used to create Checkout sessions. |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret for `/api/payments/webhook`. |
+| `STRIPE_CURRENCY` | Checkout currency. Defaults to `eur`. |
 | `FRONTEND_ORIGIN` | Comma-separated CORS allowlist. Empty means open CORS. |
 
 ## CORS
@@ -84,12 +89,17 @@ Multiple origins can be separated with commas.
 - `PATCH /api/auth/profile`
 - `PATCH /api/auth/password`
 - `PATCH /api/auth/interests`
-- `PATCH /api/auth/plan`
+- `PATCH /api/auth/plan` returns `403`; use Stripe Checkout for upgrades.
 - `GET /api/auth/admin-access`
 
 ### Plans
 
 - `GET /api/plans`
+
+### Payments
+
+- `POST /api/payments/checkout`
+- `POST /api/payments/webhook`
 
 ### Courses
 
@@ -127,7 +137,7 @@ Manual endpoint coverage is documented in:
 docs/api/loopskill-backend.postman_collection.json
 ```
 
-The collection covers register/login/me, plans, update plan, course access, enrollments and protected admin CRUD.
+The collection covers register/login/me, plans, course access, enrollments and protected admin CRUD. Plan upgrades now require Stripe Checkout instead of direct profile updates.
 
 ## Deployment Notes
 

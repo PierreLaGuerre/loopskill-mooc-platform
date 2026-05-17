@@ -691,37 +691,7 @@ exports.updateInterests = async (req, res) => {
 };
 
 exports.updatePlan = async (req, res) => {
-  const planId = normalizePositiveInteger(req.body.planId ?? req.body.plan_id);
-  const validationErrors = validatePlanUpdateInput(planId);
-
-  if (hasValidationErrors(validationErrors)) {
-    return sendError(res, 400, "Validation failed", validationErrors);
-  }
-
-  try {
-    const plan = await getPlanById(planId);
-
-    if (plan == null) {
-      return sendError(res, 404, "Plan not found");
-    }
-
-    await db.query(
-      "UPDATE users SET plan_id = ? WHERE id = ?",
-      [plan.id, req.authUser.id]
-    );
-
-    const updatedUser = await getUserById(req.authUser.id);
-    const interests = await getUserInterests(req.authUser.id);
-
-    return sendUserResponse(
-      res,
-      200,
-      "Plan updated successfully",
-      buildUserResponse(updatedUser, interests)
-    );
-  } catch (error) {
-    return sendError(res, 500, "Could not update plan");
-  }
+  return sendError(res, 403, "Plan changes require Stripe checkout");
 };
 
 exports.getAdminAccess = (req, res) => {

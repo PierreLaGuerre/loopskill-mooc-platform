@@ -1,6 +1,7 @@
 const db = require("../config/db");
 const { sendError, sendSuccess } = require("../utils/http");
 const { buildCourseAccess } = require("../utils/plan-access");
+const { hasPurchasedCourse } = require("../utils/course-purchases");
 
 const DEFAULT_COURSE_ORDER = "c.id ASC";
 const MIN_POPULAR_COURSE_RESULTS = 6;
@@ -454,7 +455,13 @@ exports.getCourseById = async (req, res) => {
       return sendError(res, 404, "Course not found");
     }
 
-    const access = buildCourseAccess(req.authUser, course);
+    const userHasPurchasedCourse = req.authUser == null
+      ? false
+      : await hasPurchasedCourse(req.authUser.id, course.id);
+    const access = buildCourseAccess(req.authUser, {
+      ...course,
+      hasPurchasedCourse: userHasPurchasedCourse
+    });
     const [outcomes, lessons, enrollment] = await Promise.all([
       getCourseOutcomes(courseId),
       access.hasAccess ? getCourseLessons(courseId) : Promise.resolve([]),
@@ -489,7 +496,13 @@ exports.getCourseLessons = async (req, res) => {
       return sendError(res, 404, "Course not found");
     }
 
-    const access = buildCourseAccess(req.authUser, course);
+    const userHasPurchasedCourse = req.authUser == null
+      ? false
+      : await hasPurchasedCourse(req.authUser.id, course.id);
+    const access = buildCourseAccess(req.authUser, {
+      ...course,
+      hasPurchasedCourse: userHasPurchasedCourse
+    });
 
     if (access.hasAccess === false) {
       if (req.authUser == null) {
