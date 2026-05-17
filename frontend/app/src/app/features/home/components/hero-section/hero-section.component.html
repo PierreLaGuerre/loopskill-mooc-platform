@@ -1,3 +1,4 @@
+<!-- cspell:words activeSlide activeSlideIndex featuredSlides featuredSlide showPreviousSlide showNextSlide useCourseImageFallback -->
 <section class="hero-section">
   <div class="hero-section__container">
 
@@ -47,7 +48,9 @@
           </div>
 
           <div class="hero-section__progress-block">
-            <div class="hero-section__progress-circle" [style.--progress]="currentEnrollment.progress">
+            <div
+              class="hero-section__progress-circle"
+              [ngStyle]="{ '--progress': currentEnrollment.progress }">
               <span>{{ currentEnrollment.progress }}%</span>
             </div>
 
@@ -69,31 +72,100 @@
     </ng-container>
 
     <ng-template #onboardingHero>
-      <div class="hero-section__content hero-section__content--onboarding">
+      <div
+        class="hero-section__content hero-section__content--featured"
+        *ngIf="activeSlide as slide; else fallbackOnboardingHero"
+        [ngStyle]="{
+          '--hero-background': slide.background,
+          '--hero-accent': slide.accent
+        }"
+        (mouseenter)="pauseCarousel()"
+        (mouseleave)="resumeCarousel()"
+        (focusin)="pauseCarousel()"
+        (focusout)="resumeCarousel()">
         <div class="hero-section__main">
-          <h1 class="hero-section__title">
-            Hi, <span class="hero-section__brand">{{ user?.name }}</span>.
-          </h1>
+          <p class="hero-section__eyebrow">Featured course</p>
 
-          <p class="hero-section__text">
-            The best version of you is one skill away. LoopSkill helps you build momentum
-            through a simple principle:<br>
-            <strong class="hero-section__principle">
-              Learn. <span class="hero-section__principle-highlight">Improve.</span> Repeat.
-            </strong>
-          </p>
+          <h1 class="hero-section__title">{{ slide.course.title }}</h1>
+
+          <p class="hero-section__text">{{ slide.course.description }}</p>
+
+          <div class="hero-section__course-stats" aria-label="Course summary">
+            <span>{{ slide.course.level | titlecase }}</span>
+            <span>{{ slide.course.durationHours }}h</span>
+            <span>{{ slide.course.lessonsCount }} lessons</span>
+          </div>
 
           <div class="hero-section__actions">
-            <a class="hero-section__button hero-section__button--primary" routerLink="/explore">
-              Explore courses
-            </a>
-
-            <a class="hero-section__button hero-section__button--tertiary" routerLink="/" fragment="categories">
-              Explore categories
+            <a class="hero-section__button hero-section__button--primary" [routerLink]="['/courses', slide.course.id]">
+              View course
             </a>
           </div>
         </div>
+
+        <button
+          class="hero-section__nav-button hero-section__nav-button--previous"
+          type="button"
+          aria-label="Previous featured course"
+          (click)="showPreviousSlide()">
+          &#8249;
+        </button>
+
+        <div class="hero-section__featured-visual">
+          <img
+            [src]="slide.image"
+            [alt]="slide.course.title"
+            (error)="useCourseImageFallback($event, slide.course)" />
+        </div>
+
+        <button
+          class="hero-section__nav-button hero-section__nav-button--next"
+          type="button"
+          aria-label="Next featured course"
+          (click)="showNextSlide()">
+          &#8250;
+        </button>
+
+        <div class="hero-section__dots" aria-label="Featured courses">
+          <button
+            *ngFor="let featuredSlide of featuredSlides; let slideIndex = index"
+            class="hero-section__dot"
+            type="button"
+            [class.hero-section__dot--active]="slideIndex === activeSlideIndex"
+            [attr.aria-label]="'Show ' + featuredSlide.course.title"
+            [attr.aria-current]="slideIndex === activeSlideIndex ? 'true' : null"
+            (click)="showSlide(slideIndex)">
+          </button>
+        </div>
       </div>
+
+      <ng-template #fallbackOnboardingHero>
+        <div class="hero-section__content hero-section__content--onboarding">
+          <div class="hero-section__main">
+            <h1 class="hero-section__title">
+              Hi, <span class="hero-section__brand">{{ user?.name }}</span>.
+            </h1>
+
+            <p class="hero-section__text">
+              The best version of you is one skill away. LoopSkill helps you build momentum
+              through a simple principle:<br>
+              <strong class="hero-section__principle">
+                Learn. <span class="hero-section__principle-highlight">Improve.</span> Repeat.
+              </strong>
+            </p>
+
+            <div class="hero-section__actions">
+              <a class="hero-section__button hero-section__button--primary" routerLink="/explore">
+                Explore courses
+              </a>
+
+              <a class="hero-section__button hero-section__button--tertiary" routerLink="/" fragment="categories">
+                Explore categories
+              </a>
+            </div>
+          </div>
+        </div>
+      </ng-template>
     </ng-template>
     </ng-container>
 

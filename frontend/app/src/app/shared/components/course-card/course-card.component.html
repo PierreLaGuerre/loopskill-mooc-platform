@@ -21,7 +21,7 @@
     </p>
 
     <div class="course-card__footer">
-      <span class="course-card__plan">
+      <span class="course-card__plan" [ngClass]="planModifierClass">
         {{ course.requiredPlan }}
       </span>
 

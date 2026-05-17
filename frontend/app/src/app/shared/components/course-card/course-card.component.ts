@@ -13,4 +13,22 @@ import { Course } from '../../../core/models/course.model';
 })
 export class CourseCardComponent {
   @Input() course!: Course;
+
+  get planModifierClass(): string {
+    const planName = this.course?.requiredPlan?.trim().toLowerCase();
+
+    if (planName === 'free' || this.course?.requiredPlanId === 1) {
+      return 'course-card__plan--free';
+    }
+
+    if (planName === 'pro' || this.course?.requiredPlanId === 2) {
+      return 'course-card__plan--pro';
+    }
+
+    if (planName === 'premium' || this.course?.requiredPlanId === 3) {
+      return 'course-card__plan--premium';
+    }
+
+    return 'course-card__plan--free';
+  }
 }
