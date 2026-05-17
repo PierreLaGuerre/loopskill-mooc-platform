@@ -2,196 +2,292 @@
 
 <br/>
 
-<img width="554" height="192" alt="imagen" src="https://github.com/user-attachments/assets/d11417fa-addd-48ce-8910-6b058710105c" />
+<img width="554" height="192" alt="LoopSkill" src="https://github.com/user-attachments/assets/d11417fa-addd-48ce-8910-6b058710105c" />
 
-
-**Plataforma MOOC con recomendaciones personalizadas y control de acceso por planes**
+**Plataforma MOOC full stack con recomendaciones, control de acceso por planes y pagos en modo test**
 
 <br/>
 
-![Angular](https://img.shields.io/badge/Angular-18-DD0031?style=flat-square&logo=angular&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Angular](https://img.shields.io/badge/Angular-17-DD0031?style=flat-square&logo=angular&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=flat-square&logo=nodedotjs&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-MariaDB-4479A1?style=flat-square&logo=mysql&logoColor=white)
-![AWS](https://img.shields.io/badge/Deploy-AWS-FF9900?style=flat-square&logo=amazonaws&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-1D9E75?style=flat-square)
-![Status](https://img.shields.io/badge/Status-En%20desarrollo-1D9E75?style=flat-square)
+![Stripe](https://img.shields.io/badge/Stripe-Checkout-635BFF?style=flat-square&logo=stripe&logoColor=white)
+![Cloudflare](https://img.shields.io/badge/Frontend-Cloudflare-F38020?style=flat-square&logo=cloudflare&logoColor=white)
+![AWS](https://img.shields.io/badge/Backend-AWS%20Elastic%20Beanstalk-FF9900?style=flat-square&logo=amazonaws&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Terminado-1D9E75?style=flat-square)
 
 <br/>
 
-> *Proyecto de Fin de Grado · Desarrollo de Aplicaciones Web · 2025–2026*
+> Proyecto de Fin de Grado - Desarrollo de Aplicaciones Web - 2025-2026
 
 </div>
 
 ---
 
-## ¿Qué es LoopSkill?
+## Que es LoopSkill
 
-LoopSkill es una plataforma de formación online construida como proyecto de TFG del ciclo DAW. La idea es ofrecer una experiencia de aprendizaje más clara y personalizada que la de las grandes plataformas generalistas, con un catálogo de cursos técnicos organizado por categorías y niveles, recomendaciones basadas en los intereses del usuario y un sistema de acceso por planes de suscripción (Free, Pro y Premium).
+LoopSkill es una plataforma de formacion online desarrollada como TFG del ciclo de Desarrollo de Aplicaciones Web. El objetivo es ofrecer una experiencia MOOC clara y personalizada, con catalogo de cursos tecnicos, recomendaciones basadas en intereses, seguimiento de progreso, acceso por planes y compras gestionadas mediante Stripe Checkout en modo test.
 
-El proyecto sigue una arquitectura cliente-servidor clásica: **Angular** en el frontend, **Node.js con Express** en el backend y **MySQL/MariaDB** como base de datos, con despliegue previsto en **AWS**.
+El proyecto ya funciona como aplicacion full stack: **Angular** en el frontend, **Node.js con Express** en el backend y **MySQL/MariaDB** como base de datos relacional. La version actual sustituye el prototipo mock inicial por servicios HTTP reales, autenticacion JWT y persistencia en base de datos.
 
 ---
 
 ## Estado del proyecto
 
-La versión actual cubre el frontend completo en modo mock. El backend está en desarrollo paralelo y la integración está prevista para la siguiente fase del TFG.
-
-| Módulo | Estado |
+| Modulo | Estado |
 |---|---|
-| Autenticación y registro | ✅ Implementado |
-| Onboarding de intereses | ✅ Implementado |
-| Home, Explore y Course Detail | ✅ Implementado |
-| Planes y suscripciones | ✅ Mock funcional |
-| My Learnings y seguimiento | ✅ Implementado |
-| Settings de usuario | ✅ Implementado |
-| Panel de administración | 🔧 Parcial (Create/Delete) |
-| Integración con backend | ⏳ Pendiente |
-
----
-
-## Stack tecnológico
-
-**Frontend**
-- Angular 18 (arquitectura standalone, routing, SCSS)
-- TypeScript con modelos tipados (User, Course, Plan)
-- LocalStorage como capa de persistencia mock
-
-**Backend (en desarrollo)**
-- Node.js + Express como API REST
-- MySQL / MariaDB con esquema relacional normalizado
-
-**Infraestructura**
-- GitHub para control de versiones y trabajo en equipo
-- Figma para el diseño de pantallas y prototipado
-- AWS como plataforma de despliegue final
+| Registro, login y sesion JWT | Completado |
+| Onboarding y gestion de intereses | Completado |
+| Home personalizada | Completado |
+| Exploracion de cursos por categoria, nivel, tags y busqueda | Completado |
+| Detalle de curso con resultados, lecciones y reglas de acceso | Completado |
+| Reproductor de curso y actualizacion de progreso | Completado |
+| My Learning: cursos en progreso y completados | Completado |
+| Planes Free, Pro y Premium | Completado |
+| Stripe Checkout para planes y compras individuales | Completado en modo test |
+| Cancelacion de suscripcion | Completado |
+| Settings de perfil, contrasena, intereses y suscripcion | Completado |
+| Panel admin con CRUD de cursos | Completado |
+| API REST y coleccion Postman | Completado |
+| Despliegue frontend/backend | Preparado y documentado |
 
 ---
 
 ## Funcionalidades principales
 
-**Para el usuario**
-- Registro, login y onboarding de intereses personalizado
-- Homepage dinámica que cambia según el estado del usuario
-- Catálogo explorable por categorías con filtros
-- Detalle de curso con control de acceso por plan
-- Seguimiento del progreso (cursos en marcha y completados)
-- Gestión de cuenta, contraseña e intereses desde Settings
-- Cambio de plan de suscripción (Free → Pro → Premium)
+**Usuario**
+- Registro e inicio de sesion con token JWT.
+- Seleccion inicial de intereses para personalizar recomendaciones.
+- Catalogo de cursos tecnicos organizado por categorias, niveles y etiquetas.
+- Home dinamica con cursos populares, recomendaciones y progreso actual.
+- Detalle de curso con plan requerido, objetivos de aprendizaje y acceso a lecciones.
+- Matriculacion, seguimiento de progreso y vista de cursos completados.
+- Gestion de perfil, cambio de contrasena, intereses y suscripcion.
+- Mejora de plan o compra individual de cursos mediante Stripe Checkout.
 
-**Para el administrador**
-- Panel de administración accesible desde Settings si el usuario tiene `role: admin`
-- Visualización del catálogo completo
-- Creación y eliminación de cursos
-- Edición de cursos *(en desarrollo)*
+**Administrador**
+- Acceso protegido por rol `admin`.
+- Listado completo del catalogo.
+- Creacion, edicion y eliminacion de cursos.
+- Gestion de categoria, nivel, plan requerido, precio, instructor, imagen, horas estimadas y tags.
+- Validacion backend de payloads, relaciones y duplicados.
+
+**Pagos y acceso**
+- Los cambios directos de plan estan bloqueados desde la API.
+- Las subidas a Pro/Premium pasan por Stripe Checkout.
+- Los cursos pueden desbloquearse por plan contratado o por compra individual.
+- Los webhooks de Stripe registran pedidos pagados, compras de cursos y suscripciones.
 
 ---
 
-## Estructura del proyecto
+## Stack tecnologico
 
+**Frontend**
+- Angular 17 con arquitectura standalone.
+- TypeScript, RxJS, Angular Router y SCSS.
+- Servicios HTTP tipados para auth, cursos, inscripciones y pagos.
+- Persistencia local solo para token y usuario autenticado.
+- Build estatico preparado para Cloudflare mediante `wrangler.jsonc`.
+
+**Backend**
+- Node.js, Express 5 y CommonJS.
+- MySQL/MariaDB con `mysql2/promise`.
+- JWT para autenticacion y autorizacion por roles.
+- bcrypt para hash de contrasenas.
+- Stripe Checkout y webhooks en modo test.
+- CORS configurable por entorno.
+
+**Base de datos**
+- Esquema relacional en `database/mooc_db_v4.sql`.
+- Migraciones adicionales en `database/migrations`.
+- Tablas para usuarios, planes, categorias, cursos, lecciones, outcomes, tags, intereses, inscripciones, pedidos de pago, compras individuales y suscripciones.
+
+**Documentacion y pruebas manuales**
+- Estado de API: `docs/backend-api-status.md`.
+- Guia de despliegue AWS: `docs/aws-deployment-guide.md`.
+- Coleccion Postman: `docs/api/loopskill-backend.postman_collection.json`.
+
+---
+
+## Estructura del repositorio
+
+```text
+loopskill-mooc-platform/
+|-- backend/
+|   |-- app.js
+|   |-- server.js
+|   |-- config/
+|   |-- controllers/
+|   |-- middleware/
+|   |-- routes/
+|   `-- utils/
+|-- database/
+|   |-- mooc_db_v4.sql
+|   `-- migrations/
+|-- docs/
+|   |-- api/
+|   |-- aws-deployment-guide.md
+|   `-- backend-api-status.md
+`-- frontend/
+    `-- app/
+        |-- src/
+        |   |-- app/
+        |   |   |-- core/
+        |   |   |-- features/
+        |   |   `-- shared/
+        |   |-- assets/
+        |   `-- environments/
+        `-- wrangler.jsonc
 ```
-loopskill-frontend/
-├── src/
-│   ├── app/
-│   │   ├── core/               # Servicios globales (AuthService, CourseService, EnrollmentService)
-│   │   ├── shared/             # Componentes reutilizables
-│   │   └── features/
-│   │       ├── home/
-│   │       ├── explore/
-│   │       ├── course-detail/
-│   │       ├── plans/
-│   │       ├── my-learnings/
-│   │       ├── settings/
-│   │       └── auth/
-│   ├── assets/
-│   └── styles/                 # Variables SCSS globales e identidad visual
-└── ...
-```
 
 ---
 
-## Base de datos
+## API REST
 
-El esquema relacional está diseñado para soportar todas las funcionalidades del sistema. Las tablas principales son:
+La API se sirve bajo `/api`.
 
-```
-users           → datos del usuario, rol y plan contratado
-courses         → catálogo completo con nivel, categoría y plan requerido
-categories      → clasificación del catálogo
-plans           → Free, Pro y Premium
-plan_features   → características de cada plan (normalizado)
-tags            → etiquetas de los cursos
-course_tags     → relación curso-etiqueta
-user_interests  → intereses seleccionados por el usuario
-course_outcomes → resultados de aprendizaje de cada curso
-enrollments     → matrícula del usuario con porcentaje de progreso
-```
+| Area | Endpoints principales |
+|---|---|
+| Health | `GET /api/health` |
+| Auth | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `GET /api/auth/settings`, `GET /api/auth/tags` |
+| Perfil | `PATCH /api/auth/profile`, `PATCH /api/auth/password`, `PATCH /api/auth/interests` |
+| Planes | `GET /api/plans` |
+| Cursos | `GET /api/courses`, `GET /api/courses/categories`, `GET /api/courses/popular`, `GET /api/courses/recommended`, `GET /api/courses/:id`, `GET /api/courses/:id/lessons` |
+| Inscripciones | `POST /api/enrollments`, `GET /api/enrollments/me`, `GET /api/enrollments/me/in-progress`, `GET /api/enrollments/me/completed`, `PATCH /api/enrollments/:courseId/progress` |
+| Pagos | `POST /api/payments/checkout`, `POST /api/payments/subscription/cancel`, `POST /api/payments/webhook` |
+| Admin | `GET/POST/PATCH/DELETE /api/admin/courses`, `GET /api/admin/categories`, `GET /api/admin/tags` |
 
-El modelo permite implementar recomendaciones por coincidencia entre `user_interests` y `course_tags`, y escalar hacia un algoritmo más sofisticado en fases posteriores.
+La coleccion Postman de `docs/api` cubre los flujos principales de autenticacion, planes, cursos, inscripciones y administracion.
 
 ---
 
-## Decisiones de diseño relevantes
+## Ejecucion local
 
-**Arquitectura orientada al backend desde el principio.** Aunque el backend aún no está disponible, toda la lógica de negocio reside en servicios (AuthService, EnrollmentService, CourseService) y no en mocks acoplados a los componentes. Cuando la API esté lista, la integración se reduce a sustituir LocalStorage por llamadas HTTP dentro de esos mismos servicios.
+### 1. Base de datos
 
-**Identidad visual propia.** Se ha definido un lenguaje visual limpio y moderno con el verde de LoopSkill como color principal, radios generosos, sombras suaves y bastante espacio entre bloques. El símbolo de infinito de la marca aparece como elemento decorativo en algunos hero sections.
-
-**Roles sin campos artificiales.** La distinción entre usuario estándar y administrador se apoya en el campo `role` ya presente en el modelo de datos, sin introducir booleanos extra ni lógica paralela.
-
----
-
-## Capturas de pantalla
-
-> *Próximamente — se añadirán una vez completada la integración con el backend.*
-
----
-
-## Cómo ejecutar el proyecto
+Crear una base de datos MySQL/MariaDB e importar el dump principal:
 
 ```bash
-# Clonar el repositorio
-git clone https://github.com/PierreLaGuerre/loopskill.git
-
-# Instalar dependencias
-npm install
-
-# Arrancar en modo desarrollo
-cd frontend/app
-ng serve
-
-# La aplicación estará disponible en http://localhost:4200
+mysql -u root -p mooc_db < database/mooc_db_v4.sql
 ```
 
+Si se parte de una base ya existente, aplicar tambien las migraciones:
+
+```bash
+mysql -u root -p mooc_db < database/migrations/2026-05-15-add-general-interest-tags.sql
+mysql -u root -p mooc_db < database/migrations/2026-05-17-add-category-metadata.sql
+mysql -u root -p mooc_db < database/migrations/2026-05-17-add-stripe-payments.sql
+```
+
+### 2. Backend
+
+```bash
+cd backend
+npm install
+copy .env.example .env
+npm run dev
+```
+
+La API local queda disponible en:
+
+```text
+http://localhost:3000/api
+```
+
+Variables importantes del backend:
+
+```env
+PORT=3000
+NODE_ENV=development
+JWT_SECRET=change-me-use-a-long-random-secret
+JWT_EXPIRES_IN=1h
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=mooc_db
+DB_SSL=false
+DEFAULT_USER_PLAN_ID=1
+FRONTEND_URL=http://localhost:4200
+FRONTEND_ORIGIN=http://localhost:4200
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_CURRENCY=eur
+```
+
+### 3. Frontend
+
+```bash
+cd frontend/app
+npm install
+npm start
+```
+
+La aplicacion local queda disponible en:
+
+```text
+http://localhost:4200
+```
+
+El frontend de desarrollo apunta a:
+
+```ts
+apiUrl: 'http://localhost:3000/api'
+```
 
 ---
 
-## Próximos pasos
+## Despliegue
 
-- [ ] Completar la edición de cursos en el panel de administración
-- [ ] Migrar la lectura de `MOCK_COURSES` a `CourseService` en todas las pantallas
-- [ ] Conectar con la API REST del backend cuando esté disponible
-- [ ] Desplegar en AWS
-- [ ] Añadir tests unitarios sobre los servicios principales
+El proyecto contempla un despliegue separado de frontend, backend y base de datos.
+
+**Frontend**
+- Build Angular con `npm run build` desde `frontend/app`.
+- Salida generada en `frontend/app/dist/app/browser`.
+- Configuracion de assets SPA en `frontend/app/wrangler.jsonc`.
+- La configuracion actual permite publicar la aplicacion estatica en Cloudflare, con fallback a `index.html` para rutas de Angular.
+
+**Backend**
+- Aplicacion Node.js desplegable desde la carpeta `backend`.
+- Entrada de produccion: `backend/server.js`.
+- Comando de produccion: `npm start`.
+- Preparado para Elastic Beanstalk mediante `.ebignore` y paquetes ZIP de despliegue generados en la raiz del repositorio.
+- Healthcheck disponible en `GET /api/health`.
+
+**Base de datos**
+- MySQL/MariaDB local o gestionado.
+- Para despliegue en AWS, la guia documenta el uso de RDS.
+- El backend soporta conexiones SSL mediante `DB_SSL`, `DB_SSL_REJECT_UNAUTHORIZED` y `DB_SSL_CA_PATH`.
+
+**Entornos**
+- Desarrollo: `frontend/app/src/environments/environment.ts`.
+- Produccion: `frontend/app/src/environments/environment.prod.ts`.
+- El entorno de produccion actual apunta a `https://loopskill-api.tfg-project.workers.dev/api`.
+
+Para el flujo AWS detallado, revisar `docs/aws-deployment-guide.md`.
+
+---
+
+## Decisiones tecnicas destacadas
+
+- La logica de negocio se concentra en servicios Angular y controladores Express, separando presentacion, API y persistencia.
+- El acceso a cursos se calcula en backend segun plan, inscripcion y compra individual.
+- Las recomendaciones parten de la relacion entre intereses de usuario y tags de cursos.
+- El panel de administracion reutiliza la misma API protegida por JWT y rol `admin`.
+- Los pagos no modifican planes directamente desde el cliente: Stripe Checkout y el webhook son la fuente de confirmacion.
+- CORS queda abierto en desarrollo y restringible en produccion con `FRONTEND_ORIGIN`.
 
 ---
 
 ## Licencia
 
-Este proyecto se distribuye bajo licencia **MIT**. Se permite reutilizar, modificar y distribuir el código manteniendo la referencia a la autoría original.
+Proyecto desarrollado como TFG del ciclo de Desarrollo de Aplicaciones Web.
 
+```text
+2026 - Guerrero & Jimenez
 ```
-MIT License · 2026 · Guerrero & Jiménez
-```
-
----
 
 <div align="center">
-
-*Proyecto desarrollado como TFG del ciclo de Desarrollo de Aplicaciones Web.*
-*Si tienes alguna pregunta o sugerencia, puedes abrir un issue o contactarme directamente.*
-
-<br/>
 
 ![Made with Angular](https://img.shields.io/badge/Made%20with-Angular-DD0031?style=flat-square&logo=angular)
 ![DAW](https://img.shields.io/badge/FP-DAW-1D9E75?style=flat-square)
