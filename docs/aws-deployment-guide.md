@@ -137,7 +137,8 @@ After deployment, verify:
 - `GET /api/plans` returns plans with features.
 - Registration and login work against the deployed backend.
 - The JWT token allows `GET /api/auth/me`.
-- `PATCH /api/auth/plan` updates the authenticated user's plan.
+- `PATCH /api/auth/plan` is disabled for direct upgrades; authenticated users
+  must use Stripe Checkout.
 - `GET /api/courses/:id` returns access information for the user's plan.
 - `POST /api/enrollments` creates an enrollment when the plan allows it.
 - Admin routes return `403` for student users.

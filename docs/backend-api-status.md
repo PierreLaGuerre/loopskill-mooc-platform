@@ -39,7 +39,7 @@ backend delivery.
 
 - `PATCH /api/auth/plan`
   - Requires a Bearer token.
-  - Updates the authenticated user's plan.
+  - Returns `403`; user plan upgrades must go through Stripe Checkout.
 
 - `GET /api/auth/settings`
   - Requires a Bearer token.
@@ -71,7 +71,7 @@ backend delivery.
   - Returns course detail, outcomes, optional lessons and access information.
 
 - `GET /api/courses/:id/lessons`
-  - Returns course lessons only when the authenticated user's plan allows access.
+  - Returns course lessons only when the authenticated user's plan or individual purchase allows access.
 
 - `GET /api/courses/popular`
   - Returns popular courses.
@@ -84,7 +84,17 @@ backend delivery.
 
 - `POST /api/enrollments`
   - Requires a Bearer token.
-  - Creates an enrollment when the user's plan allows access to the course.
+  - Creates an enrollment when the user's plan or individual purchase allows access to the course.
+
+### Payments
+
+- `POST /api/payments/checkout`
+  - Requires a Bearer token.
+  - Creates a Stripe Checkout session for a plan subscription or individual course purchase.
+
+- `POST /api/payments/webhook`
+  - Receives Stripe webhook events.
+  - Confirms paid Checkout sessions and unlocks the corresponding plan or course purchase.
 
 - `GET /api/enrollments/me`
   - Requires a Bearer token.
@@ -128,6 +138,10 @@ environment.
 - `DB_PASSWORD`
 - `DB_NAME`
 - `DEFAULT_USER_PLAN_ID`
+- `FRONTEND_URL`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_CURRENCY`
 - `FRONTEND_ORIGIN`
 - `NODE_ENV`
 - `DB_SSL`
@@ -144,5 +158,6 @@ Manual endpoint coverage is available in:
 docs/api/loopskill-backend.postman_collection.json
 ```
 
-The collection covers authentication, plans, update plan, course access,
-enrollments and protected admin CRUD.
+The collection covers authentication, plans, course access, enrollments and
+protected admin CRUD. Stripe Checkout should be tested with Stripe CLI in test
+mode.
