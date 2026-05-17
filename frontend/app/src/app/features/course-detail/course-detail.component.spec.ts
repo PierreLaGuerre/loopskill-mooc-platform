@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { ActivatedRoute, ParamMap, Router, convertToParamMap } from '@angular/router';
+import { BehaviorSubject, of } from 'rxjs';
 
 import { CourseDetailComponent } from './course-detail.component';
 import { AuthService } from '../../core/services/auth.service';
@@ -11,6 +11,8 @@ import { PaymentService } from '../../core/services/payment.service';
 describe('CourseDetailComponent', () => {
   let component: CourseDetailComponent;
   let fixture: ComponentFixture<CourseDetailComponent>;
+  let routeParamMap$: BehaviorSubject<ParamMap>;
+  let courseService: jasmine.SpyObj<CourseService>;
 
   const mockCourse = {
     id: 1,
@@ -28,12 +30,23 @@ describe('CourseDetailComponent', () => {
   };
 
   beforeEach(async () => {
+    routeParamMap$ = new BehaviorSubject(convertToParamMap({ id: String(mockCourse.id) }));
+    courseService = jasmine.createSpyObj<CourseService>('CourseService', {
+      getCourseDetail: of({
+        course: mockCourse,
+        outcomes: [],
+        lessons: [],
+        enrollment: null
+      })
+    });
+
     await TestBed.configureTestingModule({
       imports: [CourseDetailComponent],
       providers: [
         {
           provide: ActivatedRoute,
           useValue: {
+            paramMap: routeParamMap$.asObservable(),
             snapshot: {
               paramMap: convertToParamMap({ id: String(mockCourse.id) }),
               queryParamMap: convertToParamMap({})
@@ -52,14 +65,7 @@ describe('CourseDetailComponent', () => {
         },
         {
           provide: CourseService,
-          useValue: jasmine.createSpyObj<CourseService>('CourseService', {
-            getCourseDetail: of({
-              course: mockCourse,
-              outcomes: [],
-              lessons: [],
-              enrollment: null
-            })
-          })
+          useValue: courseService
         },
         {
           provide: EnrollmentService,
@@ -83,5 +89,14 @@ describe('CourseDetailComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should reload course detail when the route course id changes', () => {
+    expect(courseService.getCourseDetail).toHaveBeenCalledWith(mockCourse.id);
+
+    courseService.getCourseDetail.calls.reset();
+    routeParamMap$.next(convertToParamMap({ id: '2' }));
+
+    expect(courseService.getCourseDetail).toHaveBeenCalledWith(2);
   });
 });

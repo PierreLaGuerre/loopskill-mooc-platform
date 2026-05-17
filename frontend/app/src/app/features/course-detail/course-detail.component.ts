@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { Course } from '../../core/models/course.model';
 import { User } from '../../core/models/user.model';
@@ -17,7 +18,7 @@ import { PaymentService } from '../../core/services/payment.service';
   templateUrl: './course-detail.component.html',
   styleUrl: './course-detail.component.scss'
 })
-export class CourseDetailComponent implements OnInit {
+export class CourseDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authService = inject(AuthService);
@@ -34,21 +35,37 @@ export class CourseDetailComponent implements OnInit {
   isLoading: boolean = true;
   isStartingCheckout: boolean = false;
   paymentMessage: string = '';
+  private routeParamsSubscription: Subscription | null = null;
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.handlePaymentReturn();
 
-    const courseIdParam = this.route.snapshot.paramMap.get('id');
+    this.routeParamsSubscription = this.route.paramMap.subscribe((paramMap) => {
+      const courseIdParam = paramMap.get('id');
 
-    if (courseIdParam == null) {
-      this.course = null;
-      this.courseOutcomes = [];
-      this.isLoading = false;
-      return;
-    }
+      if (courseIdParam == null) {
+        this.course = null;
+        this.courseOutcomes = [];
+        this.isLoading = false;
+        return;
+      }
 
-    this.loadCourseDetail(Number(courseIdParam));
+      const courseId = Number(courseIdParam);
+
+      if (Number.isNaN(courseId)) {
+        this.course = null;
+        this.courseOutcomes = [];
+        this.isLoading = false;
+        return;
+      }
+
+      this.loadCourseDetail(courseId);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.routeParamsSubscription?.unsubscribe();
   }
 
   loadCourseDetail(courseId: number): void {
