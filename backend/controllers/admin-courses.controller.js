@@ -262,7 +262,7 @@ async function hasEnrollments(courseId) {
 
 async function getCategories() {
   const [rows] = await db.query(
-    "SELECT id, name FROM categories ORDER BY name ASC"
+    "SELECT id, name, description FROM categories ORDER BY display_order ASC, id ASC"
   );
 
   return rows;

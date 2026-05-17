@@ -4,6 +4,7 @@ const { buildCourseAccess } = require("../utils/plan-access");
 const { hasPurchasedCourse } = require("../utils/course-purchases");
 
 const DEFAULT_COURSE_ORDER = "c.id ASC";
+const DEFAULT_CATEGORY_ORDER = "display_order ASC, id ASC";
 const MIN_POPULAR_COURSE_RESULTS = 6;
 const POPULAR_COURSE_LIMIT = 8;
 const RECOMMENDED_COURSE_LIMIT = 8;
@@ -190,6 +191,21 @@ async function getCourseById(courseId) {
   const [rows] = await db.query(query.sql, query.params);
 
   return rows.length > 0 ? mapCourseRow(rows[0]) : null;
+}
+
+async function getCategories() {
+  const [rows] = await db.query(
+    `
+      SELECT
+        id,
+        name,
+        description
+      FROM categories
+      ORDER BY ${DEFAULT_CATEGORY_ORDER}
+    `
+  );
+
+  return rows;
 }
 
 async function getCourseOutcomes(courseId) {
@@ -425,6 +441,18 @@ exports.getCourses = async (req, res) => {
     });
   } catch (error) {
     return sendError(res, 500, "Could not retrieve courses");
+  }
+};
+
+exports.getCategories = async (req, res) => {
+  try {
+    const categories = await getCategories();
+
+    return sendSuccess(res, 200, "Categories retrieved successfully", {
+      categories
+    });
+  } catch (error) {
+    return sendError(res, 500, "Could not retrieve categories");
   }
 };
 
