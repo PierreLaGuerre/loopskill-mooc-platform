@@ -27,11 +27,6 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              {
-                "glob": "_redirects",
-                "input": "src",
-                "output": "/"
-              },
               "src/assets",
               {
                 "glob": "favicon_v3.svg",
@@ -103,11 +98,6 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              {
-                "glob": "_redirects",
-                "input": "src",
-                "output": "/"
-              },
               "src/assets",
               {
                 "glob": "favicon_v3.svg",
