@@ -30,10 +30,34 @@
       </div>
 
       <div class="course-detail-hero__actions">
-        <button type="button" class="course-detail-hero__cta" (click)="onCtaClick()">
+        <button
+          type="button"
+          class="course-detail-hero__cta"
+          *ngIf="hasAccess === true || isEnrolled === true"
+          (click)="onCtaClick()"
+        >
           {{ ctaLabel }}
         </button>
+
+        <ng-container *ngIf="hasAccess === false && isEnrolled === false">
+          <button
+            type="button"
+            class="course-detail-hero__cta"
+            [disabled]="isStartingCheckout === true"
+            (click)="onBuyCourseClick()"
+          >
+            Buy course {{ getIndividualPurchasePrice() }}
+          </button>
+
+          <a class="course-detail-hero__secondary-cta" routerLink="/plans">
+            Change plan
+          </a>
+        </ng-container>
       </div>
+
+      <p class="course-detail-hero__payment-message" *ngIf="paymentMessage !== ''">
+        {{ paymentMessage }}
+      </p>
     </div>
   </div>
 

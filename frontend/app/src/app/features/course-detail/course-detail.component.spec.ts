@@ -6,6 +6,7 @@ import { CourseDetailComponent } from './course-detail.component';
 import { AuthService } from '../../core/services/auth.service';
 import { CourseService } from '../../core/services/course.service';
 import { EnrollmentService } from '../../core/services/enrollment.service';
+import { PaymentService } from '../../core/services/payment.service';
 
 describe('CourseDetailComponent', () => {
   let component: CourseDetailComponent;
@@ -34,7 +35,8 @@ describe('CourseDetailComponent', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              paramMap: convertToParamMap({ id: String(mockCourse.id) })
+              paramMap: convertToParamMap({ id: String(mockCourse.id) }),
+              queryParamMap: convertToParamMap({})
             }
           }
         },
@@ -62,6 +64,13 @@ describe('CourseDetailComponent', () => {
         {
           provide: EnrollmentService,
           useValue: jasmine.createSpyObj<EnrollmentService>('EnrollmentService', ['createEnrollment'])
+        },
+        {
+          provide: PaymentService,
+          useValue: jasmine.createSpyObj<PaymentService>('PaymentService', [
+            'createCourseCheckout',
+            'redirectToCheckout'
+          ])
         }
       ]
     })

@@ -236,26 +236,6 @@ export class AuthService {
       .pipe(map((response) => response.data.plans));
   }
 
-  updateCurrentUserPlan(planId: number): Observable<User> {
-    return this.http
-      .patch<AuthUserResponse>(
-        `${this.apiUrl}/auth/plan`,
-        { planId },
-        {
-          headers: this.getAuthHeaders()
-        }
-      )
-      .pipe(
-        tap((response) => {
-          this.setCurrentUser(response.user);
-        }),
-        map((response) => response.user),
-        catchError((error) => {
-          return throwError(() => error);
-        })
-      );
-  }
-
   logout(): void {
     this.clearSession();
     this.router.navigateByUrl('/auth');

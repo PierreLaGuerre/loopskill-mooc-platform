@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Plan } from '../../core/models/plan.model';
 import { User } from '../../core/models/user.model';
 import { AuthService } from '../../core/services/auth.service';
+import { PaymentService } from '../../core/services/payment.service';
 
 @Component({
   selector: 'app-plans',
@@ -13,6 +15,8 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class PlansComponent implements OnInit {
   private authService = inject(AuthService);
+  private paymentService = inject(PaymentService);
+  private route = inject(ActivatedRoute);
 
   plans: Plan[] = [];
   currentUser: User | null = null;
@@ -22,6 +26,7 @@ export class PlansComponent implements OnInit {
   isUpdatingPlan: boolean = false;
 
   ngOnInit(): void {
+    this.handlePaymentReturn();
     this.loadCurrentUser();
     this.loadPlans();
   }
@@ -60,24 +65,13 @@ export class PlansComponent implements OnInit {
     this.isUpdatingPlan = true;
     this.upgradeMessage = '';
 
-    this.authService.updateCurrentUserPlan(planId).subscribe({
-      next: () => {
-        this.isUpdatingPlan = false;
-        this.loadCurrentUser();
-
-        const updatedPlan = this.plans.find(function(plan: Plan): boolean {
-          return plan.id === planId;
-        });
-
-        if (updatedPlan != null) {
-          this.upgradeMessage = `Your plan has been updated to ${updatedPlan.name}.`;
-        } else {
-          this.upgradeMessage = 'Your plan has been updated.';
-        }
+    this.paymentService.createPlanCheckout(planId).subscribe({
+      next: (checkout) => {
+        this.paymentService.redirectToCheckout(checkout.checkoutUrl);
       },
       error: (error) => {
         this.isUpdatingPlan = false;
-        this.upgradeMessage = error.error?.message || 'Could not update your plan.';
+        this.upgradeMessage = error.error?.message || 'Could not start Stripe checkout.';
       }
     });
   }
@@ -114,5 +108,26 @@ export class PlansComponent implements OnInit {
         this.upgradeMessage = 'Could not load plans.';
       }
     });
+  }
+
+  private handlePaymentReturn(): void {
+    const paymentStatus = this.route.snapshot.queryParamMap.get('payment');
+
+    if (paymentStatus === 'success') {
+      this.upgradeMessage = 'Payment completed. Your plan will update as soon as the Stripe webhook is processed.';
+
+      this.authService.loadCurrentUserFromToken().subscribe({
+        next: () => {
+          this.loadCurrentUser();
+        },
+        error: () => {
+          this.loadCurrentUser();
+        }
+      });
+    }
+
+    if (paymentStatus === 'cancelled') {
+      this.upgradeMessage = 'Stripe checkout was cancelled. Your plan has not changed.';
+    }
   }
 }

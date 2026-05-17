@@ -8,8 +8,15 @@ import { Course } from '../../core/models/course.model';
 import { Plan } from '../../core/models/plan.model';
 import { AuthService } from '../../core/services/auth.service';
 import { CourseService } from '../../core/services/course.service';
+import { PaymentService } from '../../core/services/payment.service';
 
-type SettingsTab = 'account' | 'password' | 'interests' | 'admin';
+type SettingsTab = 'account' | 'password' | 'interests' | 'subscription' | 'admin';
+type CurrentPlanInfo = {
+  id: number;
+  name: string;
+  price: number;
+  description: string;
+};
 
 @Component({
   selector: 'app-settings',
@@ -21,6 +28,7 @@ type SettingsTab = 'account' | 'password' | 'interests' | 'admin';
 export class SettingsComponent implements OnInit {
   private authService = inject(AuthService);
   private courseService = inject(CourseService);
+  private paymentService = inject(PaymentService);
   private router = inject(Router);
 
   @ViewChild('adminCourseForm')
@@ -63,10 +71,13 @@ export class SettingsComponent implements OnInit {
   accountMessage: string = '';
   passwordMessage: string = '';
   interestsMessage: string = '';
+  subscriptionMessage: string = '';
+  showUnsubscribeConfirm: boolean = false;
 
   accountLoading: boolean = false;
   passwordLoading: boolean = false;
   interestsLoading: boolean = false;
+  subscriptionLoading: boolean = false;
   adminLoading: boolean = false;
 
   ngOnInit(): void {
@@ -360,6 +371,74 @@ export class SettingsComponent implements OnInit {
     this.authService.logout();
   }
 
+  getCurrentPlanPrice(): string {
+    const plan = this.getCurrentPlan();
+
+    if (plan == null || Number(plan.price) === 0) {
+      return 'Free';
+    }
+
+    return `${Number(plan.price).toFixed(2)} € / month`;
+  }
+
+  getNextPaymentDate(): string {
+    const nextPaymentDate = new Date();
+    nextPaymentDate.setDate(nextPaymentDate.getDate() + 30);
+
+    return nextPaymentDate.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  }
+
+  hasPaidSubscription(): boolean {
+    const plan = this.getCurrentPlan();
+
+    return plan != null && Number(plan.price) > 0;
+  }
+
+  changePlan(): void {
+    this.router.navigateByUrl('/plans');
+  }
+
+  unsubscribe(): void {
+    if (this.hasPaidSubscription() == false || this.subscriptionLoading == true) {
+      return;
+    }
+
+    this.showUnsubscribeConfirm = true;
+    this.subscriptionMessage = '';
+  }
+
+  confirmUnsubscribe(): void {
+    this.subscriptionLoading = true;
+    this.subscriptionMessage = '';
+
+    this.paymentService.cancelSubscription().subscribe({
+      next: () => {
+        this.authService.loadCurrentUserFromToken().subscribe({
+          next: () => {
+            this.subscriptionLoading = false;
+            this.showUnsubscribeConfirm = false;
+            this.subscriptionMessage = 'Your subscription has been cancelled. Your account is now on the Free plan.';
+            this.loadSettings();
+          },
+          error: () => {
+            this.subscriptionLoading = false;
+            this.showUnsubscribeConfirm = false;
+            this.subscriptionMessage = 'Your subscription has been cancelled.';
+            this.loadSettings();
+          }
+        });
+      },
+      error: (error) => {
+        this.subscriptionLoading = false;
+        this.subscriptionMessage = error.error?.message || 'Could not cancel your subscription.';
+      }
+    });
+  }
+
   private resetNewCourseForm(): void {
     this.newCourseTitle = '';
     this.newCourseDescription = '';
@@ -377,7 +456,18 @@ export class SettingsComponent implements OnInit {
     this.accountMessage = '';
     this.passwordMessage = '';
     this.interestsMessage = '';
+    this.subscriptionMessage = '';
     this.adminMessage = '';
+  }
+
+  private getCurrentPlan(): CurrentPlanInfo | null {
+    if (this.currentUser == null) {
+      return null;
+    }
+
+    return this.plans.find((plan) => plan.id === this.currentUser!.planId)
+      ?? this.currentUser.plan
+      ?? null;
   }
 
   private syncUserForm(): void {

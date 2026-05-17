@@ -23,9 +23,12 @@ export interface Course {
 
 export interface CourseAccess {
   hasAccess: boolean;
+  hasPlanAccess: boolean;
+  hasPurchasedCourse: boolean;
   isAuthenticated: boolean;
   requiresAuthentication: boolean;
   requiresUpgrade: boolean;
+  requiresPayment: boolean;
   currentPlanId: number | null;
   requiredPlanId: number | null;
   requiredPlan: string | null;

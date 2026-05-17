@@ -359,6 +359,16 @@
   box-shadow: none;
 }
 
+.settings-button--danger {
+  background-color: #b42318;
+  border-color: #8f1d14;
+}
+
+.settings-button--danger:hover {
+  background-color: #981b13;
+  box-shadow: 0 14px 28px rgba(180, 35, 24, 0.18);
+}
+
 .settings-message {
   margin-top: 16px;
   padding: 14px 16px;
@@ -376,6 +386,98 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 12px 10px;
+}
+
+.settings-subscription__summary,
+.settings-subscription__detail {
+  border: 1px solid #e4ebe4;
+  border-radius: 20px;
+  background-color: #fbfdfb;
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+.settings-subscription__label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.settings-subscription__plan {
+  display: block;
+  margin-top: 8px;
+}
+
+.settings-subscription__price {
+  display: block;
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+.settings-subscription__value {
+  display: block;
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+.settings-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: rgba(15, 23, 42, 0.42);
+}
+
+.settings-modal {
+  width: min(100%, 480px);
+  border: 1px solid #dde7dd;
+  border-radius: 24px;
+  background-color: #ffffff;
+  padding: 26px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+}
+
+.settings-modal__eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #4fb343;
+  text-transform: uppercase;
+}
+
+.settings-modal__header {
+  h3 {
+    margin: 10px 0;
+    font-size: 1.35rem;
+    color: #0f172a;
+  }
+
+  p {
+    margin: 0;
+    color: #4b5563;
+    line-height: 1.6;
+  }
+}
+
+.settings-modal__summary {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid #e4ebe4;
+  border-radius: 18px;
+  background-color: #fbfdfb;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-modal__actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .settings-interest {
@@ -673,5 +775,9 @@
   .settings-admin-course__button {
     width: 100%;
     justify-content: center;
+  }
+
+  .settings-modal__actions {
+    flex-direction: column;
   }
 }

@@ -40,7 +40,7 @@
         <h2 class="plan-card__name">{{ plan.name }}</h2>
 
         <div class="plan-card__price">
-          <span class="plan-card__price-value" *ngIf="plan.price > 0">${{ plan.price }}</span>
+          <span class="plan-card__price-value" *ngIf="plan.price > 0">{{ plan.price }} €</span>
           <span class="plan-card__price-value" *ngIf="plan.price === 0">Free</span>
           <span class="plan-card__price-period" *ngIf="plan.price > 0">/ month</span>
         </div>
@@ -156,8 +156,8 @@
         <article class="plans-faq__item">
           <h3>Does this page already process payments?</h3>
           <p>
-            Not yet. In this version, plan changes are saved in your account, while payment
-            processing remains outside the TFG scope.
+            Yes. Upgrades use Stripe Checkout in test mode, so the demo can validate payments
+            without charging real money.
           </p>
         </article>
       </div>

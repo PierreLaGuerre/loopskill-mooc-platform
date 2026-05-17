@@ -63,6 +63,15 @@
         </button>
 
         <button
+          type="button"
+          class="settings-tab"
+          [class.settings-tab--active]="activeTab === 'subscription'"
+          (click)="setActiveTab('subscription')"
+        >
+          Subscription
+        </button>
+
+        <button
           *ngIf="isAdmin() == true"
           type="button"
           class="settings-tab"
@@ -218,6 +227,106 @@
 
         <div class="settings-message" *ngIf="interestsMessage !== ''">
           {{ interestsMessage }}
+        </div>
+      </section>
+
+      <section class="settings-section" *ngIf="activeTab === 'subscription'">
+        <div class="settings-section__header">
+          <h2>Subscription</h2>
+          <p>Review your current LoopSkill plan and manage your billing access.</p>
+        </div>
+
+        <div class="settings-subscription">
+          <div class="settings-subscription__summary">
+            <span class="settings-subscription__label">Current plan</span>
+            <strong class="settings-subscription__plan">{{ currentPlanName }}</strong>
+            <span class="settings-subscription__price">{{ getCurrentPlanPrice() }}</span>
+          </div>
+
+          <div class="settings-subscription__details">
+            <div class="settings-subscription__detail">
+              <span class="settings-subscription__label">Billing status</span>
+              <span class="settings-subscription__value">
+                {{ hasPaidSubscription() == true ? 'Active subscription' : 'No paid subscription' }}
+              </span>
+            </div>
+
+            <div class="settings-subscription__detail" *ngIf="hasPaidSubscription() == true">
+              <span class="settings-subscription__label">Next payment</span>
+              <span class="settings-subscription__value">{{ getNextPaymentDate() }}</span>
+            </div>
+
+            <div class="settings-subscription__detail" *ngIf="hasPaidSubscription() == false">
+              <span class="settings-subscription__label">Next payment</span>
+              <span class="settings-subscription__value">No scheduled payment</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section__actions">
+          <button
+            type="button"
+            class="settings-button"
+            (click)="changePlan()"
+          >
+            Change plan
+          </button>
+
+          <button
+            type="button"
+            class="settings-button settings-button--secondary"
+            (click)="unsubscribe()"
+            [disabled]="hasPaidSubscription() == false || subscriptionLoading == true"
+          >
+            {{ subscriptionLoading ? 'Cancelling...' : 'Unsubscribe' }}
+          </button>
+        </div>
+
+        <div class="settings-message" *ngIf="subscriptionMessage !== ''">
+          {{ subscriptionMessage }}
+        </div>
+
+        <div
+          class="settings-modal-backdrop"
+          *ngIf="showUnsubscribeConfirm == true"
+          (click)="subscriptionLoading == false ? showUnsubscribeConfirm = false : null"
+        >
+          <div class="settings-modal" (click)="$event.stopPropagation()">
+            <div class="settings-modal__header">
+              <span class="settings-modal__eyebrow">Subscription</span>
+              <h3>Cancel subscription?</h3>
+              <p>
+                Your account will return to the Free plan and paid course access through
+                this subscription will stop.
+              </p>
+            </div>
+
+            <div class="settings-modal__summary">
+              <span class="settings-subscription__label">Current plan</span>
+              <strong>{{ currentPlanName }}</strong>
+              <span>{{ getCurrentPlanPrice() }}</span>
+            </div>
+
+            <div class="settings-modal__actions">
+              <button
+                type="button"
+                class="settings-button settings-button--secondary"
+                (click)="showUnsubscribeConfirm = false"
+                [disabled]="subscriptionLoading"
+              >
+                Keep plan
+              </button>
+
+              <button
+                type="button"
+                class="settings-button settings-button--danger"
+                (click)="confirmUnsubscribe()"
+                [disabled]="subscriptionLoading"
+              >
+                {{ subscriptionLoading ? 'Cancelling...' : 'Cancel subscription' }}
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
