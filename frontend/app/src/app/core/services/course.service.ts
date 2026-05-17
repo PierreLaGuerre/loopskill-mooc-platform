@@ -4,6 +4,7 @@ import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
+import { Category } from '../models/category.model';
 import { Course, CourseDetailResponse } from '../models/course.model';
 import { Lesson } from '../models/lesson.model';
 import { AuthService } from './auth.service';
@@ -56,6 +57,17 @@ export class CourseService {
     return this.http
       .get<ApiResponse<{ courses: Course[] }>>(`${this.apiUrl}/courses`, { params })
       .pipe(map((response) => response.data.courses));
+  }
+
+  getCategories(): Observable<Category[]> {
+    return this.http
+      .get<ApiResponse<{ categories: Omit<Category, 'icon'>[] }>>(`${this.apiUrl}/courses/categories`)
+      .pipe(
+        map((response) => response.data.categories.map((category) => ({
+          ...category,
+          icon: this.getCategoryIcon(category.name)
+        })))
+      );
   }
 
   getCourseById(id: number): Observable<CourseDetailResponse> {
@@ -195,5 +207,27 @@ export class CourseService {
     }
 
     return 1;
+  }
+
+  private getCategoryIcon(categoryName: string): string {
+    const normalizedCategory = categoryName.trim().toLowerCase();
+
+    if (normalizedCategory === 'cloud') {
+      return 'assets/images/categories/cloud.png';
+    }
+
+    if (normalizedCategory === 'databases') {
+      return 'assets/images/categories/databases.png';
+    }
+
+    if (normalizedCategory === 'data science') {
+      return 'assets/images/categories/datascience.png';
+    }
+
+    if (normalizedCategory === 'devops') {
+      return 'assets/images/categories/devops.png';
+    }
+
+    return 'assets/images/categories/programming.png';
   }
 }

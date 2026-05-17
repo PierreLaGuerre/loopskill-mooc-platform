@@ -19,43 +19,13 @@ export class CategoriesSectionComponent implements OnInit {
   categories: Category[] = [];
 
   ngOnInit(): void {
-    this.courseService.getCourses().subscribe({
-      next: (courses) => {
-        const categoryNames = Array.from(new Set(courses.map((course) => course.category)))
-          .sort((a, b) => a.localeCompare(b));
-
-        this.categories = categoryNames.map((categoryName, index) => ({
-          id: index + 1,
-          name: categoryName,
-          description: `Courses about ${categoryName}.`,
-          icon: this.getCategoryIcon(categoryName)
-        }));
+    this.courseService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
       },
       error: () => {
         this.categories = [];
       }
     });
-  }
-
-  private getCategoryIcon(categoryName: string): string {
-    const normalizedCategory = categoryName.trim().toLowerCase();
-
-    if (normalizedCategory === 'cloud') {
-      return 'assets/images/categories/cloud.png';
-    }
-
-    if (normalizedCategory === 'databases') {
-      return 'assets/images/categories/databases.png';
-    }
-
-    if (normalizedCategory === 'data science') {
-      return 'assets/images/categories/datascience.png';
-    }
-
-    if (normalizedCategory === 'devops') {
-      return 'assets/images/categories/devops.png';
-    }
-
-    return 'assets/images/categories/programming.png';
   }
 }

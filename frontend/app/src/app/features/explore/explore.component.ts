@@ -182,6 +182,11 @@ export class ExploreComponent implements OnInit, AfterViewInit {
     }
 
     const normalizedSelectedCategory = selectedCategory.trim().toLowerCase();
+
+    if (this.categories.length === 0) {
+      return selectedCategory.trim();
+    }
+
     const matchedCategory = this.categories.find(
       (category) => category.name.toLowerCase() === normalizedSelectedCategory
     );
@@ -261,9 +266,9 @@ export class ExploreComponent implements OnInit, AfterViewInit {
   }
 
   private loadAvailableCategories(): void {
-    this.courseService.getCourses().subscribe({
-      next: (courses) => {
-        this.syncCategoriesFromCourses(courses);
+    this.courseService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
         this.buildCategoryGroups();
         this.updateCarouselButtonsSoon();
       },
@@ -271,42 +276,6 @@ export class ExploreComponent implements OnInit, AfterViewInit {
         this.categories = [];
       }
     });
-  }
-
-  private syncCategoriesFromCourses(courses: Course[]): void {
-    const categoryNames = new Set(courses.map((course) => course.category));
-    const categories = Array.from(categoryNames)
-      .sort((a, b) => a.localeCompare(b))
-      .map((categoryName, index) => ({
-        id: index + 1,
-        name: categoryName,
-        description: `Courses about ${categoryName}.`,
-        icon: this.getCategoryIcon(categoryName)
-      } as Category));
-
-    this.categories = categories;
-  }
-
-  private getCategoryIcon(categoryName: string): string {
-    const normalizedCategory = categoryName.trim().toLowerCase();
-
-    if (normalizedCategory === 'cloud') {
-      return 'assets/images/categories/cloud.png';
-    }
-
-    if (normalizedCategory === 'databases') {
-      return 'assets/images/categories/databases.png';
-    }
-
-    if (normalizedCategory === 'data science') {
-      return 'assets/images/categories/datascience.png';
-    }
-
-    if (normalizedCategory === 'devops') {
-      return 'assets/images/categories/devops.png';
-    }
-
-    return 'assets/images/categories/programming.png';
   }
 
   private updateAllCarouselButtons(): void {
