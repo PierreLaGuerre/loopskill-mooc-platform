@@ -54,6 +54,40 @@ El proyecto ya funciona como aplicacion full stack: **Angular** en el frontend, 
 
 ---
 
+## Capturas de pantalla
+
+### Home y recomendaciones
+
+| Home principal | Progreso actual |
+|---|---|
+| ![Home con carrusel destacado y cursos populares](frontend/app/src/assets/images/screenshots/Hero-Carousel.png) | ![Home con curso actual y progreso](frontend/app/src/assets/images/screenshots/Hero-Resume.png) |
+
+| Recomendaciones y categorias |
+|---|
+| ![Secciones de recomendados y categorias](frontend/app/src/assets/images/screenshots/Home-sections.png) |
+
+### Catalogo y aprendizaje
+
+| Exploracion de cursos | Detalle de curso |
+|---|---|
+| ![Pagina Explore con filtros y cursos por categoria](frontend/app/src/assets/images/screenshots/Explore.png) | ![Detalle de curso con precio, plan y objetivos](frontend/app/src/assets/images/screenshots/course-detail.png) |
+
+| Reproductor de lecciones | My Learning |
+|---|---|
+| ![Reproductor de curso con listado de lecciones](frontend/app/src/assets/images/screenshots/course-lesson.png) | ![Panel My Learning con cursos en progreso](frontend/app/src/assets/images/screenshots/my-learning.png) |
+
+### Planes, pagos y cuenta
+
+| Planes | Stripe Checkout |
+|---|---|
+| ![Pagina de planes Free, Pro y Premium](frontend/app/src/assets/images/screenshots/plans.png) | ![Checkout de Stripe en modo test](frontend/app/src/assets/images/screenshots/stripe-payment.png) |
+
+| Ajustes de usuario |
+|---|
+| ![Pagina de ajustes de usuario](frontend/app/src/assets/images/screenshots/user-setting.png) |
+
+---
+
 ## Funcionalidades principales
 
 **Usuario**
