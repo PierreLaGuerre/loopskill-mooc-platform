@@ -323,7 +323,7 @@ Proyecto desarrollado como TFG del ciclo de Desarrollo de Aplicaciones Web.
 
 <div align="center">
 
-![Made with Angular](https://img.shields.io/badge/Made%20with-Angular-DD0031?style=flat-square&logo=angular)
+![Licencia MIT](https://img.shields.io/badge/Licencia-MIT-1D9E75?style=flat-square)
 ![DAW](https://img.shields.io/badge/FP-DAW-1D9E75?style=flat-square)
 
 </div>
