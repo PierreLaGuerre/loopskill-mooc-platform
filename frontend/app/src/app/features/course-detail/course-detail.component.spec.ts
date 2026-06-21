@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, ParamMap, Router, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { CourseDetailComponent } from './course-detail.component';
@@ -43,6 +43,7 @@ describe('CourseDetailComponent', () => {
     await TestBed.configureTestingModule({
       imports: [CourseDetailComponent],
       providers: [
+        provideRouter([]),
         {
           provide: ActivatedRoute,
           useValue: {
@@ -52,10 +53,6 @@ describe('CourseDetailComponent', () => {
               queryParamMap: convertToParamMap({})
             }
           }
-        },
-        {
-          provide: Router,
-          useValue: jasmine.createSpyObj<Router>('Router', ['navigate', 'navigateByUrl'])
         },
         {
           provide: AuthService,

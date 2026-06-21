@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { CoursePlayerComponent } from './course-player.component';
@@ -17,7 +17,7 @@ describe('CoursePlayerComponent', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let courseServiceSpy: jasmine.SpyObj<CourseService>;
   let enrollmentServiceSpy: jasmine.SpyObj<EnrollmentService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let router: Router;
 
   const mockUser: User = {
     id: 1,
@@ -91,8 +91,6 @@ describe('CoursePlayerComponent', () => {
     enrollmentServiceSpy = jasmine.createSpyObj<EnrollmentService>('EnrollmentService', [
       'updateEnrollmentProgress'
     ]);
-    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
-
     authServiceSpy.getCurrentUser.and.returnValue(mockUser);
     courseServiceSpy.getCourseDetail.and.returnValue(of({
       course: mockCourse,
@@ -105,6 +103,7 @@ describe('CoursePlayerComponent', () => {
     await TestBed.configureTestingModule({
       imports: [CoursePlayerComponent],
       providers: [
+        provideRouter([]),
         {
           provide: ActivatedRoute,
           useValue: {
@@ -124,14 +123,12 @@ describe('CoursePlayerComponent', () => {
         {
           provide: EnrollmentService,
           useValue: enrollmentServiceSpy
-        },
-        {
-          provide: Router,
-          useValue: routerSpy
         }
       ]
     }).compileComponents();
 
+    router = TestBed.inject(Router);
+    spyOn(router, 'navigate');
     fixture = TestBed.createComponent(CoursePlayerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -199,7 +196,7 @@ describe('CoursePlayerComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/courses', mockCourse.id]);
+    expect(router.navigate).toHaveBeenCalledWith(['/courses', mockCourse.id]);
   });
 
   it('should handle courses without lessons', () => {

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
 
 import { CourseCardComponent } from './course-card.component';
 import { Course } from '../../../core/models/course.model';
@@ -11,7 +12,8 @@ describe('CourseCardComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CourseCardComponent]
+      imports: [CourseCardComponent],
+      providers: [provideRouter([])]
     })
     .compileComponents();
     
