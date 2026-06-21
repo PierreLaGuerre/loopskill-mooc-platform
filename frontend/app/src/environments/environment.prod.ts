@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://loopskill-api.tfg-project.workers.dev/api'
+  // Demo deployment is not currently active; replace this placeholder when redeploying.
+  apiUrl: 'https://api.loopskill.com/api'
 };
