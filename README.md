@@ -50,7 +50,7 @@ El proyecto ya funciona como aplicacion full stack: **Angular** en el frontend, 
 | Settings de perfil, contrasena, intereses y suscripcion | Completado |
 | Panel admin con CRUD de cursos | Completado |
 | API REST y coleccion Postman | Completado |
-| Despliegue frontend/backend | Preparado y documentado |
+| Despliegue frontend/backend | Documentado; demo online no activa actualmente |
 
 ---
 
@@ -273,6 +273,8 @@ apiUrl: 'http://localhost:3000/api'
 
 ## Despliegue
 
+LoopSkill estuvo desplegado durante la fase de desarrollo y pruebas con frontend, backend y base de datos separados. Actualmente la demo online no esta activa por costes de infraestructura tras finalizar el periodo gratuito de AWS, pero el proyecto puede ejecutarse localmente siguiendo las instrucciones anteriores y el flujo de despliegue queda documentado.
+
 El proyecto contempla un despliegue separado de frontend, backend y base de datos.
 
 **Frontend**
@@ -296,7 +298,7 @@ El proyecto contempla un despliegue separado de frontend, backend y base de dato
 **Entornos**
 - Desarrollo: `frontend/app/src/environments/environment.ts`.
 - Produccion: `frontend/app/src/environments/environment.prod.ts`.
-- El entorno de produccion actual apunta a `https://loopskill-api.tfg-project.workers.dev/api`.
+- El entorno de produccion conserva la configuracion usada durante las pruebas de despliegue.
 
 Para el flujo AWS detallado, revisar `docs/aws-deployment-guide.md`.
 
@@ -316,10 +318,6 @@ Para el flujo AWS detallado, revisar `docs/aws-deployment-guide.md`.
 ## Licencia
 
 Proyecto desarrollado como TFG del ciclo de Desarrollo de Aplicaciones Web.
-
-```text
-2026 - Guerrero & Jimenez
-```
 
 <div align="center">
 
